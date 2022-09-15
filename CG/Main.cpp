@@ -75,6 +75,7 @@ const size_t points_count = 1000 + 1;
 glm::vec2 function[points_count];
 int left_bound = -3;
 int right_bound = 3;
+bool refresh = false;
 void push_function(float func(float)) {
     float minY = std::numeric_limits<float>::max();
     float maxY = -minY;
@@ -114,7 +115,13 @@ void push_function(float func(float)) {
     }
 
     auto manager = OpenGLManager::get_instance();
-    manager->init_vbo("funcVPos", &function, sizeof(function), GL_STATIC_DRAW);
+    if (refresh) {
+        manager->refresh_vbo("funcVPos", &function, sizeof(function), GL_STATIC_DRAW);
+    }
+    else {
+        manager->init_vbo("funcVPos", &function, sizeof(function), GL_STATIC_DRAW);
+        refresh = true;
+    }
     manager->refresh_vbo("axesVPos", axes, sizeof(axes), GL_STATIC_DRAW);
     manager->checkOpenGLerror();
 }

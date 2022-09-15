@@ -40,10 +40,10 @@ public:
         _buffers[name] = buffer;
     }
     template <typename T>
-    void refresh_vbo(const std::string& name, const T* arr, GLuint size, GLenum usage) {
+    bool refresh_vbo(const std::string& name, const T* arr, GLuint size, GLenum usage) {
         GLuint buffer = get_buffer_id(name);
         if (buffer == -1) {
-            return;
+            return false;
         }
         glBindBuffer(GL_ARRAY_BUFFER, buffer);
         glBufferData(GL_ARRAY_BUFFER, size, arr, usage);
