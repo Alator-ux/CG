@@ -16,6 +16,9 @@
     <Filter Include="Файлы заголовков\Models">
       <UniqueIdentifier>{1b243c15-125d-4bcf-8bd3-85a72af9981e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\imgui">
+      <UniqueIdentifier>{93e03f27-3a6d-489d-90d0-d884a78d9791}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -23,6 +26,24 @@
     </ClCompile>
     <ClCompile Include="OpenGLWrappers.cpp">
       <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui.cpp">
+      <Filter>Исходные файлы\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_demo.cpp">
+      <Filter>Исходные файлы\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_draw.cpp">
+      <Filter>Исходные файлы\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_tables.cpp">
+      <Filter>Исходные файлы\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_widgets.cpp">
+      <Filter>Исходные файлы\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui-SFML.cpp">
+      <Filter>Исходные файлы\imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
