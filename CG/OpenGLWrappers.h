@@ -71,7 +71,7 @@ public:
     }
     Texture get_texture(const std::string& name) {
         if (!_textures.count(name)) {
-            std::cout << "No buffer with name " << name << std::endl;
+            std::cout << "No texture with name " << name << std::endl;
         }
         Texture res = _textures[name];
         return res;

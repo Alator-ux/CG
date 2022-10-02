@@ -1,11 +1,19 @@
-/*#include <GL/glew.h>
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <SFML/OpenGL.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/Graphics.hpp>
 #include <iostream>
 #include "OpenGLWrappers.h"
 #include "Primitives.h"
+
+#include "imgui.h" // necessary for ImGui::*, imgui-SFML.h doesn't include imgui.h
+
+//#include "imgui-SFML.h" // for ImGui::SFML::* functions and SFML-specific overloads
+
+#include <SFML/Graphics/CircleShape.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/System/Clock.hpp>
+#include <SFML/Window/Event.hpp>
+#include <imgui_impl_opengl3.h>
+#include <imgui_impl_glfw.h>
 using namespace std;
 
 const GLuint W_WIDTH = 600;
@@ -17,46 +25,130 @@ GLint funcVPos;
 void Init(OpenGLManager*);
 void Draw(OpenGLManager*);
 void Release();
-void key_callback(sf::Keyboard::Key);
+void key_callback(GLFWwindow*, int, int, int, int);
 
 int main() {
-    sf::Window window(sf::VideoMode(W_WIDTH, W_HEIGHT), "My OpenGL window", sf::Style::Default, sf::ContextSettings(24));
-    window.setVerticalSyncEnabled(true);
-    window.setActive(true);
+    glfwInit();
+    GLFWwindow* window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
+    if (window == NULL)
+        return 1;
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(1); // Enable vsync
+    const char* glsl_version = "#version 330";
+    // Setup Dear ImGui binding
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;   // Enable Gamepad Controls
+    glfwSetKeyCallback(window, key_callback);
 
-    // Инициализация glew
     glewInit();
-    OpenGLManager* manager = OpenGLManager::get_instance();
+    auto manager = OpenGLManager::get_instance();
     Init(manager);
 
-    std::cout << R"(Choose function:
-1 - syn(x)
-2 - syn(x) + 2
-3 - syn(x) - 2
-4 - x^2
-5 - x
-6 - -x)";
 
-    while (window.isOpen()) {
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
-                window.close();
-            }
-            else if (event.type == sf::Event::Resized) {
-                glViewport(0, 0, event.size.width, event.size.height);
-            }
-            else if (event.type == sf::Event::KeyPressed) {
-                key_callback(event.key.code);
-            }
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init(glsl_version);
+
+    // Setup style
+    ImGui::StyleColorsDark();
+    //ImGui::StyleColorsClassic();
+
+    // Load Fonts
+    // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them. 
+    // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple. 
+    // - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
+    // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
+    // - Read 'misc/fonts/README.txt' for more instructions and details.
+    // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
+    //io.Fonts->AddFontDefault();
+    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
+    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
+    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
+    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
+    //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
+    //IM_ASSERT(font != NULL);
+
+    bool show_demo_window = true;
+    bool show_another_window = false;
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+    // Main loop
+    while (!glfwWindowShouldClose(window))
+    {
+        // Poll and handle events (inputs, window resize, etc.)
+        // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
+        // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
+        // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
+        // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
+        glfwPollEvents();
+
+        // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+        if (show_demo_window)
+            ImGui::ShowDemoWindow(&show_demo_window);
+
+        // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+        {
+            static float f = 0.0f;
+            static int counter = 0;
+
+            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+
+            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+            ImGui::Checkbox("Another Window", &show_another_window);
+
+            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f    
+            ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+
+            if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+                counter++;
+            ImGui::SameLine();
+            ImGui::Text("counter = %d", counter);
+
+            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            ImGui::End();
         }
+
+        // 3. Show another simple window.
+        if (show_another_window)
+        {
+            ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+            ImGui::Text("Hello from another window!");
+            if (ImGui::Button("Close Me"))
+                show_another_window = false;
+            ImGui::End();
+        }
+
+        // Rendering
+        ImGui::Render();
+        int display_w, display_h;
+        glfwMakeContextCurrent(window);
+        glfwGetFramebufferSize(window, &display_w, &display_h);
+        glViewport(0, 0, display_w, display_h);
+        glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
         Draw(manager);
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        window.display();
+        glfwMakeContextCurrent(window);
+        glfwSwapBuffers(window);
     }
 
-    Release();
+    // Cleanup
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
+
     return 0;
 }
 
@@ -142,25 +234,27 @@ float sqx(float x) {
     return x * x;
 }
 
-void key_callback(sf::Keyboard::Key key_code)
+void key_callback(GLFWwindow* window, int key_code, int scancode, int action, int mods)
 {
-    if (key_code == sf::Keyboard::Num1) {
-        push_function(sin);
-    }
-    else if (key_code == sf::Keyboard::Num2) {
-        push_function(sinplus2);
-    }
-    else if (key_code == sf::Keyboard::Num3) {
-        push_function(sinminus2);
-    }
-    else if (key_code == sf::Keyboard::Num4) {
-        push_function(sqx);
-    }
-    else if (key_code == sf::Keyboard::Num5) {
-        push_function(yex);
-    }
-    else if (key_code == sf::Keyboard::Num6) {
-        push_function(yenx);
+    if (action == GLFW_PRESS) {
+        if (key_code == GLFW_KEY_1) {
+            push_function(sin);
+        }
+        else if (key_code == GLFW_KEY_2) {
+            push_function(sinplus2);
+        }
+        else if (key_code == GLFW_KEY_3) {
+            push_function(sinminus2);
+        }
+        else if (key_code == GLFW_KEY_4) {
+            push_function(sqx);
+        }
+        else if (key_code == GLFW_KEY_5) {
+            push_function(yex);
+        }
+        else if (key_code == GLFW_KEY_6) {
+            push_function(yenx);
+        }
     }
 }
 
@@ -168,6 +262,18 @@ void key_callback(sf::Keyboard::Key key_code)
 void InitBO(OpenGLManager* manager)
 {    
     manager->init_vbo("axesVPos", axes, sizeof(axes), GL_STATIC_DRAW);
+
+    manager->gen_framebuffer("outputFB");
+    manager->bind_framebuffer("outputFB");
+    manager->create_rgba_buffer("outputCB", W_WIDTH, W_HEIGHT);
+    manager->attach_colorbuffer("outputCB");
+    manager->attach_renderbuffer("outputRB", W_WIDTH, W_HEIGHT);
+    manager->unbind_framebuffer();
+    manager->check_framebuffer_completeness();
+
+    manager->init_colorbuffer("output", W_WIDTH, W_HEIGHT);
+    
+
     manager->checkOpenGLerror();
 }
 
@@ -184,6 +290,9 @@ void Init(OpenGLManager* manager) {
 }
 
 void Draw(OpenGLManager* manager) {
+    //manager->bind_framebuffer("outputFB");
+    //glClear(GL_COLOR_BUFFER_BIT);
+    //manager->get_texture("outputCB").bind();
     mainShader.use_program();
     mainShader.uniform4f("color", 1.0f, 0.0f, 0.0f, 0.0f);
     glLineWidth(2.0f);
@@ -204,52 +313,7 @@ void Draw(OpenGLManager* manager) {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glDisableVertexAttribArray(vPos);
     }
-}
-*/
 
-#include "imgui.h" // necessary for ImGui::*, imgui-SFML.h doesn't include imgui.h
-
-#include "imgui-SFML.h" // for ImGui::SFML::* functions and SFML-specific overloads
-
-#include <SFML/Graphics/CircleShape.hpp>
-#include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/System/Clock.hpp>
-#include <SFML/Window/Event.hpp>
-
-int main() {
-    sf::RenderWindow window(sf::VideoMode(640, 480), "ImGui + SFML = <3");
-    window.setFramerateLimit(60);
-    ImGui::SFML::Init(window);
-
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
-
-    sf::Clock deltaClock;
-    while (window.isOpen()) {
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            ImGui::SFML::ProcessEvent(window, event);
-
-            if (event.type == sf::Event::Closed) {
-                window.close();
-            }
-        }
-
-        ImGui::SFML::Update(window, deltaClock.restart());
-
-        ImGui::ShowDemoWindow();
-
-        ImGui::Begin("Hello, world!");
-        ImGui::Button("Look at this pretty button");
-        ImGui::End();
-
-        window.clear();
-        window.draw(shape);
-        ImGui::SFML::Render(window);
-        window.display();
-    }
-
-    ImGui::SFML::Shutdown();
-
-    return 0;
+    //manager->unbind_framebuffer();
+    //mainShader.disable_program();
 }
