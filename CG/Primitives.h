@@ -2,96 +2,193 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <string>
-struct TwoDVertex {
-    GLfloat x;
-    GLfloat y;
-private:
-    bool coordIsCorrect(GLfloat c) {
-        return -1.0 <= c && c <= 1.0;
-    }
-public:
-    TwoDVertex() {
-        x = 0.0;
-        y = 0.0;
-    }
-    TwoDVertex(GLfloat x, GLfloat y) {
-        if (!coordIsCorrect(x)) {
-            // ошибка
-        }
-        if (!coordIsCorrect(y)) {
-            // ошибка
-        }
-        this->x = x;
-        this->y = y;
-    }
-    friend inline bool operator==(const TwoDVertex& lhs, const TwoDVertex& rhs) {
-        return lhs.x == rhs.x && lhs.y == rhs.y;
-    }
-    friend inline bool operator<(const TwoDVertex& lhs, const TwoDVertex& rhs) {
-        return lhs.x < rhs.x&& lhs.y < rhs.y;
-    }
-    friend inline bool operator>(const TwoDVertex& lhs, const TwoDVertex& rhs) {
-        return lhs.x > rhs.x && lhs.y > rhs.y;
-    }
-    friend inline bool operator>=(const TwoDVertex& lhs, const TwoDVertex& rhs) {
-        return lhs > rhs || lhs == rhs;
-    }
-    friend inline bool operator<=(const TwoDVertex& lhs, const TwoDVertex& rhs) {
-        return lhs < rhs || lhs == rhs;
-    }
-    bool lessY(const TwoDVertex& other) {
-        return y < other.y;
-    }
-    bool lessX(const TwoDVertex& other) {
-        return x < other.x;
-    }
-};
+
+
 struct Color {
-    GLfloat r;
-    GLfloat g;
-    GLfloat b;
-    GLfloat a;
+    glm::vec4 rgba;
     Color() {
-        r = 0.0f;
-        g = 0.0f;
-        b = 0.0f;
-        a = 0.0f;
+        rgba = glm::vec4(0.0f);
     }
-    Color(GLfloat r, GLfloat g, GLfloat b, GLfloat a) {
-        this->r = r;
-        this->g = g;
-        this->b = b;
-        this->a = a;
+    Color(glm::vec4 rgba) {
+        this->rgba = rgba;
     }
-    Color(const GLfloat* rgba) {
-        this->r = rgba[0];
-        this->g = rgba[1];
-        this->b = rgba[2];
-        this->a = rgba[3];
+    Color(glm::vec3 rgb) {
+        this->rgba = glm::vec4(rgb, 1.0f);
     }
     glm::vec3 to_vec3() {
-        return glm::vec3(r, g, b);
-    }
-    glm::vec4 to_vec4() {
-        return glm::vec4(r, g, b, a);
+        return glm::vec3(rgba.r, rgba.g, rgba.b);
     }
     static Color red() {
-        return Color(1.0f, 0.0f, 0.0f, 1.0f);
+        return Color(glm::vec3(1.0f, 0.0f, 0.0f));
     }
     static Color green() {
-        return Color(0.0f, 1.0f, 0.0f, 1.0f);
+        return Color(glm::vec3(0.0f, 1.0f, 0.0f));
     }
     static Color blue() {
-        return Color(0.0f, 0.0f, 1.0f, 1.0f);
+        return Color(glm::vec3(0.0f, 0.0f, 1.0f));
     }
     static Color white() {
-        return Color(1.0f, 1.0f, 1.0f, 1.0f);
+        return Color(glm::vec3(1.0f, 1.0f, 1.0f));
     }
     static Color copper() {
-        return Color(1.0f, 0.5f, 0.31f, 1.0f);
+        return Color(glm::vec3(1.0f, 0.5f, 0.31f));
     }
     static Color dark_olive_green() {
-        return Color(0.33f, 0.42f, 0.18f, 1.0f);
+        return Color(glm::vec3(0.33f, 0.42f, 0.18f));
+    }
+};
+
+struct Primitive {
+public:
+    std::vector<glm::vec2> points;
+    int drawing_type;
+    glm::vec3 color;
+    /*std::vector<glm::vec2> get_coords() {
+        return points;
+    }
+    int get_drawing_type() {
+        return drawing_type;
+    }
+    glm::vec3 get_color() {
+        return color;
+    }*/
+    GLint get_points_count() {
+        return (GLint)points.size();
+    }
+};
+
+struct Point : public Primitive {
+public:
+    Point(glm::vec2 coord, glm::vec3 color) {
+        points.push_back(coord);
+        this->color = color;
+        drawing_type = GL_POINTS;
+    }
+};
+
+struct Edge : public Primitive {
+public:
+    Edge(std::vector<glm::vec2> coords, glm::vec3 color) {
+        points = coords;
+        this->color;
+        drawing_type = GL_LINE;
+    }
+};
+
+struct Polygon : public Primitive {
+public:
+    Polygon(std::vector<glm::vec2> coords, glm::vec3 color) {
+        points = coords;
+        this->color;
+        drawing_type = GL_LINE_STRIP;
+    }
+    void set_final_vert() {
+        drawing_type = GL_LINE_STRIP_ADJACENCY;
+    }
+};
+
+class PrimitiveFabric {
+    int code = 0;
+    glm::vec3 color;
+    std::vector<Primitive> primitives;
+    GLuint w_width;
+    GLuint w_height;
+    bool poly_finished = true;
+public:
+    PrimitiveFabric(){}
+    PrimitiveFabric(GLuint w_width, GLuint w_height) {
+        this->w_width = w_width;
+        this->w_height = w_height;
+        color = glm::vec3(1.0f);
+    }
+    Primitive create_primitive(int code) {
+        /*switch (code)
+        {
+            case 0:
+                return create_point()
+        default:
+            break;
+        }*/
+    }
+    void update_code(int code) {
+        this->code = code;
+    }
+    void update_color(glm::vec3 color) {
+        this->color = color;
+    }
+    void create(double x, double y) {
+        x -= w_width / 2;
+        x /= w_width / 2;
+        y *= -1;
+        y += w_height / 2;
+        y /= w_height / 2;
+        auto coords = glm::vec2((GLfloat)x, (GLfloat)y);
+        switch (code)
+        {
+        case 0:
+            create_point(coords);
+            break;
+        default:
+            break;
+        }
+    }
+    void create_point(glm::vec2 coord) {
+        primitives.push_back(Point(coord, color));
+    }
+    std::vector<Primitive>& get_items() {
+        return primitives;
+    }
+    size_t size() {
+        return primitives.size();
+    }
+};
+
+class Drawer {
+    GLuint vPos;
+    Shader* shader;
+    OpenGLManager* manager;
+    bool first;
+public:
+    Drawer(){
+    }
+    Drawer(Shader* shader, const char* vPosName) {
+        this->shader = shader;
+        this->vPos = this->shader->get_attrib_location(vPosName);
+        this->manager = OpenGLManager::get_instance();
+        this->first = true;
+    }
+    void draw(std::vector<Primitive>& primitives, const std::string& buffer_name) {
+        GLint from = 0;
+        GLint count = 0;
+        shader->use_program();
+        glEnableVertexAttribArray(vPos);
+        glBindBuffer(GL_ARRAY_BUFFER, manager->get_buffer_id(buffer_name));
+        glVertexAttribPointer(vPos, 2, GL_FLOAT, GL_FALSE, 0, 0);
+        manager->checkOpenGLerror();
+        for (Primitive& pr : primitives) {
+            count = pr.get_points_count();
+            shader->uniform4f("color", pr.color);
+            glDrawArrays(pr.drawing_type, from, count);
+            from += count;
+        }
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glDisableVertexAttribArray(vPos);
+        manager->checkOpenGLerror();
+    }
+    void set_vbo(const std::string& buffer_name, const std::vector<Primitive>& data) {
+        std::vector<glm::vec2> ndata;
+        GLuint size = 0;
+        for (auto pr : data) {
+            ndata.insert(ndata.end(), pr.points.begin(), pr.points.end());
+            size += sizeof(GLfloat) * pr.points.size() * 2;
+        }
+        if (!first) {
+            manager->init_vbo(buffer_name, &ndata[0], size, GL_STATIC_DRAW);
+        }
+        else {
+            manager->init_vbo(buffer_name, &ndata[0], size, GL_STATIC_DRAW);
+            first = false;
+        }
     }
 };
 

@@ -19,6 +19,12 @@
     <Filter Include="Исходные файлы\imgui">
       <UniqueIdentifier>{93e03f27-3a6d-489d-90d0-d884a78d9791}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Файлы заголовков\Widgets">
+      <UniqueIdentifier>{d1771bdc-51e8-40f0-8562-4b356d7ebf1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Widgets">
+      <UniqueIdentifier>{7f57b94e-92de-44a3-b808-4f50029b679d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -51,6 +57,9 @@
     <ClCompile Include="imgui\imgui_impl_glfw.cpp">
       <Filter>Исходные файлы\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="Widgets.cpp">
+      <Filter>Исходные файлы\Widgets</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="OpenGLWrappers.h">
@@ -70,6 +79,9 @@
     </ClInclude>
     <ClInclude Include="Keyboard.h">
       <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Widgets.h">
+      <Filter>Файлы заголовков\Widgets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

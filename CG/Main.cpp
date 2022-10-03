@@ -14,22 +14,26 @@
 #include <SFML/Window/Event.hpp>
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_glfw.h>
+#include "Widgets.h"
 using namespace std;
 
-const GLuint W_WIDTH = 600;
-const GLuint W_HEIGHT = 600;
+const GLuint W_WIDTH = 1280;
+const GLuint W_HEIGHT = 720;
 Shader mainShader;
 GLint vPos;
 GLint funcVPos;
+PrimitiveFabric pf;
+Drawer drawer;
 
 void Init(OpenGLManager*);
 void Draw(OpenGLManager*);
 void Release();
 void key_callback(GLFWwindow*, int, int, int, int);
+void mouse_callback(GLFWwindow*, int, int, int);
 
 int main() {
     glfwInit();
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(W_WIDTH, W_HEIGHT, "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
     if (window == NULL)
         return 1;
     glfwMakeContextCurrent(window);
@@ -42,7 +46,7 @@ int main() {
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;   // Enable Gamepad Controls
     glfwSetKeyCallback(window, key_callback);
-
+    glfwSetMouseButtonCallback(window, mouse_callback);
     glewInit();
     auto manager = OpenGLManager::get_instance();
     Init(manager);
@@ -72,8 +76,10 @@ int main() {
 
     bool show_demo_window = true;
     bool show_another_window = false;
+    
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
+    std::vector<string> items = { "Point", "Edge", "Square"};
+    auto lb = ListBoxWidget<std::string>("Primitive", items);
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
@@ -82,13 +88,13 @@ int main() {
         // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
         // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
         // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
+
         glfwPollEvents();
 
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-
         // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
@@ -113,6 +119,12 @@ int main() {
             ImGui::Text("counter = %d", counter);
 
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            if (lb.draw()) {
+                pf.update_code(lb.selectedItem);
+            }
+            if (ImGui::Button("Clear")) {
+                
+            }
             ImGui::End();
         }
 
@@ -258,6 +270,17 @@ void key_callback(GLFWwindow* window, int key_code, int scancode, int action, in
     }
 }
 
+void mouse_callback(GLFWwindow* window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+        std::cout << xpos << " " << ypos << std::endl;
+        pf.create(xpos, ypos);
+        drawer.set_vbo("primitives", pf.get_items());
+
+    }
+}
+
 
 void InitBO(OpenGLManager* manager)
 {    
@@ -281,7 +304,8 @@ void InitBO(OpenGLManager* manager)
 void Init(OpenGLManager* manager) {
     mainShader = Shader();
     mainShader.init_shader("main.vert", "main.frag");
-
+    pf = PrimitiveFabric(W_WIDTH, W_HEIGHT);
+    drawer = Drawer(&mainShader, "vPos");
     vPos = mainShader.get_attrib_location("vPos");
     InitBO(manager);
 
@@ -291,7 +315,7 @@ void Init(OpenGLManager* manager) {
 
 void Draw(OpenGLManager* manager) {
     //manager->bind_framebuffer("outputFB");
-    //glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
     //manager->get_texture("outputCB").bind();
     mainShader.use_program();
     mainShader.uniform4f("color", 1.0f, 0.0f, 0.0f, 0.0f);
@@ -313,7 +337,10 @@ void Draw(OpenGLManager* manager) {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glDisableVertexAttribArray(vPos);
     }
-
+    glLineWidth(5.0f);
+    if (pf.size() != 0) {
+        drawer.draw(pf.get_items(), "primitives");
+    }
     //manager->unbind_framebuffer();
     //mainShader.disable_program();
 }
