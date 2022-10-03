@@ -78,8 +78,9 @@ int main() {
     bool show_another_window = false;
     
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-    std::vector<string> items = { "Point", "Edge", "Square"};
+    std::vector<string> items = { "Point", "Edge", "Polygon"};
     auto lb = ListBoxWidget<std::string>("Primitive", items);
+    auto colorChooser = ColorChooser("Primitive Color");
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
@@ -104,14 +105,16 @@ int main() {
             static float f = 0.0f;
             static int counter = 0;
 
-            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+            ImGui::Begin("Hello, world!", 0, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);                          // Create a window called "Hello, world!" and append into it.
 
             ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
             ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
             ImGui::Checkbox("Another Window", &show_another_window);
 
             ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f    
-            ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+            if (colorChooser.draw()) {
+                pf.update_color(colorChooser.rgb_value());
+            }
 
             if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
                 counter++;
@@ -123,7 +126,7 @@ int main() {
                 pf.update_code(lb.selectedItem);
             }
             if (ImGui::Button("Clear")) {
-                
+                pf.clear();
             }
             ImGui::End();
         }
@@ -271,14 +274,22 @@ void key_callback(GLFWwindow* window, int key_code, int scancode, int action, in
 }
 
 void mouse_callback(GLFWwindow* window, int button, int action, int mods) {
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+    if (action == GLFW_PRESS) {
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
+        if (xpos <= W_WIDTH / 2) {
+            return;
+        }
         std::cout << xpos << " " << ypos << std::endl;
-        pf.create(xpos, ypos);
-        drawer.set_vbo("primitives", pf.get_items());
-
+        if (button == GLFW_MOUSE_BUTTON_LEFT) {
+            pf.build(xpos, ypos);
+            drawer.set_vbo("primitives", pf.get_items());
+        }
+        else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+            pf.finish_primitive();
+        }
     }
+    
 }
 
 
@@ -337,7 +348,7 @@ void Draw(OpenGLManager* manager) {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glDisableVertexAttribArray(vPos);
     }
-    glLineWidth(5.0f);
+    glLineWidth(1.0f);
     if (pf.size() != 0) {
         drawer.draw(pf.get_items(), "primitives");
     }

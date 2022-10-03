@@ -48,6 +48,7 @@ public:
         glBindBuffer(GL_ARRAY_BUFFER, buffer);
         glBufferData(GL_ARRAY_BUFFER, size, arr, usage);
         checkOpenGLerror();
+        return true;
     }
     template <typename T>
     void init_ibo(const std::string& name, const T* arr, GLuint size) {

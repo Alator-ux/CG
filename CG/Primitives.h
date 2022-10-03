@@ -55,6 +55,12 @@ public:
     GLint get_points_count() {
         return (GLint)points.size();
     }
+    void push_point(glm::vec2 coords) {
+
+    }
+    bool primitive_is_finished() {
+        return true;
+    }
 };
 
 struct Point : public Primitive {
@@ -68,22 +74,42 @@ public:
 
 struct Edge : public Primitive {
 public:
-    Edge(std::vector<glm::vec2> coords, glm::vec3 color) {
-        points = coords;
-        this->color;
-        drawing_type = GL_LINE;
+    Edge(glm::vec2 coords, glm::vec3 color) {
+        points.push_back(coords);
+        this->color = color;
+        drawing_type = GL_POINTS;
+    }
+    void push_point(glm::vec2 coords) {
+        if (points.size() == 1) {
+            points.push_back(coords);
+            drawing_type = GL_LINES;
+        }
+    }
+    bool primitive_is_finished() {
+        return points.size() == 2;
     }
 };
 
 struct Polygon : public Primitive {
 public:
-    Polygon(std::vector<glm::vec2> coords, glm::vec3 color) {
-        points = coords;
-        this->color;
-        drawing_type = GL_LINE_STRIP;
+    Polygon(glm::vec2 coords, glm::vec3 color) {
+        points.push_back(coords);
+        this->color = color;
+        drawing_type = GL_POINTS;
     }
-    void set_final_vert() {
-        drawing_type = GL_LINE_STRIP_ADJACENCY;
+    void push_point(glm::vec2 coords) {
+        points.push_back(coords);
+        if (points.size() > 1) {
+            drawing_type = GL_LINE_STRIP;
+        }
+    }
+    bool primitive_is_finished() {
+        if (points.size() < 3) {
+            return false;
+        }
+        drawing_type = GL_LINE_LOOP;
+        return true;
+
     }
 };
 
@@ -93,7 +119,7 @@ class PrimitiveFabric {
     std::vector<Primitive> primitives;
     GLuint w_width;
     GLuint w_height;
-    bool poly_finished = true;
+    bool prim_finished = true;
 public:
     PrimitiveFabric(){}
     PrimitiveFabric(GLuint w_width, GLuint w_height) {
@@ -111,12 +137,19 @@ public:
         }*/
     }
     void update_code(int code) {
+        if (this->code == code) {
+            return;
+        }
         this->code = code;
+        if (!prim_finished) {
+            primitives.erase(primitives.end() - 1);
+        }
+        prim_finished = true;
     }
     void update_color(glm::vec3 color) {
         this->color = color;
     }
-    void create(double x, double y) {
+    void build(double x, double y) {
         x -= w_width / 2;
         x /= w_width / 2;
         y *= -1;
@@ -127,13 +160,65 @@ public:
         {
         case 0:
             create_point(coords);
+            prim_finished = true;
             break;
+        case 1:
+            if (prim_finished) {
+                create_edge(coords);
+                prim_finished = false;
+            }
+            else {
+                Edge* edge = reinterpret_cast<Edge*>(&primitives[primitives.size() - 1]);
+                edge->push_point(coords);
+                prim_finished = edge->primitive_is_finished();
+            }
+            break;
+        case 2:
+            if (prim_finished) {
+                create_polygon(coords);
+                prim_finished = false;
+            }
+            else {
+                Polygon* polygon = reinterpret_cast<Polygon*>(&primitives[primitives.size() - 1]);
+                polygon->push_point(coords);
+            }
+        default:
+            break;
+        }
+    }
+    void finish_primitive() {
+        switch (code)
+        {
+        case 0:
+            prim_finished = true;
+            break;
+        case 1:
+        {
+            Edge* edge = reinterpret_cast<Edge*>(&primitives[primitives.size() - 1]);
+            prim_finished = edge->primitive_is_finished();
+            break;
+        }
+        case 2: 
+        {
+            Polygon* polygon = reinterpret_cast<Polygon*>(&primitives[primitives.size() - 1]);
+            prim_finished = polygon->primitive_is_finished();
+            break;
+        }
         default:
             break;
         }
     }
     void create_point(glm::vec2 coord) {
         primitives.push_back(Point(coord, color));
+    }
+    void create_edge(glm::vec2 coords) {
+        primitives.push_back(Edge(coords, color));
+    }
+    void create_polygon(glm::vec2 coords) {
+        primitives.push_back(Polygon(coords, color));
+    }
+    void clear() {
+        primitives.clear();
     }
     std::vector<Primitive>& get_items() {
         return primitives;
@@ -173,6 +258,7 @@ public:
         }
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glDisableVertexAttribArray(vPos);
+        shader->disable_program();
         manager->checkOpenGLerror();
     }
     void set_vbo(const std::string& buffer_name, const std::vector<Primitive>& data) {

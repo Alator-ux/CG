@@ -3,6 +3,8 @@
 #include "imgui.h"
 #include <vector>
 #include <string>
+#include <GL/glew.h>
+#include <glm/glm.hpp>
 
 bool item_getter(void* data, int index, const char** output);
 
@@ -18,6 +20,22 @@ public:
     }
     bool draw() {
         return ImGui::ListBox(label, &selectedItem, item_getter, (void*)items.data(), (int)items.size());
+    }
+};
+
+class ColorChooser {
+    const char* label;
+    glm::vec4 color;
+public:
+    ColorChooser(const char* label) {
+        this->label = label;
+        this->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    }
+    bool draw() {
+        return ImGui::ColorEdit3(label, (float*)&color);
+    }
+    glm::vec3 rgb_value() {
+        return glm::vec3(color);
     }
 };
 
