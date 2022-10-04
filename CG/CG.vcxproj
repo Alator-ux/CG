@@ -150,6 +150,7 @@
     <ClInclude Include="Light.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="OpenGLWrappers.h" />
+    <ClInclude Include="PrimitiveChanger.h" />
     <ClInclude Include="Primitives.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Widgets.h" />

@@ -79,8 +79,9 @@ int main() {
     
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     std::vector<string> items = { "Point", "Edge", "Polygon"};
-    auto lb = ListBoxWidget<std::string>("Primitive", items);
+    auto lb = DropDownMenu("Primitive", items);
     auto colorChooser = ColorChooser("Primitive Color");
+    auto polygon_list = ListBox("Primitives", &pf.get_items());
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
@@ -102,31 +103,21 @@ int main() {
 
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
         {
-            static float f = 0.0f;
-            static int counter = 0;
+            ImGui::Begin("Hello, world!", 0, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 
-            ImGui::Begin("Hello, world!", 0, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);                          // Create a window called "Hello, world!" and append into it.
-
-            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-            ImGui::Checkbox("Another Window", &show_another_window);
-
-            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f    
             if (colorChooser.draw()) {
                 pf.update_color(colorChooser.rgb_value());
             }
-
-            if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-                counter++;
-            ImGui::SameLine();
-            ImGui::Text("counter = %d", counter);
 
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
             if (lb.draw()) {
                 pf.update_code(lb.selectedItem);
             }
+            ImGui::Text("Mode.");
             if (ImGui::Button("Clear")) {
                 pf.clear();
+            }
+            if (polygon_list.draw()) {
             }
             ImGui::End();
         }

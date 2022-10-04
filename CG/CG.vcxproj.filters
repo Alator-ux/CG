@@ -83,6 +83,9 @@
     <ClInclude Include="Widgets.h">
       <Filter>Файлы заголовков\Widgets</Filter>
     </ClInclude>
+    <ClInclude Include="PrimitiveChanger.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="main.frag">

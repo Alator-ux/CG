@@ -5,21 +5,63 @@
 #include <string>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
+#include "Primitives.h"
 
-bool item_getter(void* data, int index, const char** output);
 
-template <typename T>
-class ListBoxWidget {
+bool string_item_getter(void* data, int index, const char** output);
+bool primitive_item_getter(void* data, int index, const char** output);
+
+class DropDownMenu {
     const char* label;
-    std::vector<T> items;
+    std::vector<std::string> items;
 public:
     int selectedItem = 0;
-    ListBoxWidget(const char* label, std::vector<T> items) {
+    DropDownMenu(const char* label, std::vector<std::string> items) {
         this->label = label;
         this->items = items;
     }
     bool draw() {
-        return ImGui::ListBox(label, &selectedItem, item_getter, (void*)items.data(), (int)items.size());
+        return ImGui::Combo(label, &selectedItem, string_item_getter, 
+                            (void*)items.data(), (int)items.size());
+    }
+};
+
+
+class ListBox {
+    const char* label;
+    std::vector<Primitive>* items;
+    std::vector<std::string> str_values;
+    int height;
+public:
+    int selectedItem = -1;
+    ListBox(const char* label, std::vector<Primitive>* items, int height = 10) {
+        this->label = label;
+        this->items = items;
+        this->height = height;
+        for (size_t i = 0; i < this->items->size(); i++) {
+            std::stringstream ss;
+            ss << "Object " << i;
+            this->str_values.push_back(ss.str());
+        }
+    }
+    bool draw() {
+        if (str_values.size() + 1 == items->size()) {
+            std::stringstream ss;
+            ss << "Object " << items->size() - 1;
+            this->str_values.push_back(ss.str());
+        }
+        else if (str_values.size() - 1 == items->size()) {
+            str_values.erase(str_values.end() - 1);
+            selectedItem -= 1;
+        }
+        else if (str_values.size() != 0 && items->size() == 0) {
+            str_values.clear();
+            selectedItem = -1;
+        }
+        bool success = ImGui::ListBox(label, &selectedItem, string_item_getter,
+                              (void*)str_values.data(), (int)str_values.size(),
+                                height);
+        return success;
     }
 };
 

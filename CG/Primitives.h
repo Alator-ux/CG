@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <string>
+#include "OpenGLWrappers.h"
 
 
 struct Color {
@@ -40,6 +41,7 @@ struct Color {
 
 struct Primitive {
 public:
+    int type = -1;
     std::vector<glm::vec2> points;
     int drawing_type;
     glm::vec3 color;
@@ -61,19 +63,27 @@ public:
     bool primitive_is_finished() {
         return true;
     }
+    static std::string get_string_name() {
+        return "Primitive";
+    }
 };
 
 struct Point : public Primitive {
 public:
+    int type = 0;
     Point(glm::vec2 coord, glm::vec3 color) {
         points.push_back(coord);
         this->color = color;
         drawing_type = GL_POINTS;
     }
+    static std::string get_string_name() {
+        return "Point";
+    }
 };
 
 struct Edge : public Primitive {
 public:
+    int type = 1;
     Edge(glm::vec2 coords, glm::vec3 color) {
         points.push_back(coords);
         this->color = color;
@@ -88,10 +98,14 @@ public:
     bool primitive_is_finished() {
         return points.size() == 2;
     }
+    static std::string get_string_name() {
+        return "Edge";
+    }
 };
 
 struct Polygon : public Primitive {
 public:
+    int type = 2;
     Polygon(glm::vec2 coords, glm::vec3 color) {
         points.push_back(coords);
         this->color = color;
@@ -111,6 +125,9 @@ public:
         return true;
 
     }
+    static std::string get_string_name() {
+        return "Polygon";
+    }
 };
 
 class PrimitiveFabric {
@@ -120,21 +137,14 @@ class PrimitiveFabric {
     GLuint w_width;
     GLuint w_height;
     bool prim_finished = true;
+    size_t max_size;
 public:
     PrimitiveFabric(){}
     PrimitiveFabric(GLuint w_width, GLuint w_height) {
         this->w_width = w_width;
         this->w_height = w_height;
         color = glm::vec3(1.0f);
-    }
-    Primitive create_primitive(int code) {
-        /*switch (code)
-        {
-            case 0:
-                return create_point()
-        default:
-            break;
-        }*/
+        max_size = 10;
     }
     void update_code(int code) {
         if (this->code == code) {
@@ -209,22 +219,35 @@ public:
         }
     }
     void create_point(glm::vec2 coord) {
+        if (primitives.size() == max_size) {
+            return;
+        }
         primitives.push_back(Point(coord, color));
     }
     void create_edge(glm::vec2 coords) {
+        if (primitives.size() == max_size) {
+            return;
+        }
         primitives.push_back(Edge(coords, color));
     }
     void create_polygon(glm::vec2 coords) {
+        if (primitives.size() == max_size) {
+            return;
+        }
         primitives.push_back(Polygon(coords, color));
     }
     void clear() {
         primitives.clear();
+        prim_finished = true;
     }
     std::vector<Primitive>& get_items() {
         return primitives;
     }
     size_t size() {
         return primitives.size();
+    }
+    size_t get_max_size() {
+        return max_size;
     }
 };
 
@@ -266,10 +289,10 @@ public:
         GLuint size = 0;
         for (auto pr : data) {
             ndata.insert(ndata.end(), pr.points.begin(), pr.points.end());
-            size += sizeof(GLfloat) * pr.points.size() * 2;
+            size += GLuint(sizeof(GLfloat) * pr.points.size() * 2);
         }
         if (!first) {
-            manager->init_vbo(buffer_name, &ndata[0], size, GL_STATIC_DRAW);
+            manager->refresh_vbo(buffer_name, &ndata[0], size, GL_STATIC_DRAW);
         }
         else {
             manager->init_vbo(buffer_name, &ndata[0], size, GL_STATIC_DRAW);
