@@ -3,8 +3,8 @@
 #include "GLM/mat3x3.hpp"
 #include "GLM/vec3.hpp"
 #include "GLM/glm.hpp"
-#include <vector>
-#include <cmath>
+#include <typeinfo>
+
 
 const double PI = 3.141592653589793238463;
 const int empty_item = -1;
@@ -73,7 +73,7 @@ public:
         auto item = (* storage)[item_index];
         auto points = item.points;
         for (int i = 0; i < points.size(); i++) {
-            glm::vec3 values = glm::vec3(points[i][0], points[i][1], 1);
+            glm::vec3 values = glm::vec3(points[i][0], points[i][1], 1); //TODO: remove it m8
             auto shifted_point = values * shift_matrix;
             //TODO: Если по ссылке - запарно, то просто тут нужному айтему присваивать
             item.points[i] = shifted_point;
@@ -104,5 +104,23 @@ public:
             //TODO: Если по ссылке - запарно, то просто тут нужному айтему присваивать
             item.points[i] = values * scale_matrix;
         }
+    }
+
+    void rotate_edge_90(int item_index) {
+        if (item_index == empty_item) {
+            return;
+        }
+        auto edge = (*storage)[item_index];
+        if (typeid(edge) != typeid(Edge())) { //TODO: may explode
+            return;
+        }
+        auto p1 = edge.points[0];
+        auto p2 = edge.points[1];
+        auto mid = glm::vec3(
+            (p1[0] + p2[0]) / 2,
+            (p1[1] + p2[1]) / 2,
+            1
+        );
+        this->rotate_around_point(item_index, mid, 90.0);
     }
 };
