@@ -42,7 +42,7 @@ struct Color {
 struct Primitive {
 public:
     int type = -1;
-    std::vector<glm::vec2> points;
+    std::vector<glm::vec3> points;
     int drawing_type;
     glm::vec3 color;
     /*std::vector<glm::vec2> get_coords() {
@@ -71,7 +71,7 @@ public:
 struct Point : public Primitive {
 public:
     int type = 0;
-    Point(glm::vec2 coord, glm::vec3 color) {
+    Point(glm::vec3 coord, glm::vec3 color) {
         points.push_back(coord);
         this->color = color;
         drawing_type = GL_POINTS;
@@ -84,12 +84,12 @@ public:
 struct Edge : public Primitive {
 public:
     int type = 1;
-    Edge(glm::vec2 coords, glm::vec3 color) {
+    Edge(glm::vec3 coords, glm::vec3 color) {
         points.push_back(coords);
         this->color = color;
         drawing_type = GL_POINTS;
     }
-    void push_point(glm::vec2 coords) {
+    void push_point(glm::vec3 coords) {
         if (points.size() == 1) {
             points.push_back(coords);
             drawing_type = GL_LINES;
@@ -106,12 +106,12 @@ public:
 struct Polygon : public Primitive {
 public:
     int type = 2;
-    Polygon(glm::vec2 coords, glm::vec3 color) {
+    Polygon(glm::vec3 coords, glm::vec3 color) {
         points.push_back(coords);
         this->color = color;
         drawing_type = GL_POINTS;
     }
-    void push_point(glm::vec2 coords) {
+    void push_point(glm::vec3 coords) {
         points.push_back(coords);
         if (points.size() > 1) {
             drawing_type = GL_LINE_STRIP;
@@ -165,7 +165,7 @@ public:
         y *= -1;
         y += w_height / 2;
         y /= w_height / 2;
-        auto coords = glm::vec2((GLfloat)x, (GLfloat)y);
+        auto coords = glm::vec3((GLfloat)x, (GLfloat)y, 0.0f);
         switch (code)
         {
         case 0:
@@ -218,19 +218,19 @@ public:
             break;
         }
     }
-    void create_point(glm::vec2 coord) {
+    void create_point(glm::vec3 coord) {
         if (primitives.size() == max_size) {
             return;
         }
         primitives.push_back(Point(coord, color));
     }
-    void create_edge(glm::vec2 coords) {
+    void create_edge(glm::vec3 coords) {
         if (primitives.size() == max_size) {
             return;
         }
         primitives.push_back(Edge(coords, color));
     }
-    void create_polygon(glm::vec2 coords) {
+    void create_polygon(glm::vec3 coords) {
         if (primitives.size() == max_size) {
             return;
         }
@@ -271,7 +271,7 @@ public:
         shader->use_program();
         glEnableVertexAttribArray(vPos);
         glBindBuffer(GL_ARRAY_BUFFER, manager->get_buffer_id(buffer_name));
-        glVertexAttribPointer(vPos, 2, GL_FLOAT, GL_FALSE, 0, 0);
+        glVertexAttribPointer(vPos, 3, GL_FLOAT, GL_FALSE, 0, 0);
         manager->checkOpenGLerror();
         for (Primitive& pr : primitives) {
             count = pr.get_points_count();
@@ -285,11 +285,11 @@ public:
         manager->checkOpenGLerror();
     }
     void set_vbo(const std::string& buffer_name, const std::vector<Primitive>& data) {
-        std::vector<glm::vec2> ndata;
+        std::vector<glm::vec3> ndata;
         GLuint size = 0;
         for (auto pr : data) {
             ndata.insert(ndata.end(), pr.points.begin(), pr.points.end());
-            size += GLuint(sizeof(GLfloat) * pr.points.size() * 2);
+            size += GLuint(sizeof(GLfloat) * pr.points.size() * 3);
         }
         if (!first) {
             manager->refresh_vbo(buffer_name, &ndata[0], size, GL_STATIC_DRAW);

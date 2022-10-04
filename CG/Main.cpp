@@ -28,7 +28,6 @@ Drawer drawer;
 void Init(OpenGLManager*);
 void Draw(OpenGLManager*);
 void Release();
-void key_callback(GLFWwindow*, int, int, int, int);
 void mouse_callback(GLFWwindow*, int, int, int);
 
 int main() {
@@ -45,7 +44,6 @@ int main() {
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;   // Enable Gamepad Controls
-    glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_callback);
     glewInit();
     auto manager = OpenGLManager::get_instance();
@@ -162,108 +160,6 @@ void Release() {
     OpenGLManager::get_instance()->release();
 }
 
-glm::vec2 axes[] = {
-        glm::vec2(-1.0, 0.0),
-        glm::vec2(1.0, 0.0),
-
-        glm::vec2(0.0, 1.0),
-        glm::vec2(0.0, -1.0)
-};
-const size_t points_count = 1000 + 1;
-glm::vec2 function[points_count];
-int left_bound = -3;
-int right_bound = 3;
-bool refresh = false;
-void push_function(float func(float)) {
-    float minY = std::numeric_limits<float>::max();
-    float maxY = -minY;
-    float step = ((float)right_bound - (float)left_bound);
-    step /= (float)(points_count - 1);
-    float x = (float)left_bound;
-    for (size_t i = 0; i < points_count; i++) {
-        float y = func(x);
-        minY = std::fminf(minY, y);
-        maxY = std::fmaxf(maxY, y);
-        function[i] = glm::vec2(x, y);
-        x += step;
-    }
-    float x_coef = 2.0f / (right_bound - left_bound);
-    float y_coef;
-    if (std::abs(maxY - right_bound) < 0.01f && std::abs(minY - left_bound) < 0.01f) {
-        y_coef = x_coef;
-    }
-    else {
-        y_coef = 2.0f / (maxY - minY);
-    }
-    float displace_value;
-    if (std::abs(maxY + minY) < 0.01) {
-        displace_value = 0;
-    }
-    else {
-        displace_value = (maxY + minY) * 0.5f;
-    }
-    for (size_t i = 0; i < points_count; i++) {
-        float x = (function[i].x) * x_coef;
-        float y = (function[i].y - displace_value) * y_coef;
-        function[i] = glm::vec2(x, y);
-    }
-
-    for (size_t i = 0; i < 2; i++) {
-        axes[i].y = 0 - displace_value * x_coef; // т.к. окно квадратное, то для схлопывания в [-1,1] можем использовать x_coef
-    }
-
-    auto manager = OpenGLManager::get_instance();
-    if (refresh) {
-        manager->refresh_vbo("funcVPos", &function, sizeof(function), GL_STATIC_DRAW);
-    }
-    else {
-        manager->init_vbo("funcVPos", &function, sizeof(function), GL_STATIC_DRAW);
-        refresh = true;
-    }
-    manager->refresh_vbo("axesVPos", axes, sizeof(axes), GL_STATIC_DRAW);
-    manager->checkOpenGLerror();
-}
-
-float sinplus2(float x) {
-    return sin(x) + 2;
-}
-float sinminus2(float x) {
-    return sin(x) - 2;
-}
-float yex(float x) {
-    return x;
-}
-float yenx(float x) {
-    return -x;
-}
-float sqx(float x) {
-    return x * x;
-}
-
-void key_callback(GLFWwindow* window, int key_code, int scancode, int action, int mods)
-{
-    if (action == GLFW_PRESS) {
-        if (key_code == GLFW_KEY_1) {
-            push_function(sin);
-        }
-        else if (key_code == GLFW_KEY_2) {
-            push_function(sinplus2);
-        }
-        else if (key_code == GLFW_KEY_3) {
-            push_function(sinminus2);
-        }
-        else if (key_code == GLFW_KEY_4) {
-            push_function(sqx);
-        }
-        else if (key_code == GLFW_KEY_5) {
-            push_function(yex);
-        }
-        else if (key_code == GLFW_KEY_6) {
-            push_function(yenx);
-        }
-    }
-}
-
 void mouse_callback(GLFWwindow* window, int button, int action, int mods) {
     if (action == GLFW_PRESS) {
         double xpos, ypos;
@@ -286,7 +182,6 @@ void mouse_callback(GLFWwindow* window, int button, int action, int mods) {
 
 void InitBO(OpenGLManager* manager)
 {    
-    manager->init_vbo("axesVPos", axes, sizeof(axes), GL_STATIC_DRAW);
 
     manager->gen_framebuffer("outputFB");
     manager->bind_framebuffer("outputFB");
@@ -308,7 +203,6 @@ void Init(OpenGLManager* manager) {
     mainShader.init_shader("main.vert", "main.frag");
     pf = PrimitiveFabric(W_WIDTH, W_HEIGHT);
     drawer = Drawer(&mainShader, "vPos");
-    vPos = mainShader.get_attrib_location("vPos");
     InitBO(manager);
 
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // белый цвет как цвет заливки
@@ -316,29 +210,6 @@ void Init(OpenGLManager* manager) {
 }
 
 void Draw(OpenGLManager* manager) {
-    //manager->bind_framebuffer("outputFB");
-    glClear(GL_COLOR_BUFFER_BIT);
-    //manager->get_texture("outputCB").bind();
-    mainShader.use_program();
-    mainShader.uniform4f("color", 1.0f, 0.0f, 0.0f, 0.0f);
-    glLineWidth(2.0f);
-    glEnableVertexAttribArray(vPos);
-    glBindBuffer(GL_ARRAY_BUFFER, manager->get_buffer_id("axesVPos"));
-    glVertexAttribPointer(vPos, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glDrawArrays(GL_LINES, 0, 4);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glDisableVertexAttribArray(vPos);
-    manager->checkOpenGLerror();
-    if (manager->buffer_exists("funcVPos")) {
-        mainShader.uniform4f("color", 0.0f, 0.0f, 1.0f, 0.0f);
-        glLineWidth(4.0f);
-        glEnableVertexAttribArray(vPos);
-        glBindBuffer(GL_ARRAY_BUFFER, manager->get_buffer_id("funcVPos"));
-        glVertexAttribPointer(vPos, 2, GL_FLOAT, GL_FALSE, 0, 0);
-        glDrawArrays(GL_LINE_STRIP, 0, points_count);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glDisableVertexAttribArray(vPos);
-    }
     glLineWidth(1.0f);
     if (pf.size() != 0) {
         drawer.draw(pf.get_items(), "primitives");
