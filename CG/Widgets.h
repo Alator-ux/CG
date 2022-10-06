@@ -54,8 +54,10 @@ public:
             str_values.erase(str_values.end() - 1);
             selectedItem -= 1;
         }
-        else if (str_values.size() != 0 && items->size() == 0) {
-            str_values.clear();
+        else if (items->size() == 0) {
+            if (str_values.size() != 0) {
+                str_values.clear();
+            }
             selectedItem = -1;
         }
         bool success = ImGui::ListBox(label, &selectedItem, string_item_getter,

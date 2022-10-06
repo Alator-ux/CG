@@ -15,20 +15,28 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_glfw.h>
 #include "Widgets.h"
+#include "PrimitiveChanger.h"
+#include "Line_worker.h"
+#include "PointClassifier.h"
 using namespace std;
 
 const GLuint W_WIDTH = 1280;
 const GLuint W_HEIGHT = 720;
 Shader mainShader;
-GLint vPos;
-GLint funcVPos;
 PrimitiveFabric pf;
 Drawer drawer;
+PrimitiveChanger pc;
+LineWorker lw;
+PointClassifier pocl;
 
 void Init(OpenGLManager*);
 void Draw(OpenGLManager*);
 void Release();
 void mouse_callback(GLFWwindow*, int, int, int);
+void mouse_scrollback(GLFWwindow*, double, double);
+glm::vec3 convert_coords(GLfloat, GLfloat, GLuint, GLuint);
+
+int mode = -1;
 
 int main() {
     glfwInit();
@@ -42,9 +50,8 @@ int main() {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;   // Enable Gamepad Controls
     glfwSetMouseButtonCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, mouse_scrollback);
     glewInit();
     auto manager = OpenGLManager::get_instance();
     Init(manager);
@@ -53,24 +60,7 @@ int main() {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
-    // Setup style
     ImGui::StyleColorsDark();
-    //ImGui::StyleColorsClassic();
-
-    // Load Fonts
-    // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them. 
-    // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple. 
-    // - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
-    // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
-    // - Read 'misc/fonts/README.txt' for more instructions and details.
-    // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
-    //io.Fonts->AddFontDefault();
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
-    //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
-    //IM_ASSERT(font != NULL);
 
     bool show_demo_window = true;
     bool show_another_window = false;
@@ -80,15 +70,8 @@ int main() {
     auto lb = DropDownMenu("Primitive", items);
     auto colorChooser = ColorChooser("Primitive Color");
     auto polygon_list = ListBox("Primitives", &pf.get_items());
-    // Main loop
     while (!glfwWindowShouldClose(window))
     {
-        // Poll and handle events (inputs, window resize, etc.)
-        // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-        // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
-        // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
-        // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
-
         glfwPollEvents();
 
         // Start the Dear ImGui frame
@@ -99,7 +82,6 @@ int main() {
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
 
-        // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
         {
             ImGui::Begin("Hello, world!", 0, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 
@@ -108,14 +90,56 @@ int main() {
             }
 
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            double xpos, ypos;
+            glfwGetCursorPos(window, &xpos, &ypos);
+            auto cur_coords = convert_coords(xpos, ypos, W_WIDTH, W_HEIGHT);
+            ImGui::Text("x = %.7f, y = %.7f", cur_coords.x, cur_coords.y);
             if (lb.draw()) {
                 pf.update_code(lb.selectedItem);
             }
-            ImGui::Text("Mode.");
+            std::stringstream ss;
+            ss << "Mode " << mode;
+            ImGui::Text(ss.str().c_str());
+            if (ImGui::Button("Add")) {
+                mode = 0;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Move")) {
+                mode = 1;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Rotate")) {
+                mode = 2;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Rotate 90")) {
+                mode = 3;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Scale")) {
+                mode = 4;
+            }
+            if (ImGui::Button("Classify")) {
+                mode = 5;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Find Intersection")) {
+                lw.push_edge();
+                auto inter = lw.find_intersection();
+                std::cout << "Intersection at point x = " << inter[0] 
+                    << ", y = " << inter[1] << std::endl;
+            }
+            ImGui::SameLine();
             if (ImGui::Button("Clear")) {
                 pf.clear();
+                pc.set_active_item(empty_item);
+                lw.set_active_item(empty_item);
+                pocl.set_active_item(empty_item);
             }
             if (polygon_list.draw()) {
+                pc.set_active_item(polygon_list.selectedItem);
+                lw.set_active_item(polygon_list.selectedItem);
+                pocl.set_active_item(polygon_list.selectedItem);
             }
             ImGui::End();
         }
@@ -160,6 +184,16 @@ void Release() {
     OpenGLManager::get_instance()->release();
 }
 
+glm::vec3 convert_coords(GLfloat x, GLfloat y, GLuint width, GLuint height) {
+    x -= width / 2;
+    x /= width / 2;
+    y *= -1;
+    y += height / 2;
+    y /= height / 2;
+    return glm::vec3((GLfloat)x, (GLfloat)y, 1.0f);
+}
+
+double oldx, oldy;
 void mouse_callback(GLFWwindow* window, int button, int action, int mods) {
     if (action == GLFW_PRESS) {
         double xpos, ypos;
@@ -168,15 +202,86 @@ void mouse_callback(GLFWwindow* window, int button, int action, int mods) {
             return;
         }
         std::cout << xpos << " " << ypos << std::endl;
+
+ 
+
         if (button == GLFW_MOUSE_BUTTON_LEFT) {
-            pf.build(xpos, ypos);
-            drawer.set_vbo("primitives", pf.get_items());
+            switch (mode)
+            {
+            case 0: 
+            {
+                auto coords = convert_coords(xpos, ypos, W_WIDTH, W_HEIGHT);
+                pf.build(coords);
+                drawer.set_vbo("primitives", pf.get_items());
+                break;
+            }
+            case 1:
+            {
+                auto coords = convert_coords(xpos, ypos, W_WIDTH, W_HEIGHT);
+                pc.shift(coords);
+                drawer.set_vbo("primitives", pf.get_items());
+                break;
+            }
+            case 5:
+            {
+                auto coords = convert_coords(xpos, ypos, W_WIDTH, W_HEIGHT);
+                std::cout << pocl.classify(coords) << std::endl;
+                break;
+            }
+            default:
+                break;
+            }
+
+            oldx = xpos;
+            oldy = ypos;
         }
         else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
-            pf.finish_primitive();
+            switch (mode)
+            {
+            case 0:
+                pf.finish_primitive();
+            default:
+                break;
+            }
         }
     }
     
+}
+
+void mouse_scrollback(GLFWwindow* window, double xoffset, double yoffset) {
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+    std::cout << xoffset << " " << yoffset << std::endl;
+    switch (mode)
+    {
+    case 2:
+    {
+        auto coords = convert_coords(xpos, ypos, W_WIDTH, W_HEIGHT);
+        pc.rotate_around_point(coords, yoffset);
+        drawer.set_vbo("primitives", pf.get_items());
+        break;
+    }
+    case 3:
+    {
+        pc.rotate_90();
+        drawer.set_vbo("primitives", pf.get_items());
+        break;
+    }
+    case 4:
+    {
+        auto coords = convert_coords(xpos, ypos, W_WIDTH, W_HEIGHT);
+        if (yoffset > 0) {
+            pc.scale_from_point(coords, 2, 2);
+        }
+        else {
+            pc.scale_from_point(coords, 0.5, 0.5);
+        }
+        drawer.set_vbo("primitives", pf.get_items());
+        break;
+    }
+    default:
+        break;
+    }
 }
 
 
@@ -202,6 +307,9 @@ void Init(OpenGLManager* manager) {
     mainShader = Shader();
     mainShader.init_shader("main.vert", "main.frag");
     pf = PrimitiveFabric(W_WIDTH, W_HEIGHT);
+    pc = PrimitiveChanger(&pf.get_items());
+    lw = LineWorker(&pf.get_items());
+    pocl = PointClassifier(&pf.get_items());
     drawer = Drawer(&mainShader, "vPos");
     InitBO(manager);
 

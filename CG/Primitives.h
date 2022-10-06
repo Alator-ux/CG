@@ -5,6 +5,7 @@
 #include "OpenGLWrappers.h"
 
 
+
 struct Color {
     glm::vec4 rgba;
     Color() {
@@ -41,19 +42,10 @@ struct Color {
 
 struct Primitive {
 public:
-    int type = -1;
+    int type;
     std::vector<glm::vec3> points;
     int drawing_type;
     glm::vec3 color;
-    /*std::vector<glm::vec2> get_coords() {
-        return points;
-    }
-    int get_drawing_type() {
-        return drawing_type;
-    }
-    glm::vec3 get_color() {
-        return color;
-    }*/
     GLint get_points_count() {
         return (GLint)points.size();
     }
@@ -70,11 +62,11 @@ public:
 
 struct Point : public Primitive {
 public:
-    int type = 0;
     Point(glm::vec3 coord, glm::vec3 color) {
         points.push_back(coord);
         this->color = color;
         drawing_type = GL_POINTS;
+        this->type = 0;
     }
     static std::string get_string_name() {
         return "Point";
@@ -83,11 +75,11 @@ public:
 
 struct Edge : public Primitive {
 public:
-    int type = 1;
     Edge(glm::vec3 coords, glm::vec3 color) {
         points.push_back(coords);
         this->color = color;
         drawing_type = GL_POINTS;
+        this->type = 1;
     }
     void push_point(glm::vec3 coords) {
         if (points.size() == 1) {
@@ -105,11 +97,11 @@ public:
 
 struct Polygon : public Primitive {
 public:
-    int type = 2;
     Polygon(glm::vec3 coords, glm::vec3 color) {
         points.push_back(coords);
         this->color = color;
         drawing_type = GL_POINTS;
+        this->type = 2;
     }
     void push_point(glm::vec3 coords) {
         points.push_back(coords);
@@ -159,13 +151,7 @@ public:
     void update_color(glm::vec3 color) {
         this->color = color;
     }
-    void build(double x, double y) {
-        x -= w_width / 2;
-        x /= w_width / 2;
-        y *= -1;
-        y += w_height / 2;
-        y /= w_height / 2;
-        auto coords = glm::vec3((GLfloat)x, (GLfloat)y, 0.0f);
+    void build(glm::vec3 coords) {
         switch (code)
         {
         case 0:
@@ -285,6 +271,9 @@ public:
         manager->checkOpenGLerror();
     }
     void set_vbo(const std::string& buffer_name, const std::vector<Primitive>& data) {
+        if (data.size() == 0) {
+            return;
+        }
         std::vector<glm::vec3> ndata;
         GLuint size = 0;
         for (auto pr : data) {

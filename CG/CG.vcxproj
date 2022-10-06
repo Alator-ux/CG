@@ -148,8 +148,10 @@
   <ItemGroup>
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Light.h" />
+    <ClInclude Include="Line_worker.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="OpenGLWrappers.h" />
+    <ClInclude Include="PointClassifier.h" />
     <ClInclude Include="PrimitiveChanger.h" />
     <ClInclude Include="Primitives.h" />
     <ClInclude Include="Texture.h" />
