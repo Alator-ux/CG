@@ -10,8 +10,6 @@
 class LineWorker {
     Edge* f_edge;
     Edge* s_edge;
-    std::vector<Primitive>* storage;
-    int item_index;
 
 private:
     // Returns coefficients for line's function
@@ -31,24 +29,12 @@ private:
         return false;
     }
 public:
-    LineWorker(){}
-    LineWorker(std::vector<Primitive>* storage) { //I DON'T KNOW BRO
+    LineWorker() {
         this->f_edge = nullptr;
         this->s_edge = nullptr;
-        this->storage = storage;
-        this->item_index = -1;
     }
-    //LineWorker() {
-    //}
-    void set_active_item(int index) {
-        item_index = index;
-    }
-    void push_edge() {
-        if (item_index == empty_item) {
-            return;
-        }
-        Primitive* item = &(*storage)[item_index];
-        if (item->type != 1) {
+    void push_edge(Primitive* item) {
+        if (item == nullptr && item->type != 1) {
             return;
         }
         Edge* edge = reinterpret_cast<Edge*>(item);

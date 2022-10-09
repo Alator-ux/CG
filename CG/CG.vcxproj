@@ -154,6 +154,7 @@
     <ClInclude Include="PointClassifier.h" />
     <ClInclude Include="PrimitiveChanger.h" />
     <ClInclude Include="Primitives.h" />
+    <ClInclude Include="Selector.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Widgets.h" />
   </ItemGroup>

@@ -18,11 +18,13 @@
 #include "PrimitiveChanger.h"
 #include "Line_worker.h"
 #include "PointClassifier.h"
+#include "Selector.h"
 using namespace std;
 
 const GLuint W_WIDTH = 1280;
 const GLuint W_HEIGHT = 720;
 Shader mainShader;
+Selector selector;
 PrimitiveFabric pf;
 Drawer drawer;
 PrimitiveChanger pc;
@@ -124,7 +126,7 @@ int main() {
             }
             ImGui::SameLine();
             if (ImGui::Button("Find Intersection")) {
-                lw.push_edge();
+                lw.push_edge(selector.get_item());
                 auto inter = lw.find_intersection();
                 std::cout << "Intersection at point x = " << inter[0] 
                     << ", y = " << inter[1] << std::endl;
@@ -132,14 +134,10 @@ int main() {
             ImGui::SameLine();
             if (ImGui::Button("Clear")) {
                 pf.clear();
-                pc.set_active_item(empty_item);
-                lw.set_active_item(empty_item);
-                pocl.set_active_item(empty_item);
+                selector.set_item_index(-1);
             }
             if (polygon_list.draw()) {
-                pc.set_active_item(polygon_list.selectedItem);
-                lw.set_active_item(polygon_list.selectedItem);
-                pocl.set_active_item(polygon_list.selectedItem);
+                selector.set_item_index(polygon_list.selectedItem);
             }
             ImGui::End();
         }
@@ -185,11 +183,11 @@ void Release() {
 }
 
 glm::vec3 convert_coords(GLfloat x, GLfloat y, GLuint width, GLuint height) {
-    x -= width / 2;
+    /*x -= width / 2;
     x /= width / 2;
     y *= -1;
     y += height / 2;
-    y /= height / 2;
+    y /= height / 2;*/
     return glm::vec3((GLfloat)x, (GLfloat)y, 1.0f);
 }
 
@@ -218,14 +216,14 @@ void mouse_callback(GLFWwindow* window, int button, int action, int mods) {
             case 1:
             {
                 auto coords = convert_coords(xpos, ypos, W_WIDTH, W_HEIGHT);
-                pc.shift(coords);
+                pc.shift(selector.get_item(), coords);
                 drawer.set_vbo("primitives", pf.get_items());
                 break;
             }
             case 5:
             {
                 auto coords = convert_coords(xpos, ypos, W_WIDTH, W_HEIGHT);
-                std::cout << pocl.classify(coords) << std::endl;
+                std::cout << pocl.classify(selector.get_item(), coords) << std::endl;
                 break;
             }
             default:
@@ -257,13 +255,13 @@ void mouse_scrollback(GLFWwindow* window, double xoffset, double yoffset) {
     case 2:
     {
         auto coords = convert_coords(xpos, ypos, W_WIDTH, W_HEIGHT);
-        pc.rotate_around_point(coords, yoffset);
+        pc.rotate_around_point(selector.get_item(), coords, yoffset);
         drawer.set_vbo("primitives", pf.get_items());
         break;
     }
     case 3:
     {
-        pc.rotate_90();
+        pc.rotate_90(selector.get_item());
         drawer.set_vbo("primitives", pf.get_items());
         break;
     }
@@ -271,10 +269,10 @@ void mouse_scrollback(GLFWwindow* window, double xoffset, double yoffset) {
     {
         auto coords = convert_coords(xpos, ypos, W_WIDTH, W_HEIGHT);
         if (yoffset > 0) {
-            pc.scale_from_point(coords, 2, 2);
+            pc.scale_from_point(selector.get_item(), coords, 2, 2);
         }
         else {
-            pc.scale_from_point(coords, 0.5, 0.5);
+            pc.scale_from_point(selector.get_item(), coords, 0.5, 0.5);
         }
         drawer.set_vbo("primitives", pf.get_items());
         break;
@@ -306,14 +304,23 @@ void InitBO(OpenGLManager* manager)
 void Init(OpenGLManager* manager) {
     mainShader = Shader();
     mainShader.init_shader("main.vert", "main.frag");
-    pf = PrimitiveFabric(W_WIDTH, W_HEIGHT);
-    pc = PrimitiveChanger(&pf.get_items());
-    lw = LineWorker(&pf.get_items());
-    pocl = PointClassifier(&pf.get_items());
-    drawer = Drawer(&mainShader, "vPos");
+
+    pf = PrimitiveFabric();
+    selector = Selector(&pf.get_items());
+    pc = PrimitiveChanger();
+    lw = LineWorker();
+    pocl = PointClassifier();
+    drawer = Drawer(&mainShader, "vPos", W_WIDTH, W_HEIGHT);
     InitBO(manager);
 
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // белый цвет как цвет заливки
+    //glViewport(0, 0, W_WIDTH, W_HEIGHT);
+    //glMatrixMode(GL_PROJECTION);
+    //glLoadIdentity();
+    //auto c = 1.5;
+    //glOrtho(-c * W_WIDTH / W_HEIGHT, c * W_WIDTH / W_HEIGHT,
+    //        -c, c, -1.0, 1.0);
+    //glOrtho(0, W_WIDTH, 0, W_HEIGHT, -1, 1);
     manager->checkOpenGLerror();
 }
 
