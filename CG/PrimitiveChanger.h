@@ -3,16 +3,11 @@
 #include "GLM/mat3x3.hpp"
 #include "GLM/vec3.hpp"
 #include "GLM/glm.hpp"
-#include <typeinfo>
 
 
 const double PI = 3.141592653589793238463;
 
 class PrimitiveChanger {
-    // Converts provided angle to it's radian presentation
-    double toRadians(double angle) {
-        return PI * angle / 180.0;
-    }
     glm::vec3 matrix_mult(glm::mat3x3 afin_matrix, glm::vec3 point)
     {
         glm::vec3 res;
@@ -102,6 +97,11 @@ class PrimitiveChanger {
     }
 public:
     PrimitiveChanger(){}
+
+    // Converts provided angle to it's radian presentation
+    double toRadians(double angle) {
+        return PI * angle / 180.0;
+    }
 
     void shift(Primitive* item, glm::vec3 coords) {
         if (item == nullptr) {

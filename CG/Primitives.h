@@ -151,12 +151,10 @@ public:
         {
         case 0:
             create_point(coords);
-            prim_finished = true;
             break;
         case 1:
             if (prim_finished) {
                 create_edge(coords);
-                prim_finished = false;
             }
             else {
                 Edge* edge = reinterpret_cast<Edge*>(&primitives[primitives.size() - 1]);
@@ -167,7 +165,6 @@ public:
         case 2:
             if (prim_finished) {
                 create_polygon(coords);
-                prim_finished = false;
             }
             else {
                 Polygon* polygon = reinterpret_cast<Polygon*>(&primitives[primitives.size() - 1]);
@@ -204,18 +201,21 @@ public:
             return;
         }
         primitives.push_back(Point(coord, color));
+        prim_finished = true;
     }
     void create_edge(glm::vec3 coords) {
         if (primitives.size() == max_size) {
             return;
         }
         primitives.push_back(Edge(coords, color));
+        prim_finished = false;
     }
     void create_polygon(glm::vec3 coords) {
         if (primitives.size() == max_size) {
             return;
         }
         primitives.push_back(Polygon(coords, color));
+        prim_finished = false;
     }
     void clear() {
         primitives.clear();
