@@ -95,6 +95,28 @@ public:
     }
 };
 
+struct Segment : public Primitive {
+public:
+    Segment(glm::vec3 left_point, glm::vec3 right_point) {
+        points.push_back(left_point);
+        points.push_back(right_point);
+    }
+    glm::vec3 left() {
+        return points[0];
+    }
+    
+    glm::vec3 right() {
+        return points[1];
+    }
+    bool primitive_is_finished() {
+        return points.size() == 2;
+    }
+    static std::string get_string_name() {
+        return "Segment";
+    }
+};
+
+
 struct Polygon : public Primitive {
 public:
     Polygon(glm::vec3 coords, glm::vec3 color) {
