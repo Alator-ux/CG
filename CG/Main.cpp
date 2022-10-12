@@ -19,6 +19,7 @@
 #include "Line_worker.h"
 #include "PointClassifier.h"
 #include "Selector.h"
+#include "Fractal.h"
 using namespace std;
 
 const GLuint W_WIDTH = 1280;
@@ -28,8 +29,8 @@ Selector selector;
 PrimitiveFabric pf;
 Drawer drawer;
 PrimitiveChanger pc;
-LineWorker lw;
-PointClassifier pocl;
+Fractal frac = Fractal(0, 0, 0, 
+    glm::vec3(W_WIDTH/2,W_HEIGHT/2,0), glm::vec3(W_WIDTH,W_HEIGHT,0));
 
 void Init(OpenGLManager*);
 void Draw(OpenGLManager*);
@@ -68,10 +69,12 @@ int main() {
     bool show_another_window = false;
     
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-    std::vector<string> items = { "Point", "Edge", "Polygon"};
-    auto lb = DropDownMenu("Primitive", items);
+    std::vector<string> items = { "Koch curve", "Koch snowflake",
+        "Serpinsky Triangle", "Serpinsky carpet", "High tree"};
+    auto lb = DropDownMenu("Fractal type", items);
     auto colorChooser = ColorChooser("Primitive Color");
     auto polygon_list = ListBox("Primitives", &pf.get_items());
+    auto is = IntSlider("Fractal generation");
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
@@ -97,7 +100,11 @@ int main() {
             auto cur_coords = convert_coords(xpos, ypos, W_WIDTH, W_HEIGHT);
             ImGui::Text("x = %.7f, y = %.7f", cur_coords.x, cur_coords.y);
             if (lb.draw()) {
+                frac.set_fractal_type(lb.selectedItem);
                 pf.update_code(lb.selectedItem);
+            }
+            if (is.draw()) {
+                frac.set_generation(is.get_value());
             }
             std::stringstream ss;
             ss << "Mode " << mode;
@@ -125,11 +132,9 @@ int main() {
                 mode = 5;
             }
             ImGui::SameLine();
-            if (ImGui::Button("Find Intersection")) {
-                lw.push_edge(selector.get_item());
-                auto inter = lw.find_intersection();
-                std::cout << "Intersection at point x = " << inter[0] 
-                    << ", y = " << inter[1] << std::endl;
+            if (ImGui::Button("Fractal")) {
+                frac.generate();
+                drawer.set_vbo("frac", frac.get_items());
             }
             ImGui::SameLine();
             if (ImGui::Button("Clear")) {
@@ -223,7 +228,11 @@ void mouse_callback(GLFWwindow* window, int button, int action, int mods) {
             case 5:
             {
                 auto coords = convert_coords(xpos, ypos, W_WIDTH, W_HEIGHT);
-                std::cout << pocl.classify(selector.get_item(), coords) << std::endl;
+                //std::cout << pocl.classify(selector.get_item(), coords) << std::endl;
+                break;
+            }
+            case 6:
+            {
                 break;
             }
             default:
@@ -308,8 +317,6 @@ void Init(OpenGLManager* manager) {
     pf = PrimitiveFabric();
     selector = Selector(&pf.get_items());
     pc = PrimitiveChanger();
-    lw = LineWorker();
-    pocl = PointClassifier();
     drawer = Drawer(&mainShader, "vPos", W_WIDTH, W_HEIGHT);
     InitBO(manager);
 
@@ -326,9 +333,8 @@ void Init(OpenGLManager* manager) {
 
 void Draw(OpenGLManager* manager) {
     glLineWidth(1.0f);
-    if (pf.size() != 0) {
-        drawer.draw(pf.get_items(), "primitives");
-    }
+    drawer.draw(pf.get_items(), "primitives");
+    drawer.draw(frac.get_items(), "frac");
     //manager->unbind_framebuffer();
     //mainShader.disable_program();
 }

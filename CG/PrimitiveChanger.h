@@ -71,8 +71,6 @@ class PrimitiveChanger {
             0, y_factor, 0,
             0, 0, 1);
 
-        std::cout << x << " " << y << std::endl;
-
         glm::mat3x3 temp = glm::mat3x3(
             x_factor, 0, 0,
             0, y_factor, 0,
@@ -112,15 +110,24 @@ public:
         GLfloat dx = coords.x - points[0].x;
         GLfloat dy = coords.y - points[0].y;
         
-        glm::mat3x3 shift_matrix = glm::mat3x3(1, 0, 0, 
-                                               0, 1, 0, 
-                                               dx, dy, 1);
+        shift(item, dx, dy);
+    }
+    void shift(Primitive* item, float dx, float dy) {
+        if (item == nullptr) {
+            return;
+        }
+
+        std::vector<glm::vec3> points = item->points;
+
+        glm::mat3x3 shift_matrix = glm::mat3x3(1, 0, 0,
+            0, 1, 0,
+            dx, dy, 1);
         //shift_matrix = glm::transpose(shift_matrix);
-        
+
         for (int i = 0; i < points.size(); i++) {
             glm::vec3 values = glm::vec3(points[i][0], points[i][1], 1); //TODO: remove it m8
             auto shifted_point = shift_matrix * values; // умножение в обратном порядке, т.к.
-                                                        // glm считает вектор колонной
+            // glm считает вектор колонной
             item->points[i] = shifted_point;
         }
     }

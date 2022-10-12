@@ -81,6 +81,12 @@ public:
         drawing_type = GL_POINTS;
         this->type = 1;
     }
+    Edge(glm::vec3 first, glm::vec3 second, glm::vec3 color) {
+        points.push_back(first);
+        push_point(second);
+        this->color = color;
+        this->type = 1;
+    }
     void push_point(glm::vec3 coords) {
         if (points.size() == 1) {
             points.push_back(coords);
@@ -250,6 +256,9 @@ public:
         this->projection = glm::ortho(0.0f, (float)w_width, (float)w_height, 0.0f, 1.0f, -1.0f);
     }
     void draw(std::vector<Primitive>& primitives, const std::string& buffer_name) {
+        if (primitives.size() == 0) {
+            return;
+        }
         GLint from = 0;
         GLint count = 0;
         shader->use_program();

@@ -83,5 +83,20 @@ public:
     }
 };
 
+class IntSlider {
+    const char* label;
+    int value;
+public:
+    IntSlider(const char * label) {
+        this->label = label;
+        this->value = 1;
+    }
+    bool draw() {
+        return ImGui::SliderInt(label, &value, 1, 15);
+    }
+    int get_value() {
+        return value;
+    }
+};
 
 #endif
