@@ -77,9 +77,6 @@
     <ClInclude Include="Primitives.h">
       <Filter>Файлы заголовков\Models</Filter>
     </ClInclude>
-    <ClInclude Include="Keyboard.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="Widgets.h">
       <Filter>Файлы заголовков\Widgets</Filter>
     </ClInclude>
@@ -96,6 +93,12 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="Fractal.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Midpoint.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Bezier.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

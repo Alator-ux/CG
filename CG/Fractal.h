@@ -9,16 +9,32 @@
 #include <fstream>
 
 class Fractal {
+    struct FractalDescription {
+        std::string axiom;
+        float rotation;
+        std::string dir;
+        glm::vec3 start_color;
+        glm::vec3 end_color;
+        float color_steps;
+        bool is_tree;
+    };
+    struct FractalState {
+        glm::vec3 point;
+        float angle;
+        float step_count;
+        FractalState(glm::vec3 point, float angle, float step_count) {
+            this->point = point;
+            this->angle = angle;
+            this->step_count = step_count;
+        }
+    };
     std::vector<Primitive> edges;
     std::vector<std::string> l_system;
-    float rnd_from;
-    float rnd_to;
-    std::string axiom;
-    float rotation;
-    std::string dir;
     glm::vec3 start_p;
     glm::vec3 end_p;
     int generation;
+    FractalDescription frac_desc;
+
 private:
     std::vector<std::string> split_str(const std::string& str) {
         std::vector<std::string> res;
@@ -93,43 +109,52 @@ private:
         }
         
         
-        //auto dy 
         float step;
         if (x_factor < y_factor) {
             for (Primitive& edge : edges) {
                 pr.shift(&edge, dx, dy);
                 pr.scale_from_point(&edge, center, x_factor, x_factor);
-                //auto dx = abs(edge.points[0].x - start_p.x);
             }
         }
         else {
             for (Primitive& edge : edges) {
                 pr.shift(&edge, dx, dy);
                 pr.scale_from_point(&edge, center, y_factor, y_factor);
-                //auto dx = abs(edge.points[0].x - start_p.x);
             }
         }
+    }
+    glm::vec3 get_iterpolated_color(glm::vec3 color1, glm::vec3 color2, float coef) {
+        if (coef > 1) {
+            //return color2;
+        }
+        return color1 * (1 - coef) + color2 * coef;
     }
 public:
     Fractal(int type, int rnd_from, int rnd_to, 
             glm::vec3 start_p, glm::vec3 end_p) {
         set_fractal_type(type);
 
-        this->rnd_from = rnd_from;
-        this->rnd_to = rnd_to;
+        //this->rnd_from = rnd_from;
+        //this->rnd_to = rnd_to;
         this->start_p = start_p;
         this->end_p = end_p;
         this->generation = 1;
+        this->frac_desc.start_color = glm::vec3(1);
+        this->frac_desc.end_color = glm::vec3(1);
+        this->frac_desc.color_steps = 0;
     }
 
-    void generate() {
+    void generate(float rnd_from, float rnd_to) {
+        if (rnd_to < rnd_from) {
+            std::swap(rnd_from, rnd_to);
+        }
         edges.clear();
         auto rules = std::map<char, std::string>();
         for (auto line : l_system) {
             rules[line[0]] = line.substr(2);
         }
 
-        auto rule = axiom;
+        auto rule = frac_desc.axiom;
 
         for (size_t i = 0; i < generation; i++) {
             std::stringstream ss;
@@ -143,40 +168,88 @@ public:
             }
             rule = ss.str();
         }
+        float total = 0;
+        float stacks = 0;
+        bool is_stacked = false;
+        std::stringstream ss;
+        for (char lex : rule) {
+            if (lex == 'F') {
+                total += 1;
+            }
+            else if (lex == ']') {
+                stacks += 1;
+            }
+        }
 
         float angle = 0;
-        if (dir == "left") {
+        if (frac_desc.dir == "left") {
             angle = PI;
         }
-        else if (dir == "right") {
+        else if (frac_desc.dir == "right") {
             angle = 0;
-        } else if (dir == "up") {
+        } else if (frac_desc.dir == "up") {
             angle = 3 * PI / 2; // 270 / -90 градусов
         }
 
         auto pr = PrimitiveChanger();
-        auto r_rot = pr.toRadians(rotation);
+        auto r_rot = pr.toRadians(frac_desc.rotation);
 
-        std::stack<std::pair<glm::vec3, float>> states;
+        std::stack<FractalState> states;
         glm::vec3 point = start_p;
+        glm::vec3 current_color = frac_desc.start_color;
+        float step_count = 0;
+        float width = 1;
+        if (frac_desc.is_tree) {
+            width = 8;
+            current_color = glm::vec3(77.0f/255.0f, 34.0f/255.0f, 14.0f/255.0f);
+        }
 
         for (char lex : rule) {
             if (lex == 'F') {
                 float x = point.x + cos(angle);
                 float y = point.y + sin(angle);
                 auto new_p = glm::vec3(x, y, 1);
-                edges.push_back(Edge(point, new_p, glm::vec3(1)));
+                if (width < 1) {
+                    edges.push_back(Edge(point, new_p, current_color, 1));
+                }
+                else {
+                    edges.push_back(Edge(point, new_p, current_color, width));
+                }
                 point = new_p;
+                step_count += 1;
+                if (!frac_desc.is_tree) {
+                    current_color = get_iterpolated_color(frac_desc.start_color, frac_desc.end_color,
+                        step_count / total);
+                }  
             } 
             else if (lex == '[') {
-                auto state = std::pair<glm::vec3, float>(point, angle);
-                states.push(state);
+                states.push(FractalState(point, angle, step_count));
+                if (frac_desc.is_tree) {
+                    width -= 1;
+                    float c_step = 30.0f / 255.0f;
+                    if (current_color.g + c_step > 1.0) {
+                        current_color.g = 1.0;
+                    }
+                    else {
+                        current_color.g += c_step;
+                    }
+                }
             }
             else if (lex == ']') {
                 auto state = states.top();
                 states.pop();
-                point = state.first;
-                angle = state.second;
+                point = state.point;
+                angle = state.angle;
+                float c_step = 30.0f / 255.0f;
+                if (frac_desc.is_tree) {
+                    width += 1;
+                    if (current_color.g - c_step < 0) {
+                        current_color.g = 0;
+                    }
+                    else {
+                        current_color.g -= c_step;
+                    }
+                }
             }
             else if (lex == '+') {
                 int noise = rand(rnd_from, rnd_to);
@@ -192,6 +265,7 @@ public:
     }
 
     void set_fractal_type(int type) {
+        frac_desc.is_tree = false;
         std::string fname = "";
         switch (type)
         {
@@ -218,6 +292,7 @@ public:
         case 4:
         {
             fname = "./fractals/high_tree.txt";
+            frac_desc.is_tree = true;
             break;
         }
         default:
@@ -232,9 +307,9 @@ public:
         if (file) {
             std::getline(file, line);
             auto f_line = split_str(line);
-            this->axiom = f_line[0];
-            this->rotation = std::atof(f_line[1].c_str());
-            this->dir = f_line[2];
+            this->frac_desc.axiom = f_line[0];
+            this->frac_desc.rotation = std::atof(f_line[1].c_str());
+            this->frac_desc.dir = f_line[2];
         }
 
         std::getline(file, line);
@@ -249,7 +324,15 @@ public:
     void set_generation(int generation) {
         this->generation = generation;
     }
-
+    void set_start_color(glm::vec3 color) {
+        frac_desc.start_color = color;
+    }
+    void set_end_color(glm::vec3 color) {
+        frac_desc.end_color = color;
+    }
+    void set_color_steps(int count) {
+        frac_desc.color_steps = count;
+    }
     std::vector<Primitive>& get_items() {
         return this->edges;
     }

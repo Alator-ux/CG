@@ -371,7 +371,7 @@ public:
     void uniform4f(const char* name, const glm::vec3& v)
     {
         GLint location = get_uniform_location(name);
-        glUniform4fARB(location, v.x, v.y, v.z, v.r);
+        glUniform4fARB(location, v.x, v.y, v.z, 1);
     }
     void uniformLight(const LightSource& v)
     {

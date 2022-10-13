@@ -86,16 +86,97 @@ public:
 class IntSlider {
     const char* label;
     int value;
+    int min_value;
+    int max_value;
 public:
-    IntSlider(const char * label) {
+    IntSlider(const char * label, int min_value, int max_value) {
         this->label = label;
-        this->value = 1;
+        this->value = min_value;
+        this->min_value = min_value;
+        this->max_value = max_value;
     }
     bool draw() {
-        return ImGui::SliderInt(label, &value, 1, 15);
+        return ImGui::SliderInt(label, &value, min_value, max_value);
     }
     int get_value() {
         return value;
+    }
+};
+
+class FloatSlider {
+    const char* label;
+    float value;
+    float min_value;
+    float max_value;
+public:
+    FloatSlider(const char* label, float min_value, float max_value) {
+        this->label = label;
+        this->value = min_value;
+        this->min_value = min_value;
+        this->max_value = max_value;
+    }
+    bool draw() {
+        return ImGui::SliderFloat(label, &value, min_value, max_value);
+    }
+    float get_value() {
+        return value;
+    }
+};
+
+class RadioButton {
+    const char* label;
+    bool activated;
+public:
+    RadioButton(const char* label) {
+        this->label = label;
+        this->activated = false;
+    }
+    RadioButton(const char* label, bool activated) {
+        this->label = label;
+        this->activated = activated;
+    }
+    bool draw() {
+        return ImGui::RadioButton(label, activated);
+    }
+    void activate(){
+        this->activated = true;
+    }
+    void disable() {
+        this->activated = false;
+    }
+};
+
+class RadioButtonRow {
+    std::vector<RadioButton> buttons;
+    int active = 0;
+public:
+    RadioButtonRow() {
+        auto r = RadioButton("Fractal", true);
+        buttons.push_back(r);
+        r = RadioButton("MidPoint");
+        buttons.push_back(r);
+        r = RadioButton("Bezzier");
+        buttons.push_back(r);
+    }
+    bool draw() {
+        bool was_pressed = false;
+        for (size_t i = 0; i < buttons.size(); i++) {
+            bool pressed = buttons[i].draw();
+            if (i != buttons.size() - 1) {
+                ImGui::SameLine();
+            }
+            if (pressed && active != i) {
+                buttons[i].activate();
+                buttons[active].disable();
+                active = i;
+                was_pressed = true;
+            }
+        }
+
+        return was_pressed;
+    }
+    int get_value() {
+        return active;
     }
 };
 

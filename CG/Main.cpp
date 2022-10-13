@@ -3,23 +3,15 @@
 #include <iostream>
 #include "OpenGLWrappers.h"
 #include "Primitives.h"
-
-#include "imgui.h" // necessary for ImGui::*, imgui-SFML.h doesn't include imgui.h
-
-//#include "imgui-SFML.h" // for ImGui::SFML::* functions and SFML-specific overloads
-
-#include <SFML/Graphics/CircleShape.hpp>
-#include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/System/Clock.hpp>
-#include <SFML/Window/Event.hpp>
+#include "Midpoint.h"
+#include "imgui.h"
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_glfw.h>
 #include "Widgets.h"
 #include "PrimitiveChanger.h"
-#include "Line_worker.h"
-#include "PointClassifier.h"
 #include "Selector.h"
 #include "Fractal.h"
+#include "Bezier.h"
 using namespace std;
 
 const GLuint W_WIDTH = 1280;
@@ -31,9 +23,12 @@ Drawer drawer;
 PrimitiveChanger pc;
 Fractal frac = Fractal(0, 0, 0, 
     glm::vec3(W_WIDTH/2,W_HEIGHT/2,0), glm::vec3(W_WIDTH,W_HEIGHT,0));
+MidpointDisplacer midp_disp = MidpointDisplacer(glm::vec3(W_WIDTH / 2, W_HEIGHT / 2, 0),
+    glm::vec3(W_WIDTH, W_HEIGHT / 2, 0));
+Bezier bezier;
 
 void Init(OpenGLManager*);
-void Draw(OpenGLManager*);
+void Draw(OpenGLManager*, int);
 void Release();
 void mouse_callback(GLFWwindow*, int, int, int);
 void mouse_scrollback(GLFWwindow*, double, double);
@@ -66,15 +61,20 @@ int main() {
     ImGui::StyleColorsDark();
 
     bool show_demo_window = true;
-    bool show_another_window = false;
     
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     std::vector<string> items = { "Koch curve", "Koch snowflake",
         "Serpinsky Triangle", "Serpinsky carpet", "High tree"};
-    auto lb = DropDownMenu("Fractal type", items);
+    auto ddm = DropDownMenu("Fractal type", items);
+    auto lb = ListBox("Points", bezier.get_bezier_points());
     auto colorChooser = ColorChooser("Primitive Color");
-    auto polygon_list = ListBox("Primitives", &pf.get_items());
-    auto is = IntSlider("Fractal generation");
+    auto frac_slider = IntSlider("Fractal generation", 1, 15);
+    auto fcscs = IntSlider("Color steps count", 0, 100); // frac color steps count slider
+    auto frafs = IntSlider("Random angle from", 0, 360); // frac random angle from slider
+    auto frats = IntSlider("Random angle to", 0, 360); // frac random angle to slider
+    auto midp_count_slider = IntSlider("Midpoints count", 0, 40);
+    auto midp_coef_slider = FloatSlider("Midpoints coef", 0, 1);
+    auto rbr = RadioButtonRow();
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
@@ -99,61 +99,98 @@ int main() {
             glfwGetCursorPos(window, &xpos, &ypos);
             auto cur_coords = convert_coords(xpos, ypos, W_WIDTH, W_HEIGHT);
             ImGui::Text("x = %.7f, y = %.7f", cur_coords.x, cur_coords.y);
-            if (lb.draw()) {
-                frac.set_fractal_type(lb.selectedItem);
-                pf.update_code(lb.selectedItem);
+            rbr.draw();
+            switch (rbr.get_value())
+            {
+            case 0:
+            {
+                mode = -1;
+                if (ddm.draw()) {
+                    frac.set_fractal_type(ddm.selectedItem);
+                }
+                if (frac_slider.draw()) {
+                    frac.set_generation(frac_slider.get_value());
+                }
+                /*if (fcscs.draw()) {
+                    frac.set_color_steps(fcscs.get_value());
+                }*/
+                frafs.draw();
+                frats.draw();
+                if (ImGui::Button("Set start color")) {
+                    frac.set_start_color(colorChooser.rgb_value());
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Set end color")) {
+                    frac.set_end_color(colorChooser.rgb_value());
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Generate fractal")) {
+                    frac.generate(frafs.get_value(), frats.get_value());
+                    drawer.set_vbo("frac", frac.get_items());
+                }
+                break;
             }
-            if (is.draw()) {
-                frac.set_generation(is.get_value());
+            case 1:
+            {
+                mode = -1;
+                if (midp_count_slider.draw()) {
+                    midp_disp.set_count(midp_count_slider.get_value());
+                }
+                midp_coef_slider.draw();
+                if (ImGui::Button("Next midpoint")) {
+                    midp_disp.next(midp_coef_slider.get_value(), colorChooser.rgb_value());
+                    drawer.set_vbo("midp", midp_disp.get_items());
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Clear")) {
+                    midp_disp.clear();
+                    drawer.set_vbo("midp", midp_disp.get_items());
+                }
+                ImGui::Text("Midpoints %i/%i", midp_disp.get_current_count(),
+                    midp_disp.get_amount_count());
+                break;
             }
-            std::stringstream ss;
-            ss << "Mode " << mode;
-            ImGui::Text(ss.str().c_str());
-            if (ImGui::Button("Add")) {
-                mode = 0;
+            case 2:
+            {
+                if (ImGui::Button("Add point")) {
+                    mode = 0;
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Delete point")) {
+                    bezier.delete_point();
+                    drawer.set_vbo("bez_points", bezier.get_points());
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Shift point")) {
+                    mode = 1;
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Clear")) {
+                    bezier.clear();;
+                }
+                if (ImGui::Button("Set line color")) {
+                    bezier.set_line_color(colorChooser.rgb_value());
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Set points color")) {
+                    bezier.set_points_color(colorChooser.rgb_value());
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Generate")) {
+                    bezier.generate();
+                    std::vector<Primitive> line;
+                    auto l = bezier.get_line();
+                    if (l != nullptr) {
+                        line.push_back(*l);
+                        drawer.set_vbo("bez_line", line);
+                    }
+                }
+                lb.draw();
+                bezier.set_active_point(lb.selectedItem);
             }
-            ImGui::SameLine();
-            if (ImGui::Button("Move")) {
-                mode = 1;
+            default:
+                break;
             }
-            ImGui::SameLine();
-            if (ImGui::Button("Rotate")) {
-                mode = 2;
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Rotate 90")) {
-                mode = 3;
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Scale")) {
-                mode = 4;
-            }
-            if (ImGui::Button("Classify")) {
-                mode = 5;
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Fractal")) {
-                frac.generate();
-                drawer.set_vbo("frac", frac.get_items());
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Clear")) {
-                pf.clear();
-                selector.set_item_index(-1);
-            }
-            if (polygon_list.draw()) {
-                selector.set_item_index(polygon_list.selectedItem);
-            }
-            ImGui::End();
-        }
-
-        // 3. Show another simple window.
-        if (show_another_window)
-        {
-            ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-            ImGui::Text("Hello from another window!");
-            if (ImGui::Button("Close Me"))
-                show_another_window = false;
             ImGui::End();
         }
 
@@ -165,7 +202,7 @@ int main() {
         glViewport(0, 0, display_w, display_h);
         glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
-        Draw(manager);
+        Draw(manager, rbr.get_value());
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwMakeContextCurrent(window);
@@ -196,7 +233,6 @@ glm::vec3 convert_coords(GLfloat x, GLfloat y, GLuint width, GLuint height) {
     return glm::vec3((GLfloat)x, (GLfloat)y, 1.0f);
 }
 
-double oldx, oldy;
 void mouse_callback(GLFWwindow* window, int button, int action, int mods) {
     if (action == GLFW_PRESS) {
         double xpos, ypos;
@@ -213,40 +249,16 @@ void mouse_callback(GLFWwindow* window, int button, int action, int mods) {
             {
             case 0: 
             {
-                auto coords = convert_coords(xpos, ypos, W_WIDTH, W_HEIGHT);
-                pf.build(coords);
-                drawer.set_vbo("primitives", pf.get_items());
+                bezier.add_point(glm::vec3(xpos, ypos, 1));
+                drawer.set_vbo("bez_points", bezier.get_points());
                 break;
             }
             case 1:
             {
-                auto coords = convert_coords(xpos, ypos, W_WIDTH, W_HEIGHT);
-                pc.shift(selector.get_item(), coords);
-                drawer.set_vbo("primitives", pf.get_items());
+                bezier.shift_point(glm::vec3(xpos, ypos, 1));
+                drawer.set_vbo("bez_points", bezier.get_points());
                 break;
             }
-            case 5:
-            {
-                auto coords = convert_coords(xpos, ypos, W_WIDTH, W_HEIGHT);
-                //std::cout << pocl.classify(selector.get_item(), coords) << std::endl;
-                break;
-            }
-            case 6:
-            {
-                break;
-            }
-            default:
-                break;
-            }
-
-            oldx = xpos;
-            oldy = ypos;
-        }
-        else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
-            switch (mode)
-            {
-            case 0:
-                pf.finish_primitive();
             default:
                 break;
             }
@@ -318,23 +330,44 @@ void Init(OpenGLManager* manager) {
     selector = Selector(&pf.get_items());
     pc = PrimitiveChanger();
     drawer = Drawer(&mainShader, "vPos", W_WIDTH, W_HEIGHT);
+    drawer.set_vbo("midp", midp_disp.get_items());
     InitBO(manager);
 
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // белый цвет как цвет заливки
-    //glViewport(0, 0, W_WIDTH, W_HEIGHT);
-    //glMatrixMode(GL_PROJECTION);
-    //glLoadIdentity();
-    //auto c = 1.5;
-    //glOrtho(-c * W_WIDTH / W_HEIGHT, c * W_WIDTH / W_HEIGHT,
-    //        -c, c, -1.0, 1.0);
-    //glOrtho(0, W_WIDTH, 0, W_HEIGHT, -1, 1);
+    glPointSize(5);
     manager->checkOpenGLerror();
 }
 
-void Draw(OpenGLManager* manager) {
+void Draw(OpenGLManager* manager, int mode) {
     glLineWidth(1.0f);
-    drawer.draw(pf.get_items(), "primitives");
-    drawer.draw(frac.get_items(), "frac");
+    switch (mode)
+    {
+    case 0:
+    {
+        drawer.draw(frac.get_items(), "frac");
+        break;
+    }
+    case 1:
+    {
+        drawer.draw(midp_disp.get_items(), "midp");
+        break;
+    }
+    case 2:
+    {
+        auto p = bezier.get_points();
+        drawer.draw(p, "bez_points");
+        p = std::vector<Primitive>();
+        auto line = bezier.get_line();
+        if (line == nullptr) {
+            break;
+        }
+        p.push_back(*line);
+        drawer.draw(p, "bez_line");
+        break;
+    }
+    default:
+        break;
+    }
+    
     //manager->unbind_framebuffer();
     //mainShader.disable_program();
 }

@@ -146,11 +146,12 @@
     <ClCompile Include="Widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Bezier.h" />
     <ClInclude Include="Fractal.h" />
-    <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Line_worker.h" />
     <ClInclude Include="Material.h" />
+    <ClInclude Include="Midpoint.h" />
     <ClInclude Include="OpenGLWrappers.h" />
     <ClInclude Include="PointClassifier.h" />
     <ClInclude Include="PrimitiveChanger.h" />
