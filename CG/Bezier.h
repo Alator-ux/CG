@@ -30,15 +30,49 @@ public:
         this->active_p = -1;
     }
     void generate() {
-        if (bez_points.size() < 2) {
+        auto size = bez_points.size();
+        if (size < 2) {
             return;
         }
         curve.points.clear();
-        for (size_t i = 0; i < bez_points.size() - 1; i++) {
-            BezierPoint& bp1 = bez_points[i];
-            BezierPoint& bp2 = bez_points[i+1];
-            generate_part(bp1.get_main(), bp1.get_shelp(), bp2.get_fhelp(), bp2.get_main());
+        if (size == 2) {
+            curve.push_point(bez_points[0].get_main());
+            curve.push_point(bez_points[1].get_main());
         }
+        if (size < 4){
+            //return;
+        }
+        for (auto i = 0; i < size - 3; i+=3) {
+            auto p0 = bez_points[i].get_main();
+            auto p1 = bez_points[i+1].get_main();
+            auto p2 = bez_points[i+2].get_main();
+            auto p3 = bez_points[i+3].get_main();
+            generate_part(p0, p1, p2, p3);
+        }
+        /*
+        
+        auto p0 = bez_points[0].get_main();
+        auto p1 = bez_points[1].get_main();
+        auto p2 = bez_points[2].get_main();
+        auto mid = glm::vec3((p1.x + p2.x) / 2, (p1.y + p2.y) / 2, 1);
+        generate_part(p0, p1, mid, p2);
+        for (auto i = 3; i < size - 1; i++) {
+            p0 = mid;
+            p1 = bez_points[i].get_main();
+            p2 = bez_points[i+1].get_main();
+            mid = glm::vec3((p1.x + p2.x) / 2, (p1.y + p2.y) / 2, 1);
+            generate_part(p0, p1, mid, p2);
+        }
+        */
+        /*
+        for (size_t i = 0; i < bez_points.size() - 2; i += 2) {
+            glm::vec3& bp1 = bez_points[i].get_main();
+            glm::vec3& bp2 = bez_points[i+1].get_main();
+            glm::vec3& bp3 = bez_points[i + 2].get_main();
+            auto mid = glm::vec3((bp2.x + bp3.x) / 2, (bp2.y + bp3.y) / 2, 1);
+            generate_part(bp1, bp2, mid, bp3);
+        }
+        */
     }
     void add_point(glm::vec3 coord) {
         curve.points.clear();
