@@ -146,6 +146,8 @@
     <ClCompile Include="Widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="3DChanger.h" />
+    <ClInclude Include="Figure.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Line_worker.h" />

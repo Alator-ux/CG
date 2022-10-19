@@ -1,4 +1,5 @@
 #pragma once
+#include "GL/glew.h"
 #include "Figure.h"
 #include "PrimitiveChanger.h"
 

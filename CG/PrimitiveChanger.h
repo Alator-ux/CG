@@ -36,7 +36,7 @@ class PrimitiveChanger {
     // Returns matrix which needed for point rotation.
     // x and y are the coordinates of point, which we are roating around
     glm::mat3x3 build_rotation_matrix(double x, double y, double angle) {
-        auto rad_angle = this->toRadians(angle);
+        auto rad_angle = toRadians(angle);
         auto cos_r_a = cos(rad_angle);
         auto sin_r_a = sin(rad_angle);
         glm::mat3x3 shift_matrix1 = glm::mat3x3(
