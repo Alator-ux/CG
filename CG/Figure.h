@@ -78,16 +78,13 @@ public:
 
     glm::vec3 center() {
         float x=0, y=0, z=0;
+        auto res = glm::vec3(0.0f);
         for (auto edge : edges) {
-            x += edge.points[0].x;
-            y += edge.points[0].y;
-            z += edge.points[0].z;
+            res += edge.points[0];
         }
         size_t size = edges.size();
-        x /= size;
-        y /= size;
-        z /= size;
-        return glm::vec3(x, y, z);
+        res /= size;
+        return res;
     }
 };
 /// <summary>
@@ -104,13 +101,24 @@ public:
         faces = std::vector<Face>();
     }
 
+    glm::vec3 center() {
+        float x = 0, y = 0, z = 0;
+        auto res = glm::vec3(0.0f);
+        for (auto face : faces) {
+            res += face.center();
+        }
+        size_t size = faces.size();
+        res /= size;
+        return res;
+    }
+
     /// <summary>
     /// “рансформаторна€ будка
     /// ту-ту-ту
     /// </summary>
     void transform(std::function<glm::vec3(glm::vec3)> transofrmator) { //TODO: если найдЄшь, как передавать по ссылке аргумент - молодец, помен€й
         for (auto i = 0; i < faces.size(); i++) {
-            for (auto j = 0; j < faces[j].edges.size(); i++) {
+            for (auto j = 0; j < faces[j].edges.size(); j++) {
                 Edge* edge = &(faces[i].edges[j]);
                 edge->points[0] = transofrmator(edge->points[0]);
                 edge->points[1] = transofrmator(edge->points[1]);
@@ -137,6 +145,7 @@ enum FigureType {
 };
 
 class FigureBuilder {
+    float bound = 100;
 public:
     Figure buildFigure(FigureType kind) {
         switch (kind){
@@ -154,11 +163,22 @@ public:
     }
 
     Tetrahedron buildTetrahedron() {
+        /*float from = 0.5f;
+        float to = 0.5f;
+        auto tetr = Tetrahedron();
+        glm::vec3 a = glm::vec3(from, from, from);
+        glm::vec3 c = glm::vec3(to, from, -to);
+        glm::vec3 f = glm::vec3(to, to, from);
+        glm::vec3 h = glm::vec3(from, to, -to);*/
         auto tetr = Tetrahedron();
         glm::vec3 a = glm::vec3(0, 0, 0);
-        glm::vec3 c = glm::vec3(200, 0, 200);
-        glm::vec3 f = glm::vec3(200, 200, 0);
-        glm::vec3 h = glm::vec3(0, 200, 200);
+        glm::vec3 c = glm::vec3(bound / 2, 0, -bound / 2);
+        glm::vec3 f = glm::vec3(bound / 2, bound / 2, 0);
+        glm::vec3 h = glm::vec3(0, bound / 2, -bound / 2);
+        a /= bound;
+        c /= bound;
+        f /= bound;
+        h /= bound;
         Face face1 = Face();
         //TODO: изобрести метод buildTriangle
         {
@@ -386,7 +406,7 @@ public:
             face4.edges.push_back(edge2);
             face4.edges.push_back(edge3);
         }
-        Face face4 = Face();
+        Face face5 = Face();
         {
             Edge edge1 = Edge(a, glm::vec3(0, 0, 0));
             edge1.push_point(e);
@@ -394,11 +414,11 @@ public:
             edge2.push_point(b);
             Edge edge3 = Edge(b, glm::vec3(0, 0, 0));
             edge3.push_point(a);
-            face4.edges.push_back(edge1);
-            face4.edges.push_back(edge2);
-            face4.edges.push_back(edge3);
+            face5.edges.push_back(edge1);
+            face5.edges.push_back(edge2);
+            face5.edges.push_back(edge3);
         }
-        Face face5 = Face();
+        Face face6 = Face();
         {
             Edge edge1 = Edge(b, glm::vec3(0, 0, 0));
             edge1.push_point(e);
@@ -406,11 +426,11 @@ public:
             edge2.push_point(c);
             Edge edge3 = Edge(c, glm::vec3(0, 0, 0));
             edge3.push_point(b);
-            face5.edges.push_back(edge1);
-            face5.edges.push_back(edge2);
-            face5.edges.push_back(edge3);
+            face6.edges.push_back(edge1);
+            face6.edges.push_back(edge2);
+            face6.edges.push_back(edge3);
         }
-        Face face6 = Face();
+        Face face7 = Face();
         {
             Edge edge1 = Edge(c, glm::vec3(0, 0, 0));
             edge1.push_point(e);
@@ -418,11 +438,11 @@ public:
             edge2.push_point(d);
             Edge edge3 = Edge(d, glm::vec3(0, 0, 0));
             edge3.push_point(c);
-            face6.edges.push_back(edge1);
-            face6.edges.push_back(edge2);
-            face6.edges.push_back(edge3);
+            face7.edges.push_back(edge1);
+            face7.edges.push_back(edge2);
+            face7.edges.push_back(edge3);
         }
-        Face face7 = Face();
+        Face face8 = Face();
         {
             Edge edge1 = Edge(d, glm::vec3(0, 0, 0));
             edge1.push_point(e);
@@ -430,9 +450,9 @@ public:
             edge2.push_point(a);
             Edge edge3 = Edge(a, glm::vec3(0, 0, 0));
             edge3.push_point(d);
-            face7.edges.push_back(edge1);
-            face7.edges.push_back(edge2);
-            face7.edges.push_back(edge3);
+            face8.edges.push_back(edge1);
+            face8.edges.push_back(edge2);
+            face8.edges.push_back(edge3);
         }
         res.faces.push_back(face1);
         res.faces.push_back(face2);
@@ -441,6 +461,7 @@ public:
         res.faces.push_back(face5);
         res.faces.push_back(face6);
         res.faces.push_back(face7);
+        res.faces.push_back(face8);
         return res;
     }
 };

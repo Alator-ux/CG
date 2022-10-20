@@ -13,8 +13,6 @@ bool string_item_getter(void* data, int index, const char** output)
 
 bool primitive_item_getter(void* data, int index, const char** output)
 {
-    std::stringstream ss;
-    ss << "Object " << index;
     std::string str = "Object ";
     str.append(std::to_string(index));
     * output = str.c_str();

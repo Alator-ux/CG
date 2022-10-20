@@ -6,7 +6,7 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include "Primitives.h"
-
+#include <sstream>
 
 bool string_item_getter(void* data, int index, const char** output);
 bool primitive_item_getter(void* data, int index, const char** output);
@@ -14,15 +14,24 @@ bool primitive_item_getter(void* data, int index, const char** output);
 class DropDownMenu {
     const char* label;
     std::vector<std::string> items;
+    float width;
 public:
     int selectedItem = 0;
-    DropDownMenu(const char* label, std::vector<std::string> items) {
+    DropDownMenu(const char* label, std::vector<std::string> items, float width = -1) {
         this->label = label;
         this->items = items;
+        this->width = width;
     }
     bool draw() {
-        return ImGui::Combo(label, &selectedItem, string_item_getter, 
-                            (void*)items.data(), (int)items.size());
+        if (width == -1) {
+            return ImGui::Combo(label, &selectedItem, string_item_getter,
+                (void*)items.data(), (int)items.size());
+        }
+        ImGui::PushItemWidth(width);
+        bool touched = ImGui::Combo(label, &selectedItem, string_item_getter,
+            (void*)items.data(), (int)items.size());
+        ImGui::PopItemWidth();
+        return touched;
     }
 };
 
@@ -83,5 +92,151 @@ public:
     }
 };
 
+class IntSlider {
+    const char* label;
+    int value;
+    int min_value;
+    int max_value;
+public:
+    IntSlider(const char * label, int min_value, int max_value) {
+        this->label = label;
+        this->value = min_value;
+        this->min_value = min_value;
+        this->max_value = max_value;
+    }
+    bool draw() {
+        return ImGui::SliderInt(label, &value, min_value, max_value);
+    }
+    int get_value() {
+        return value;
+    }
+};
+
+class FloatSlider {
+    const char* label;
+    float value;
+    float min_value;
+    float max_value;
+public:
+    FloatSlider(const char* label, float min_value, float max_value) {
+        this->label = label;
+        this->value = min_value;
+        this->min_value = min_value;
+        this->max_value = max_value;
+    }
+    bool draw() {
+        return ImGui::SliderFloat(label, &value, min_value, max_value);
+    }
+    float get_value() {
+        return value;
+    }
+};
+
+class RadioButton {
+    const char* label;
+    bool activated;
+public:
+    RadioButton(const char* label) {
+        this->label = label;
+        this->activated = false;
+    }
+    RadioButton(const char* label, bool activated) {
+        this->label = label;
+        this->activated = activated;
+    }
+    bool draw() {
+        return ImGui::RadioButton(label, activated);
+    }
+    void activate(){
+        this->activated = true;
+    }
+    void disable() {
+        this->activated = false;
+    }
+};
+
+class RadioButtonRow {
+    std::vector<RadioButton> buttons;
+    std::vector<std::string> labels;
+    int active = 0;
+public:
+    RadioButtonRow(std::vector<std::string> labels) {
+        this->labels = labels;
+        bool flag = true;
+        for (std::string& label : this->labels) {
+            auto r = RadioButton(label.c_str(), flag);
+            buttons.push_back(r);
+            flag = false;
+        }
+    }
+    bool draw() {
+        bool was_pressed = false;
+        for (size_t i = 0; i < buttons.size(); i++) {
+            bool pressed = buttons[i].draw();
+            if (i != buttons.size() - 1) {
+                ImGui::SameLine();
+            }
+            if (pressed && active != i) {
+                buttons[i].activate();
+                buttons[active].disable();
+                active = i;
+                was_pressed = true;
+            }
+        }
+
+        return was_pressed;
+    }
+    int get_value() {
+        return active;
+    }
+};
+
+class InputFloat {
+    const char* label;
+    float value = 0.0f;
+public:
+    InputFloat(const char* label) {
+        this->label = label;
+    }
+    bool draw() {
+        ImGui::PushItemWidth(60);
+        bool touched = ImGui::InputFloat(label, &value);
+        ImGui::PopItemWidth();
+        return touched;
+    }
+    float get_value() {
+        return value;
+    }
+};
+
+class Vec3Selector {
+    std::vector<InputFloat> text_fields;
+public:
+    Vec3Selector() {
+        auto label = "x";
+        text_fields.push_back(InputFloat(label));
+        label = "y";
+        text_fields.push_back(InputFloat(label));
+        label = "z";
+        text_fields.push_back(InputFloat(label));
+    }
+    bool draw() {
+        bool was_writed = false;
+        for (size_t i = 0; i < text_fields.size(); i++) {
+            was_writed =  was_writed || text_fields[i].draw();
+            if (i != text_fields.size() - 1) {
+                ImGui::SameLine();
+            }
+        }
+
+        return was_writed;
+    }
+    glm::vec3 get_value() {
+        auto x = text_fields[0].get_value();
+        auto y = text_fields[1].get_value();
+        auto z = text_fields[2].get_value();
+        return glm::vec3(x, y, z);
+    }
+};
 
 #endif

@@ -3,35 +3,43 @@
 #include "Figure.h"
 #include "PrimitiveChanger.h"
 
-void shift(Figure* figure, float xs, float ys, float zs) {
+void shift(Figure* figure, glm::vec3 vec) {
+    auto center = figure->center();
+    auto d = vec - center;
     auto shiftMatrix = glm::mat4x4(
-        1, 0, 0, xs,
-        0, 1, 0, ys,
-        0, 0, 1, zs,
-        0, 0, 0, 1
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        d.x, d.y, d.z, 1
     );
     figure->transform([shiftMatrix](glm::vec3 p)->glm::vec3 {
         auto res = shiftMatrix * glm::vec4(p.x, p.y, p.z, 1); // TODO: ебанёт
-        return glm::vec3(res[0, 0], res[1, 0], res[2, 0]);
+        //res /= res.w;
+        return res;
         });
 }
 
 
 
-void scale(Figure* figure, float xs, float ys, float zs){
+void scale(Figure* figure, glm::vec3 vec){
     auto scaleMatrix = glm::mat4x4(
-        xs, 0, 0, 0,
-        0, ys, 0, 0,
-        0, 0, zs, 0,
+        vec.x, 0, 0, 0,
+        0, vec.y, 0, 0,
+        0, 0, vec.z, 0,
         0, 0, 0, 1
     );
     figure->transform([scaleMatrix](glm::vec3 p)->glm::vec3 {
         auto res = scaleMatrix * glm::vec4(p.x, p.y, p.z, 1); // TODO: ебанёт
-        return glm::vec3(res[0, 0], res[1, 0], res[2, 0]);
+        return res;
         });
 }
 
+void scale_around_center(Figure* figure) {
+    auto around = figure->center();
+    scale(figure, around);
+}
 
+// TODO: удалить
 void scaleNshift(Figure* figure, float scalex, float scaley, float scalez, float shiftx, float shifty, float shiftz) {
     auto magicMatrix = glm::mat4x4(
         scalex, 0, 0, 0,
@@ -48,7 +56,7 @@ void scaleNshift(Figure* figure, float scalex, float scaley, float scalez, float
 void rotate(Figure* figure, Axis axis, float angle) {
     float radianAngle = toRadians(angle);
     auto angleCos = cos(radianAngle);
-    auto angleSin = cos(radianAngle);
+    auto angleSin = sin(radianAngle);
     glm::mat4x4 rotationMatrix;
     switch (axis) {
     case Axis::ox:
@@ -78,7 +86,7 @@ void rotate(Figure* figure, Axis axis, float angle) {
     }
     figure->transform([rotationMatrix](glm::vec3 p)->glm::vec3 {
         auto res = rotationMatrix * glm::vec4(p.x, p.y, p.z, 1); // TODO: ебанёт
-        return glm::vec3(res[0, 0], res[1, 0], res[2, 0]);
+        return res;
         });
 }
 
@@ -123,21 +131,21 @@ void reflectionAboutTheAxis(Figure* figure, Axis axis)
     case Axis::ox:                
         reflectionMatrix = glm::mat4x4(
             1, 0, 0, 0,
-            0, 1, 0, 0,
+            0, -1, 0, 0,
             0, 0, -1, 0, 
             0, 0, 0, 1);
         break;
     case Axis::oy: 
         reflectionMatrix = glm::mat4x4(
-            1, 0, 0, 0,
-            0, -1, 0, 0,
-            0, 0, 1, 0, 0,
-            0, 0, 1);
+            -1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, -1, 0, 
+            0,0, 0, 1);
         break;
     case Axis::oz:
         reflectionMatrix = glm::mat4x4(
             -1, 0, 0, 0,
-            0, 1, 0, 0,
+            0, -1, 0, 0,
             0, 0, 1, 0,
             0, 0, 0, 1);
         break;
@@ -146,7 +154,7 @@ void reflectionAboutTheAxis(Figure* figure, Axis axis)
     // отражение фигуры
     figure->transform([reflectionMatrix](glm::vec3 p)->glm::vec3 {
         auto res = reflectionMatrix * glm::vec4(p.x, p.y, p.z, 1); // TODO: ебанёт
-        return glm::vec3(res[0, 0], res[1, 0], res[2, 0]);
+        return res;
         });
 }
 

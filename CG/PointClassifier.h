@@ -8,8 +8,6 @@
 #define right_from_edge "Point is right from edge";
 #define on_the_edge "Point on the edge";
 class PointClassifier {
-    std::vector<Primitive>* storage;
-    int item_index;
 
     bool is_polygon_convex(Polygon pol) {
         auto points = pol.points;
@@ -45,20 +43,10 @@ class PointClassifier {
 public:
     PointClassifier() {};
 
-    PointClassifier(std::vector<Primitive>* storage) {
-        this->storage = storage;
-        this->item_index = -1;
-    };
-
-    void set_active_item(int item_index) {
-        this->item_index = item_index;
-    }
-
-    std::string classify(glm::vec3 point) {
-        if (item_index == empty_item) {
+    std::string classify(Primitive* item, glm::vec3 point) {
+        if (item == nullptr) {
             return "Nothing to classify";
         }
-        Primitive* item = &(*storage)[item_index];
         std::string str;
         if (item->type == 1) {
             Edge* edge = reinterpret_cast<Edge*>(item);
