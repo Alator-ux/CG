@@ -139,6 +139,12 @@ public:
             }
         }
     }
+    
+    void transform(glm::mat4x4 transform_matrix) {
+        this->transform([transform_matrix](glm::vec3 p)->glm::vec3 {
+            return transform_matrix * glm::vec4(p.x, p.y, p.z, 1);
+            });
+    }
 };
 
 
