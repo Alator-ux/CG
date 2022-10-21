@@ -78,19 +78,19 @@ public:
     Face(glm::vec3 coords, glm::vec3 color) {
         this->points.push_back(coords);
         this->color = color;
-        //this->drawing_type = GL_TRIANGLES;
+        this->drawing_type = GL_TRIANGLES;
     }
     void push_point(glm::vec3 coords) {
         points.push_back(coords);
     }
-    /*bool primitive_is_finished() {
+    bool primitive_is_finished() {
         if (points.size() < 3) {
             return false;
         }
-        //drawing_type = GL_TRIANGLE_STRIP;
+        drawing_type = GL_TRIANGLE_FAN;
         return true;
 
-    }*/
+    }
     glm::vec3 center() {
         float x=0, y=0, z=0;
         auto res = glm::vec3(0.0f);
@@ -133,8 +133,8 @@ public:
     /// </summary>
     void transform(std::function<glm::vec3(glm::vec3)> transofrmator) { //TODO: если найдёшь, как передавать по ссылке аргумент - молодец, поменяй
         for (auto i = 0; i < faces.size(); i++) {
-            for (auto j = 0; j < faces[j].points.size(); j++) {
-                faces[j].points[j] = transofrmator(faces[j].points[j]);
+            for (auto j = 0; j < faces[i].points.size(); j++) {
+                faces[i].points[j] = transofrmator(faces[i].points[j]);
             }
         }
     }
@@ -194,17 +194,17 @@ public:
         h /= bound;
         //TODO: изобрести метод buildTriangle
 
-        Face face1 = Face(a, color);
+        Face face1 = Face(a, glm::vec3(1.f, 0.f, 0.f));
         face1.push_point(f);
         face1.push_point(c);
         face1.primitive_is_finished();
 
-        Face face2 = Face(f, color);
+        Face face2 = Face(f, glm::vec3(0.f, 1.f, 0.f));
         face2.push_point(c);
         face2.push_point(h);
         face2.primitive_is_finished();
 
-        Face face3 = Face(c, color);
+        Face face3 = Face(c, glm::vec3(0.f, 0.f, 1.f));
         face3.push_point(h);
         face3.push_point(a);
         face3.primitive_is_finished();
@@ -225,46 +225,54 @@ public:
     Hexahedron buildHexahedron(glm::vec3 color) {
         auto hexa = Hexahedron();
         glm::vec3 a = glm::vec3(0, 0, 0);
-        glm::vec3 b = glm::vec3(200, 0, 0);
-        glm::vec3 c = glm::vec3(200, 0, 200);
-        glm::vec3 d = glm::vec3(0, 0, 200);
-        glm::vec3 e = glm::vec3(0, 200, 0);
-        glm::vec3 f = glm::vec3(200, 200, 0);
-        glm::vec3 g = glm::vec3(200, 200, 200);
-        glm::vec3 h = glm::vec3(0, 200, 200);
+        glm::vec3 b = glm::vec3(bound / 2, 0, 0);
+        glm::vec3 c = glm::vec3(bound / 2, 0, -bound / 2);
+        glm::vec3 d = glm::vec3(0, 0, -bound / 2);
+        glm::vec3 e = glm::vec3(0, bound / 2, 0);
+        glm::vec3 f = glm::vec3(bound / 2, bound / 2, 0);
+        glm::vec3 g = glm::vec3(bound / 2, bound / 2, -bound / 2);
+        glm::vec3 h = glm::vec3(0, bound / 2, -bound / 2);
+        a /= bound;
+        b /= bound;
+        c /= bound;
+        d /= bound;
+        e /= bound;
+        f /= bound;
+        g /= bound;
+        h /= bound;
 
-        Face face1 = Face(a, color);
+        Face face1 = Face(a, glm::vec3(1.f, 0.f, 0.f));
         face1.push_point(b);
         face1.push_point(c);
         face1.push_point(d);
         face1.primitive_is_finished();
             
-        Face face2 = Face(b, color);
+        Face face2 = Face(b, glm::vec3(0.f, 1.f, 0.f));
         face2.push_point(c);
         face2.push_point(g);
         face2.push_point(f);
         face2.primitive_is_finished();
         
-        Face face3 = Face(f, color);
+        Face face3 = Face(f, glm::vec3(0.f, 0.f, 1.f));
         face3.push_point(g);
         face3.push_point(h);
         face3.push_point(e);
         face3.primitive_is_finished();
 
-        Face face4 = Face(h, color);
+        Face face4 = Face(h, glm::vec3(1.f, 1.f, 0.f));
         face4.push_point(e);
         face4.push_point(a);
         face4.push_point(d);
         face4.primitive_is_finished();
 
-        Face face5 = Face(a, color);
+        Face face5 = Face(a, glm::vec3(1.f, 0.f, 1.f));
         face5.push_point(b);
         face5.push_point(f);
         face5.push_point(e);
         face5.primitive_is_finished();
             
         
-        Face face6 = Face(d, color);
+        Face face6 = Face(d, glm::vec3(0.f, 1.f, 1.f));
         face6.push_point(c);
         face6.push_point(g);
         face6.push_point(h);
@@ -290,42 +298,42 @@ public:
         auto e = core.faces[4].center();
         auto f = core.faces[5].center();
 
-        Face face1 = Face(a, color);
+        Face face1 = Face(a, glm::vec3(1.f, 0.f, 0.f));
         face1.push_point(f);
         face1.push_point(b);
         face1.primitive_is_finished();
 
-        Face face2 = Face(b, color);
+        Face face2 = Face(b, glm::vec3(0.f, 1.f, 0.f));
         face2.push_point(c);
         face2.push_point(f);
         face2.primitive_is_finished();
 
-        Face face3 = Face(c, color);
+        Face face3 = Face(c, glm::vec3(0.f, 0.f, 1.f));
         face3.push_point(d);
         face3.push_point(f);
         face3.primitive_is_finished();
 
-        Face face4 = Face(d, color);
+        Face face4 = Face(d, glm::vec3(1.f, 1.f, 0.f));
         face4.push_point(a);
         face4.push_point(f);
         face4.primitive_is_finished();
 
-        Face face5 = Face(a, color);
+        Face face5 = Face(a, glm::vec3(1.f, 0.f, 1.f));
         face5.push_point(e);
         face5.push_point(b);
         face5.primitive_is_finished();
 
-        Face face6 = Face(b, color);
+        Face face6 = Face(b, glm::vec3(0.f, 1.f, 1.f));
         face6.push_point(e);
         face6.push_point(c);
         face6.primitive_is_finished();
 
-        Face face7 = Face(c, color);
+        Face face7 = Face(c, glm::vec3(1.f, 1.f, 1.f));
         face7.push_point(e);
         face7.push_point(d);
         face7.primitive_is_finished();
 
-        Face face8 = Face(d, color);
+        Face face8 = Face(d, glm::vec3(0.5f, 0.5f, 0.5f));
         face8.push_point(e);
         face8.push_point(a);
         face8.primitive_is_finished();

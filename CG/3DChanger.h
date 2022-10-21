@@ -13,8 +13,7 @@ void shift(Figure* figure, glm::vec3 vec) {
         d.x, d.y, d.z, 1
     );
     figure->transform([shiftMatrix](glm::vec3 p)->glm::vec3 {
-        auto res = shiftMatrix * glm::vec4(p.x, p.y, p.z, 1); // TODO: ебанёт
-        //res /= res.w;
+        auto res = shiftMatrix * glm::vec4(p.x, p.y, p.z, 1);
         return res;
         });
 }
@@ -29,28 +28,15 @@ void scale(Figure* figure, glm::vec3 vec){
         0, 0, 0, 1
     );
     figure->transform([scaleMatrix](glm::vec3 p)->glm::vec3 {
-        auto res = scaleMatrix * glm::vec4(p.x, p.y, p.z, 1); // TODO: ебанёт
-        return res;
+        auto res = scaleMatrix * glm::vec4(p.x, p.y, p.z, 1);
         });
 }
 
-void scale_around_center(Figure* figure) {
+void scale_around_center(Figure* figure, glm::vec3 vec) {
     auto around = figure->center();
-    scale(figure, around);
-}
-
-// TODO: удалить
-void scaleNshift(Figure* figure, float scalex, float scaley, float scalez, float shiftx, float shifty, float shiftz) {
-    auto magicMatrix = glm::mat4x4(
-        scalex, 0, 0, 0,
-        0, scaley, 0, 0,
-        0, 0, scalez, 0,
-        (1-scalex)*shiftx, (1 - scaley) * shifty, (1 - scalez) * shiftz, 1
-    );
-    figure->transform([magicMatrix](glm::vec3 p)->glm::vec3 {
-        auto res = magicMatrix * glm::vec4(p.x, p.y, p.z, 1); // TODO: ебанёт
-        return glm::vec3(res[0, 0], res[1, 0], res[2, 0]);
-        });
+    shift(figure, glm::vec3(0.f));
+    scale(figure, vec);
+    shift(figure, around);
 }
 
 void rotate(Figure* figure, Axis axis, float angle) {
@@ -85,7 +71,7 @@ void rotate(Figure* figure, Axis axis, float angle) {
         break;
     }
     figure->transform([rotationMatrix](glm::vec3 p)->glm::vec3 {
-        auto res = rotationMatrix * glm::vec4(p.x, p.y, p.z, 1); // TODO: ебанёт
+        auto res = rotationMatrix * glm::vec4(p.x, p.y, p.z, 1);
         return res;
         });
 }
@@ -101,11 +87,25 @@ void rotate_around_line(Figure* figure, float angle, glm::vec3 p1, glm::vec3 p2)
         p2 = tmp;
     }
 
-    glm::vec3 rotate_point = glm::vec3(p2.x - p1.x, p2.y - p1.y, p2.z - p1.z);//прямая, вокруг которой будем вращать
+    auto center = figure->center();
+    auto d = p1 - center;
+    auto shiftMatrix = glm::mat4x4(
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        -p1.x, -p1.y, -p1.z, 1
+    );
+    auto shiftMatrix2 = glm::mat4x4(
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        p1.x, p1.y, p1.z, 1
+    );
 
+    glm::vec3 rotate_point = p2 - p1;//прямая, вокруг которой будем вращать
     double length = sqrt(rotate_point.x * rotate_point.x + rotate_point.y * rotate_point.y + rotate_point.z * rotate_point.z);
     double l = rotate_point.x / length;
-    double m = rotate_point.x / length;
+    double m = rotate_point.y / length;
     double n = rotate_point.z / length;
     
     double anglesin = sin(toRadians(angle));
@@ -115,11 +115,19 @@ void rotate_around_line(Figure* figure, float angle, glm::vec3 p1, glm::vec3 p2)
         l * (1 - anglecos) * m + n * anglesin, m * m + anglecos * (1 - m * m), m * (1 - anglecos) * n - l * anglesin, 0,
         l * (1 - anglecos) * n - m * anglesin, m * (1 - anglecos) * n + l * anglesin, n * n + anglecos * (1 - n * n), 0,
         0, 0, 0, 1);
-
-    figure->transform([rotation_matrix](glm::vec3 p)->glm::vec3 {
-        auto res = rotation_matrix * glm::vec4(p.x, p.y, p.z, 1); // TODO: ебанёт
-        return glm::vec3(res[0, 0], res[1, 0], res[2, 0]);
+    auto res_matr = shiftMatrix2 * rotation_matrix * shiftMatrix;
+    figure->transform([res_matr](glm::vec3 p)->glm::vec3 {
+        auto res = res_matr * glm::vec4(p.x, p.y, p.z, 1);
+        return res;
         });
+
+}
+
+void rotate_around_center(Figure* figure, Axis axis, float angle) {
+    auto center = figure->center();
+    shift(figure, glm::vec3(0.f));
+    rotate(figure, axis, angle);
+    shift(figure, center);
 }
 
 // Отражение относительно выбранной координатной плоскости
@@ -156,37 +164,5 @@ void reflectionAboutTheAxis(Figure* figure, Axis axis)
         auto res = reflectionMatrix * glm::vec4(p.x, p.y, p.z, 1); // TODO: ебанёт
         return res;
         });
-}
-
-void rotationThroughTheCenter(Figure* figure, Axis axis, float angle)
-{
-    double sumX = 0, sumY = 0, sumZ = 0;
-    for(auto face : figure->faces)
-    {
-        auto center = face.center();
-        sumX += center.x;
-        sumY += center.y;
-        sumZ += center.z;
-    }
-    auto size = figure->faces.size();
-    // центр фигуры
-    glm::vec3 center = glm::vec3(sumX / size, sumY / size, sumZ / size);
-
-    auto rotationMatrix = glm::mat4x4(1, 0, 0, -center.x, 0, 1, 0, -center.y, 0, 0, 1, -center.z, 0, 0, 0, 1);
-    figure->transform([rotationMatrix](glm::vec3 p)->glm::vec3 {
-        auto res = rotationMatrix * glm::vec4(p.x, p.y, p.z, 1); // TODO: ебанёт
-        return glm::vec3(res[0, 0], res[1, 0], res[2, 0]);
-    });
-
-    // поворачиваем относительно оси
-    rotate(figure, axis, angle);
-
-    // возвращаем на исходное место
-    rotationMatrix = glm::mat4x4(1, 0, 0, center.x, 0, 1, 0, center.y, 0, 0, 1, center.z, 0, 0, 0, 1);
-    figure->transform([rotationMatrix](glm::vec3 p)->glm::vec3 {
-        auto res = rotationMatrix * glm::vec4(p.x, p.y, p.z, 1); // TODO: ебанёт
-        return glm::vec3(res[0, 0], res[1, 0], res[2, 0]);
-    });
-
 }
 

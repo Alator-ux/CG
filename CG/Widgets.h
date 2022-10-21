@@ -192,15 +192,15 @@ public:
 };
 
 class InputFloat {
-    const char* label;
+    std::string label;
     float value = 0.0f;
 public:
-    InputFloat(const char* label) {
+    InputFloat(const std::string& label) {
         this->label = label;
     }
     bool draw() {
         ImGui::PushItemWidth(60);
-        bool touched = ImGui::InputFloat(label, &value);
+        bool touched = ImGui::InputFloat(label.c_str(), &value);
         ImGui::PopItemWidth();
         return touched;
     }
@@ -211,25 +211,31 @@ public:
 
 class Vec3Selector {
     std::vector<InputFloat> text_fields;
+    static char identifier;
 public:
     Vec3Selector() {
-        auto label = "x";
+        char id[1];
+        id[0] = identifier;
+        std::string label = "x##";
+        label.append(id);
         text_fields.push_back(InputFloat(label));
-        label = "y";
+        label = "y##";
+        label.append(id);
         text_fields.push_back(InputFloat(label));
-        label = "z";
+        label = "z##";
+        label.append(id);
         text_fields.push_back(InputFloat(label));
+        identifier++;
     }
     bool draw() {
-        bool was_writed = false;
+        bool touched = false;
         for (size_t i = 0; i < text_fields.size(); i++) {
-            was_writed =  was_writed || text_fields[i].draw();
+            touched = touched || text_fields[i].draw();
             if (i != text_fields.size() - 1) {
                 ImGui::SameLine();
             }
         }
-
-        return was_writed;
+        return touched;
     }
     glm::vec3 get_value() {
         auto x = text_fields[0].get_value();

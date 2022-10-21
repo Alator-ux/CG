@@ -6,9 +6,9 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_glfw.h>
 #include "Widgets.h"
-#include "Selector.h"
 #include "3DChanger.h"
 #include "Drawer.h"
+#include "Projection.h"
 using namespace std;
 
 const GLuint W_WIDTH = 1280;
@@ -53,26 +53,20 @@ int main() {
     bool show_demo_window = false;
     
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-    std::vector<string> items = { "Koch curve", "Koch snowflake",
-        "Serpinsky Triangle", "Serpinsky carpet", "High tree"};
-    auto ddm = DropDownMenu("Fractal type", items);
+    std::vector<string> items = { "Perspective", "Axonometric", "None"};
+    auto ddm = DropDownMenu("Projection type", items);
     //auto lb = ListBox("Points", bezier.get_bezier_points());
     auto colorChooser = ColorChooser("Primitive Color");
-    auto frac_slider = IntSlider("Fractal generation", 1, 15);
-    auto fcscs = IntSlider("Color steps count", 0, 100); // frac color steps count slider
-    auto frafs = IntSlider("Random angle from", 0, 360); // frac random angle from slider
-    auto frats = IntSlider("Random angle to", 0, 360); // frac random angle to slider
-    auto midp_count_slider = IntSlider("Midpoints count", 0, 40);
-    auto midp_coef_slider = FloatSlider("Midpoints coef", 0, 1);
+    
 
     
     auto fig_builder = FigureBuilder();
 
-    items = {"Add", "Shift", "Scale", "Rotate", "Reflect by plane"};
+    items = {"Add", "Shift", "Scale", "Rotate", "Custom rotate", "Reflect by axis"};
     auto rbr = RadioButtonRow(items);
 
     // Widgets for Add mode
-    items = {"Tetrahedron", "Hexahedron", "Octahedron"};
+    items = {"Tetrahedron", "Octahedron", "Hexahedron"};
     auto poly_menu = DropDownMenu("Polyhedron type", items);
 
     // Widgets for Shift and Scale mode
@@ -85,6 +79,15 @@ int main() {
     items = { "ox", "oy", "oz" };
     auto axis_menu = DropDownMenu("Axis type", items, 80);
     auto angle_selector = InputFloat("Angle");
+
+
+    
+    /* Widgets for Custom rotate mode */
+    // point 1 vec3 custom rotate selector
+    auto p1_vec3_crs = Vec3Selector();
+    // point 2 vec3 custom rotate selector
+    auto p2_vec3_crs = Vec3Selector();
+
 
     // Widgets for Reflection relative to the selected coordinate plane
     // axis_menu
@@ -104,8 +107,8 @@ int main() {
         {
             ImGui::Begin("Hello, world!", 0, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 
-            if (colorChooser.draw()) {
-                //pf.update_color(colorChooser.rgb_value());
+            if (ddm.draw()) {
+                drawer.set_projection_mode(projection::Type(ddm.selectedItem));
             }
 
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
@@ -147,8 +150,8 @@ int main() {
                 ImGui::SameLine();
                 ImGui::Text(" or ");
                 ImGui::SameLine();
-                if (ImGui::Button("around center")) {
-                    scale_around_center(&storage[0]);
+                if (ImGui::Button("Apply around center")) {
+                    scale_around_center(&storage[0], vec3_selector.get_value());
                     drawer.set_vbo("figure", storage);
                 }
                 break;
@@ -162,9 +165,32 @@ int main() {
                     rotate(&storage[0], Axis(axis_menu.selectedItem), angle_selector.get_value());
                     drawer.set_vbo("figure", storage);
                 }
+                ImGui::SameLine();
+                ImGui::Text(" or ");
+                ImGui::SameLine();
+                if (ImGui::Button("Apply around center")) {
+                    rotate_around_center(&storage[0], Axis(axis_menu.selectedItem), angle_selector.get_value());
+                    drawer.set_vbo("figure", storage);
+                }
                 break;
             }
             case 4:
+            {
+                ImGui::Text("First point coordinates: ");
+                ImGui::SameLine();
+                p1_vec3_crs.draw();
+                ImGui::Text("Second point coordinates: ");
+                ImGui::SameLine();
+                p2_vec3_crs.draw();
+                angle_selector.draw();
+                if (ImGui::Button("Apply")) {
+                    rotate_around_line(&storage[0], angle_selector.get_value(),
+                        p1_vec3_crs.get_value(), p2_vec3_crs.get_value());
+                    drawer.set_vbo("figure", storage);
+                }
+                break;
+            }
+            case 5:
             {
                 axis_menu.draw();
                 if (ImGui::Button("Apply")) {

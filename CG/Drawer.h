@@ -9,6 +9,7 @@ class Drawer {
     OpenGLManager* manager;
     glm::mat4 ortho;
     glm::mat4 projection;
+    float aspect;
     bool first;
     template <typename T>
     void prepare_for_drawing(std::vector<T>& elements, const std::string& buffer_name) {
@@ -16,7 +17,6 @@ class Drawer {
             return;
         }
         shader->use_program();
-        shader->uniformMatrix4fv("projection", projection);
 
         glEnableVertexAttribArray(vPos);
         glBindBuffer(GL_ARRAY_BUFFER, manager->get_buffer_id(buffer_name));
@@ -39,16 +39,38 @@ public:
         this->manager = OpenGLManager::get_instance();
         this->first = true;
 
-        float aspect = (float)w_width / (float)w_height;
-        //this->projection = projection::perspective(glm::radians(45.0f), aspect,
-        //    1.f, 20000.f);
-        projection = glm::perspective(glm::radians(60.0f), aspect, 0.001f, 100.0f);
-
+        this->aspect = (float)w_width / (float)w_height;
+        
 
         this->ortho = glm::ortho(0.0f, (float)w_width, (float)w_height, 0.0f,
             (float)1, -(float)1);
+        set_projection_mode(projection::pers);
+    }
+    void set_projection_mode(projection::Type type) {
         shader->use_program();
-        //shader->uniformMatrix4fv("ortho", this->ortho);
+        switch (type)
+        {
+        case projection::pers:
+        {
+            projection = projection::perspective(glm::radians(60.0f), aspect, 0.001f, 100.0f);
+            shader->uniformMatrix4fv("projection", projection);
+            break;
+        }
+        case projection::axon:
+        {
+            projection = projection::axonometric(PI / 6, -(PI / 3));
+            shader->uniformMatrix4fv("projection", projection);
+            break;
+        }
+        case projection::none:
+        {
+            projection = glm::mat4(1);
+            shader->uniformMatrix4fv("projection", projection);
+            break;
+        }
+        default:
+            break;
+        }
         shader->disable_program();
     }
     void draw(std::vector<Primitive>& primitives, const std::string& buffer_name) {
