@@ -19,7 +19,6 @@ void shift(Figure* figure, glm::vec3 vec) {
 }
 
 
-
 void scale(Figure* figure, glm::vec3 vec){
     auto scaleMatrix = glm::mat4x4(
         vec.x, 0, 0, 0,
@@ -29,6 +28,7 @@ void scale(Figure* figure, glm::vec3 vec){
     );
     figure->transform([scaleMatrix](glm::vec3 p)->glm::vec3 {
         auto res = scaleMatrix * glm::vec4(p.x, p.y, p.z, 1);
+        return res;
         });
 }
 
@@ -161,7 +161,7 @@ void reflectionAboutTheAxis(Figure* figure, Axis axis)
 
     // отражение фигуры
     figure->transform([reflectionMatrix](glm::vec3 p)->glm::vec3 {
-        auto res = reflectionMatrix * glm::vec4(p.x, p.y, p.z, 1); // TODO: ебанёт
+        auto res = reflectionMatrix * glm::vec4(p.x, p.y, p.z, 1);
         return res;
         });
 }

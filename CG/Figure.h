@@ -3,6 +3,7 @@
 #include <vector>
 #include "Primitives.h"
 #include <functional>
+#include "PrimitiveChanger.h"
 /*
 Immortal temptation
 Takes over my mind, condemned
@@ -169,7 +170,7 @@ public:
         case Octahed:
             return buildOctahedron(color);
         case Icosahed:
-            break;
+            return buildIcosahedron(color);
         case Dodecahed:
             break;
         }
@@ -346,6 +347,239 @@ public:
         res.faces.push_back(face6);
         res.faces.push_back(face7);
         res.faces.push_back(face8);
+        return res;
+    }
+
+    /*Icosahedron buildIcosahedron(glm::vec3 color) {
+        auto res = Icosahedron();
+        glm::vec3 center = glm::vec3(0.f);
+        std::vector<glm::vec3> circle;
+        for (size_t angle = 0; angle < 360; angle += 36) {
+            if (angle % 72 == 0) {
+                circle.push_back(glm::vec3(center.x + (cos(toRadians(angle))), center.y + 0.1, 
+                    center.z + (sin(toRadians(angle)))));
+                continue;
+            }
+            circle.push_back(glm::vec3(center.x + (cos(toRadians(angle))), center.y,
+                center.z + (sin(toRadians(angle)))));
+        }
+        glm::vec3 a = glm::vec3(0, -0.1, 0);
+        glm::vec3 b = glm::vec3(0, 0.1, 0);
+
+        Face face;
+        for (int i = 0; i < 10; i++) {
+            face = Face(circle[i], color);
+            face.push_point(circle[(i + 1) % 10]);
+            face.push_point(circle[(i + 2) % 10]);
+            face.primitive_is_finished();
+            res.faces.push_back(face);
+        }
+
+        auto top_color = glm::vec3(39.f / 255.f, 36.f / 255.f, 37.f/255.f);
+
+        face = Face(circle[1], top_color);
+        face.push_point(a);
+        face.push_point(circle[3]);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+        
+        face = Face(circle[3], top_color);
+        face.push_point(a);
+        face.push_point(circle[5]);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+        face = Face(circle[5], top_color);
+        face.push_point(a);
+        face.push_point(circle[7]);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+        face = Face(circle[7], top_color);
+        face.push_point(a);
+        face.push_point(circle[9]);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+        face = Face(circle[9], top_color);
+        face.push_point(a);
+        face.push_point(circle[1]);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+
+        face = Face(circle[0], top_color);
+        face.push_point(b);
+        face.push_point(circle[2]);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+        face = Face(circle[2], top_color);
+        face.push_point(b);
+        face.push_point(circle[4]);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+        face = Face(circle[4], top_color);
+        face.push_point(b);
+        face.push_point(circle[6]);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+        face = Face(circle[6], top_color);
+        face.push_point(b);
+        face.push_point(circle[8]);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+        face = Face(circle[8], top_color);
+        face.push_point(b);
+        face.push_point(circle[0]);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+       
+        return res;
+    }*/
+
+    Icosahedron buildIcosahedron(glm::vec3 color) {
+        auto res = Icosahedron();
+
+        auto an_color = glm::vec3(1.f) - color;
+        auto half_bound = bound / 2;
+        float r = half_bound;
+        auto p1 = glm::vec3(0, -half_bound, -r) / bound;
+        auto p2 = glm::vec3(0, half_bound, -r) / bound;
+        auto p3 = glm::vec3(half_bound, r, 0) / bound;
+        auto p4 = glm::vec3(r, 0, -half_bound) / bound;
+        auto p5 = glm::vec3(half_bound, -r, 0) / bound;
+        auto p6 = glm::vec3(-half_bound, -r, 0) / bound;
+        auto p7 = glm::vec3(-r, 0, -half_bound) / bound;
+        auto p8 = glm::vec3(-half_bound, r, 0) / bound;
+        auto p9 = glm::vec3(r, 0, half_bound) / bound;
+        auto p10 = glm::vec3(-r, 0, half_bound) / bound;
+        auto p11 = glm::vec3(0, -half_bound, r) / bound;
+        auto p12 = glm::vec3(0, half_bound, r) / bound;
+
+        Face face = Face(p1, glm::vec3(1.f, 0.f, 0.f));
+        face.push_point(p2);
+        face.push_point(p4);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+        face = Face(p1, glm::vec3(0.f, 1.f, 0.f));
+        face.push_point(p2);
+        face.push_point(p7);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+        face = Face(p7, glm::vec3(0.f, 0.f, 1.f));
+        face.push_point(p2);
+        face.push_point(p8);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+        face = Face(p8, glm::vec3(1.f, 1.f, 0.f));
+        face.push_point(p2);
+        face.push_point(p3);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+        face = Face(p4, glm::vec3(1.f, 0.f, 1.f));
+        face.push_point(p2);
+        face.push_point(p3);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+        face = Face(p6, glm::vec3(0.f, 1.f, 1.f));
+        face.push_point(p1);
+        face.push_point(p5);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+        face = Face(p6, glm::vec3(1.f, 1.f, 1.f));
+        face.push_point(p7);
+        face.push_point(p10);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+        face = Face(p10, glm::vec3(0.f, 0.f, 0.f));
+        face.push_point(p7);
+        face.push_point(p8);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+        face = Face(p10, glm::vec3(0.5f, 0.f, 0.f));
+        face.push_point(p8);
+        face.push_point(p12);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+        face = Face(p12, glm::vec3(0.5f, 0.5f, 0.f));
+        face.push_point(p8);
+        face.push_point(p3);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+        face = Face(p9, glm::vec3(0.5f, 0.0f, 0.5f));
+        face.push_point(p4);
+        face.push_point(p3);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+        face = Face(p5, glm::vec3(0.0f, 0.5f, 0.5f));
+        face.push_point(p4);
+        face.push_point(p9);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+        face = Face(p12, glm::vec3(0.5f, 0.5f, 0.5f));
+        face.push_point(p3);
+        face.push_point(p9);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+        face = Face(p5, glm::vec3(1.0f, 0.5f, 0.5f));
+        face.push_point(p1);
+        face.push_point(p4);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+        face = Face(p7, glm::vec3(1.0f, 0.5f, 0.5f));
+        face.push_point(p1);
+        face.push_point(p6);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+        face = Face(p11, glm::vec3(1.0f, 1.0f, 0.5f));
+        face.push_point(p5);
+        face.push_point(p6);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+        face = Face(p11, glm::vec3(1.0f, 0.5f, 1.0f));
+        face.push_point(p6);
+        face.push_point(p10);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+        face = Face(p11, glm::vec3(0.5f, 1.0f, 1.0f));
+        face.push_point(p10);
+        face.push_point(p12);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+        face = Face(p11, glm::vec3(0.0f, 0.5f, 0.5f));
+        face.push_point(p12);
+        face.push_point(p9);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
+        face = Face(p11, glm::vec3(0.5f, 0.0f, 0.5f));
+        face.push_point(p5);
+        face.push_point(p9);
+        face.primitive_is_finished();
+        res.faces.push_back(face);
+
         return res;
     }
 };

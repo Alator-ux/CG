@@ -66,7 +66,7 @@ int main() {
     auto rbr = RadioButtonRow(items);
 
     // Widgets for Add mode
-    items = {"Tetrahedron", "Octahedron", "Hexahedron"};
+    items = {"Tetrahedron", "Octahedron", "Hexahedron", "Icosahedron"};
     auto poly_menu = DropDownMenu("Polyhedron type", items);
 
     // Widgets for Shift and Scale mode
