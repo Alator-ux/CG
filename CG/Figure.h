@@ -69,20 +69,35 @@ Drifting in the ocean all alone
 /// ...и тут товарищ майор, вы не поверите,
 /// вы€сн€етс€, что грань фигуры - это фэйс
 /// </summary>
-class Face {
+class Face : public Polygon{
 public:
-    std::vector<Edge> edges;
     Face() {
-        edges = std::vector<Edge>();
+        //polygon = std::vector<Polygon>();
+        drawing_type = GL_TRIANGLES;
     }
+    Face(glm::vec3 coords, glm::vec3 color) {
+        this->points.push_back(coords);
+        this->color = color;
+        //this->drawing_type = GL_TRIANGLES;
+    }
+    void push_point(glm::vec3 coords) {
+        points.push_back(coords);
+    }
+    /*bool primitive_is_finished() {
+        if (points.size() < 3) {
+            return false;
+        }
+        //drawing_type = GL_TRIANGLE_STRIP;
+        return true;
 
+    }*/
     glm::vec3 center() {
         float x=0, y=0, z=0;
         auto res = glm::vec3(0.0f);
-        for (auto edge : edges) {
-            res += edge.points[0];
+        for (auto point : points) {
+            res += point;
         }
-        size_t size = edges.size();
+        size_t size = points.size();
         res /= size;
         return res;
     }
@@ -118,10 +133,8 @@ public:
     /// </summary>
     void transform(std::function<glm::vec3(glm::vec3)> transofrmator) { //TODO: если найдЄшь, как передавать по ссылке аргумент - молодец, помен€й
         for (auto i = 0; i < faces.size(); i++) {
-            for (auto j = 0; j < faces[j].edges.size(); j++) {
-                Edge* edge = &(faces[i].edges[j]);
-                edge->points[0] = transofrmator(edge->points[0]);
-                edge->points[1] = transofrmator(edge->points[1]);
+            for (auto j = 0; j < faces[j].points.size(); j++) {
+                faces[j].points[j] = transofrmator(faces[j].points[j]);
             }
         }
     }
@@ -147,14 +160,14 @@ enum FigureType {
 class FigureBuilder {
     float bound = 100;
 public:
-    Figure buildFigure(FigureType kind) {
+    Figure buildFigure(FigureType kind, glm::vec3 color) {
         switch (kind){
         case Tetrahed:
-            return buildTetrahedron();
+            return buildTetrahedron(color);
         case Hexahed:
-            return buildHexahedron();
+            return buildHexahedron(color);
         case Octahed:
-            return buildOctahedron();
+            return buildOctahedron(color);
         case Icosahed:
             break;
         case Dodecahed:
@@ -162,7 +175,7 @@ public:
         }
     }
 
-    Tetrahedron buildTetrahedron() {
+    Tetrahedron buildTetrahedron(glm::vec3 color) {
         /*float from = 0.5f;
         float to = 0.5f;
         auto tetr = Tetrahedron();
@@ -179,55 +192,28 @@ public:
         c /= bound;
         f /= bound;
         h /= bound;
-        Face face1 = Face();
         //TODO: изобрести метод buildTriangle
-        {
-            Edge edge1 = Edge(a, glm::vec3(0, 0, 0));
-            edge1.push_point(f);
-            Edge edge2 = Edge(f, glm::vec3(0, 0, 0));
-            edge2.push_point(c);
-            Edge edge3 = Edge(c, glm::vec3(0, 0, 0));
-            edge3.push_point(a);
-            face1.edges.push_back(edge1);
-            face1.edges.push_back(edge2);
-            face1.edges.push_back(edge3);
-        }
-        Face face2 = Face();
-        {
-            Edge edge1 = Edge(f, glm::vec3(0, 0, 0));
-            edge1.push_point(c);
-            Edge edge2 = Edge(c, glm::vec3(0, 0, 0));
-            edge2.push_point(h);
-            Edge edge3 = Edge(h, glm::vec3(0, 0, 0));
-            edge3.push_point(f);
-            face2.edges.push_back(edge1);
-            face2.edges.push_back(edge2);
-            face2.edges.push_back(edge3);
-        }
-        Face face3 = Face();
-        {
-            Edge edge1 = Edge(c, glm::vec3(0, 0, 0));
-            edge1.push_point(h);
-            Edge edge2 = Edge(h, glm::vec3(0, 0, 0));
-            edge2.push_point(a);
-            Edge edge3 = Edge(a, glm::vec3(0, 0, 0));
-            edge3.push_point(c);
-            face3.edges.push_back(edge1);
-            face3.edges.push_back(edge2);
-            face3.edges.push_back(edge3);
-        }
-        Face face4 = Face();
-        {
-            Edge edge1 = Edge(f, glm::vec3(0, 0, 0));
-            edge1.push_point(h);
-            Edge edge2 = Edge(h, glm::vec3(0, 0, 0));
-            edge2.push_point(a);
-            Edge edge3 = Edge(a, glm::vec3(0, 0, 0));
-            edge3.push_point(f);
-            face4.edges.push_back(edge1);
-            face4.edges.push_back(edge2);
-            face4.edges.push_back(edge3);
-        }
+
+        Face face1 = Face(a, color);
+        face1.push_point(f);
+        face1.push_point(c);
+        face1.primitive_is_finished();
+
+        Face face2 = Face(f, color);
+        face2.push_point(c);
+        face2.push_point(h);
+        face2.primitive_is_finished();
+
+        Face face3 = Face(c, color);
+        face3.push_point(h);
+        face3.push_point(a);
+        face3.primitive_is_finished();
+
+        Face face4 = Face(f, color);
+        face4.push_point(h);
+        face4.push_point(a);
+        face4.primitive_is_finished();
+
         tetr.faces.push_back(face1);
         tetr.faces.push_back(face2);
         tetr.faces.push_back(face3);
@@ -236,7 +222,7 @@ public:
 
     }
 
-    Hexahedron buildHexahedron() {
+    Hexahedron buildHexahedron(glm::vec3 color) {
         auto hexa = Hexahedron();
         glm::vec3 a = glm::vec3(0, 0, 0);
         glm::vec3 b = glm::vec3(200, 0, 0);
@@ -247,97 +233,43 @@ public:
         glm::vec3 g = glm::vec3(200, 200, 200);
         glm::vec3 h = glm::vec3(0, 200, 200);
 
-        Face face1 = Face();
-        //TODO: изобрести метод buildSqare
-        {
-            Edge edge1 = Edge(a, glm::vec3(0, 0, 0));
-            edge1.push_point(b);
-            Edge edge2 = Edge(b, glm::vec3(0, 0, 0));
-            edge2.push_point(c);
-            Edge edge3 = Edge(c, glm::vec3(0, 0, 0));
-            edge3.push_point(d);
-            Edge edge4 = Edge(d, glm::vec3(0, 0, 0));
-            edge4.push_point(a);
-            face1.edges.push_back(edge1);
-            face1.edges.push_back(edge2);
-            face1.edges.push_back(edge3);
-            face1.edges.push_back(edge4);
-        }
-        Face face2 = Face();
-        {
-            Edge edge1 = Edge(b, glm::vec3(0, 0, 0));
-            edge1.push_point(c);
-            Edge edge2 = Edge(c, glm::vec3(0, 0, 0));
-            edge2.push_point(g);
-            Edge edge3 = Edge(g, glm::vec3(0, 0, 0));
-            edge3.push_point(f);
-            Edge edge4 = Edge(f, glm::vec3(0, 0, 0));
-            edge4.push_point(b);
-            face2.edges.push_back(edge1);
-            face2.edges.push_back(edge2);
-            face2.edges.push_back(edge3);
-            face2.edges.push_back(edge4);
-        }
-        Face face3 = Face();
-        {
-            Edge edge1 = Edge(f, glm::vec3(0, 0, 0));
-            edge1.push_point(g);
-            Edge edge2 = Edge(g, glm::vec3(0, 0, 0));
-            edge2.push_point(h);
-            Edge edge3 = Edge(h, glm::vec3(0, 0, 0));
-            edge3.push_point(e);
-            Edge edge4 = Edge(e, glm::vec3(0, 0, 0));
-            edge4.push_point(f);
-            face3.edges.push_back(edge1);
-            face3.edges.push_back(edge2);
-            face3.edges.push_back(edge3);
-            face3.edges.push_back(edge4);
-        }
-        Face face4 = Face();
-        {
-            Edge edge1 = Edge(h, glm::vec3(0, 0, 0));
-            edge1.push_point(e);
-            Edge edge2 = Edge(e, glm::vec3(0, 0, 0));
-            edge2.push_point(a);
-            Edge edge3 = Edge(a, glm::vec3(0, 0, 0));
-            edge3.push_point(d);
-            Edge edge4 = Edge(d, glm::vec3(0, 0, 0));
-            edge4.push_point(h);
-            face4.edges.push_back(edge1);
-            face4.edges.push_back(edge2);
-            face4.edges.push_back(edge3);
-            face4.edges.push_back(edge4);
-        }
-        Face face5 = Face();
-        {
-            Edge edge1 = Edge(a, glm::vec3(0, 0, 0));
-            edge1.push_point(b);
-            Edge edge2 = Edge(b, glm::vec3(0, 0, 0));
-            edge2.push_point(f);
-            Edge edge3 = Edge(f, glm::vec3(0, 0, 0));
-            edge3.push_point(e);
-            Edge edge4 = Edge(e, glm::vec3(0, 0, 0));
-            edge4.push_point(a);
-            face1.edges.push_back(edge1);
-            face1.edges.push_back(edge2);
-            face1.edges.push_back(edge3);
-            face1.edges.push_back(edge4);
-        }
-        Face face6 = Face();
-        {
-            Edge edge1 = Edge(d, glm::vec3(0, 0, 0));
-            edge1.push_point(c);
-            Edge edge2 = Edge(c, glm::vec3(0, 0, 0));
-            edge2.push_point(g);
-            Edge edge3 = Edge(g, glm::vec3(0, 0, 0));
-            edge3.push_point(h);
-            Edge edge4 = Edge(h, glm::vec3(0, 0, 0));
-            edge4.push_point(d);
-            face1.edges.push_back(edge1);
-            face1.edges.push_back(edge2);
-            face1.edges.push_back(edge3);
-            face1.edges.push_back(edge4);
-        }
+        Face face1 = Face(a, color);
+        face1.push_point(b);
+        face1.push_point(c);
+        face1.push_point(d);
+        face1.primitive_is_finished();
+            
+        Face face2 = Face(b, color);
+        face2.push_point(c);
+        face2.push_point(g);
+        face2.push_point(f);
+        face2.primitive_is_finished();
+        
+        Face face3 = Face(f, color);
+        face3.push_point(g);
+        face3.push_point(h);
+        face3.push_point(e);
+        face3.primitive_is_finished();
+
+        Face face4 = Face(h, color);
+        face4.push_point(e);
+        face4.push_point(a);
+        face4.push_point(d);
+        face4.primitive_is_finished();
+
+        Face face5 = Face(a, color);
+        face5.push_point(b);
+        face5.push_point(f);
+        face5.push_point(e);
+        face5.primitive_is_finished();
+            
+        
+        Face face6 = Face(d, color);
+        face6.push_point(c);
+        face6.push_point(g);
+        face6.push_point(h);
+        face6.primitive_is_finished();
+
         hexa.faces.push_back(face1);
         hexa.faces.push_back(face2);
         hexa.faces.push_back(face3);
@@ -348,9 +280,9 @@ public:
         return hexa;
     }
 
-    Octahedron buildOctahedron() {
+    Octahedron buildOctahedron(glm::vec3 color) {
         auto res = Octahedron();
-        auto core = buildHexahedron();
+        auto core = buildHexahedron(color);
         auto a = core.faces[0].center();
         auto b = core.faces[1].center();
         auto c = core.faces[2].center();
@@ -358,102 +290,46 @@ public:
         auto e = core.faces[4].center();
         auto f = core.faces[5].center();
 
-        Face face1 = Face();
-        {
-            Edge edge1 = Edge(a, glm::vec3(0, 0, 0));
-            edge1.push_point(f);
-            Edge edge2 = Edge(f, glm::vec3(0, 0, 0));
-            edge2.push_point(b);
-            Edge edge3 = Edge(b, glm::vec3(0, 0, 0));
-            edge3.push_point(a);
-            face1.edges.push_back(edge1);
-            face1.edges.push_back(edge2);
-            face1.edges.push_back(edge3);
-        }
-        Face face2 = Face();
-        {
-            Edge edge1 = Edge(b, glm::vec3(0, 0, 0));
-            edge1.push_point(c);
-            Edge edge2 = Edge(c, glm::vec3(0, 0, 0));
-            edge2.push_point(f);
-            Edge edge3 = Edge(f, glm::vec3(0, 0, 0));
-            edge3.push_point(b);
-            face2.edges.push_back(edge1);
-            face2.edges.push_back(edge2);
-            face2.edges.push_back(edge3);
-        }
-        Face face3 = Face();
-        {
-            Edge edge1 = Edge(c, glm::vec3(0, 0, 0));
-            edge1.push_point(d);
-            Edge edge2 = Edge(d, glm::vec3(0, 0, 0));
-            edge2.push_point(f);
-            Edge edge3 = Edge(f, glm::vec3(0, 0, 0));
-            edge3.push_point(c);
-            face3.edges.push_back(edge1);
-            face3.edges.push_back(edge2);
-            face3.edges.push_back(edge3);
-        }
-        Face face4 = Face();
-        {
-            Edge edge1 = Edge(d, glm::vec3(0, 0, 0));
-            edge1.push_point(a);
-            Edge edge2 = Edge(a, glm::vec3(0, 0, 0));
-            edge2.push_point(f);
-            Edge edge3 = Edge(f, glm::vec3(0, 0, 0));
-            edge3.push_point(d);
-            face4.edges.push_back(edge1);
-            face4.edges.push_back(edge2);
-            face4.edges.push_back(edge3);
-        }
-        Face face5 = Face();
-        {
-            Edge edge1 = Edge(a, glm::vec3(0, 0, 0));
-            edge1.push_point(e);
-            Edge edge2 = Edge(e, glm::vec3(0, 0, 0));
-            edge2.push_point(b);
-            Edge edge3 = Edge(b, glm::vec3(0, 0, 0));
-            edge3.push_point(a);
-            face5.edges.push_back(edge1);
-            face5.edges.push_back(edge2);
-            face5.edges.push_back(edge3);
-        }
-        Face face6 = Face();
-        {
-            Edge edge1 = Edge(b, glm::vec3(0, 0, 0));
-            edge1.push_point(e);
-            Edge edge2 = Edge(e, glm::vec3(0, 0, 0));
-            edge2.push_point(c);
-            Edge edge3 = Edge(c, glm::vec3(0, 0, 0));
-            edge3.push_point(b);
-            face6.edges.push_back(edge1);
-            face6.edges.push_back(edge2);
-            face6.edges.push_back(edge3);
-        }
-        Face face7 = Face();
-        {
-            Edge edge1 = Edge(c, glm::vec3(0, 0, 0));
-            edge1.push_point(e);
-            Edge edge2 = Edge(e, glm::vec3(0, 0, 0));
-            edge2.push_point(d);
-            Edge edge3 = Edge(d, glm::vec3(0, 0, 0));
-            edge3.push_point(c);
-            face7.edges.push_back(edge1);
-            face7.edges.push_back(edge2);
-            face7.edges.push_back(edge3);
-        }
-        Face face8 = Face();
-        {
-            Edge edge1 = Edge(d, glm::vec3(0, 0, 0));
-            edge1.push_point(e);
-            Edge edge2 = Edge(e, glm::vec3(0, 0, 0));
-            edge2.push_point(a);
-            Edge edge3 = Edge(a, glm::vec3(0, 0, 0));
-            edge3.push_point(d);
-            face8.edges.push_back(edge1);
-            face8.edges.push_back(edge2);
-            face8.edges.push_back(edge3);
-        }
+        Face face1 = Face(a, color);
+        face1.push_point(f);
+        face1.push_point(b);
+        face1.primitive_is_finished();
+
+        Face face2 = Face(b, color);
+        face2.push_point(c);
+        face2.push_point(f);
+        face2.primitive_is_finished();
+
+        Face face3 = Face(c, color);
+        face3.push_point(d);
+        face3.push_point(f);
+        face3.primitive_is_finished();
+
+        Face face4 = Face(d, color);
+        face4.push_point(a);
+        face4.push_point(f);
+        face4.primitive_is_finished();
+
+        Face face5 = Face(a, color);
+        face5.push_point(e);
+        face5.push_point(b);
+        face5.primitive_is_finished();
+
+        Face face6 = Face(b, color);
+        face6.push_point(e);
+        face6.push_point(c);
+        face6.primitive_is_finished();
+
+        Face face7 = Face(c, color);
+        face7.push_point(e);
+        face7.push_point(d);
+        face7.primitive_is_finished();
+
+        Face face8 = Face(d, color);
+        face8.push_point(e);
+        face8.push_point(a);
+        face8.primitive_is_finished();
+
         res.faces.push_back(face1);
         res.faces.push_back(face2);
         res.faces.push_back(face3);

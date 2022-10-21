@@ -121,7 +121,8 @@ int main() {
                 poly_menu.draw();
                 if (ImGui::Button("Apply")) {
                     storage.clear();
-                    auto fig = fig_builder.buildFigure(FigureType(poly_menu.selectedItem));
+                    auto fig = fig_builder.buildFigure(FigureType(poly_menu.selectedItem), 
+                        colorChooser.rgb_value());
                     storage.push_back(fig);
                     drawer.set_vbo("figure", storage);
                 }

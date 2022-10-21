@@ -69,14 +69,12 @@ public:
         GLint from = 0;
         GLint count = 0;
         for (auto& fig : figures) {
-            for (auto& face : fig.faces) {
-                for (auto& pr : face.edges) {
-                    glLineWidth(pr.width);
-                    count = pr.get_points_count();
-                    shader->uniform4f("color", pr.color);
-                    glDrawArrays(pr.drawing_type, from, count);
-                    from += count;
-                }
+            for (auto& pr : fig.faces) {
+                glLineWidth(pr.width);
+                count = pr.get_points_count();
+                shader->uniform4f("color", pr.color);
+                glDrawArrays(pr.drawing_type, from, count);
+                from += count;
             }
         }
         end_drawing();
@@ -106,15 +104,13 @@ public:
         std::vector<glm::vec3> ndata;
         GLuint size = 0;
         for (auto& fig : data) {
-            for (auto& face : fig.faces) {
-                for (auto& pr : face.edges) {
-                    auto test = glm::vec4(pr.points[0], 1.0f);
-                    test = projection * test;
-                    auto test1 = glm::vec4(-1.0f, 0.5f, -1.f, 1.0f);
-                    test1 = projection * test1;
-                    ndata.insert(ndata.end(), pr.points.begin(), pr.points.end());
-                    size += GLuint(sizeof(GLfloat) * pr.points.size() * 3);
-                }
+            for (auto& pr : fig.faces) {
+                auto test = glm::vec4(pr.points[0], 1.0f);
+                test = projection * test;
+                auto test1 = glm::vec4(-1.0f, 0.5f, -1.f, 1.0f);
+                test1 = projection * test1;
+                ndata.insert(ndata.end(), pr.points.begin(), pr.points.end());
+                size += GLuint(sizeof(GLfloat) * pr.points.size() * 3);
             }
         }
         if (!first) {
