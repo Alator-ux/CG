@@ -9,7 +9,7 @@
 #include "3DChanger.h"
 #include "Drawer.h"
 #include "Projection.h"
-using namespace std;
+#include "FigureBuilder.h"
 
 const GLuint W_WIDTH = 1280;
 const GLuint W_HEIGHT = 1280;
@@ -53,7 +53,7 @@ int main() {
     bool show_demo_window = false;
     
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-    std::vector<string> items = { "Perspective", "Axonometric", "None"};
+    std::vector<std::string> items = { "Perspective", "Axonometric", "None"};
     auto ddm = DropDownMenu("Projection type", items);
     //auto lb = ListBox("Points", bezier.get_bezier_points());
     auto colorChooser = ColorChooser("Primitive Color");
@@ -194,7 +194,7 @@ int main() {
             {
                 axis_menu.draw();
                 if (ImGui::Button("Apply")) {
-                    reflectionAboutTheAxis(&storage[0], 
+                    reflection_about_the_axis(&storage[0], 
                         Axis(axis_menu.selectedItem));
                     drawer.set_vbo("figure", storage);
                 }
@@ -334,6 +334,7 @@ void InitBO(OpenGLManager* manager)
 
 
 void Init(OpenGLManager* manager) {
+    
     mainShader = Shader();
     mainShader.init_shader("main.vert", "main.frag");
 

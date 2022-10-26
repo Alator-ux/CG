@@ -127,10 +127,6 @@ public:
         GLuint size = 0;
         for (auto& fig : data) {
             for (auto& pr : fig.faces) {
-                auto test = glm::vec4(pr.points[0], 1.0f);
-                test = projection * test;
-                auto test1 = glm::vec4(-1.0f, 0.5f, -1.f, 1.0f);
-                test1 = projection * test1;
                 ndata.insert(ndata.end(), pr.points.begin(), pr.points.end());
                 size += GLuint(sizeof(GLfloat) * pr.points.size() * 3);
             }

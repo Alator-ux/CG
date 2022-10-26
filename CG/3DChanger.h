@@ -38,7 +38,7 @@ void rotate_around_line(Figure* figure, float angle, glm::vec3 p1, glm::vec3 p2)
     if (p2.z < p1.z || (p2.z == p1.z && p2.y < p1.y) ||
         (p2.z == p1.z && p2.y == p1.y) && p2.x < p1.x)
     {
-        swap(p1, p2);
+        std::swap(p1, p2);
     }
 
     auto center = figure->center();
@@ -68,10 +68,10 @@ void rotate_around_line(Figure* figure, float angle, glm::vec3 p1, glm::vec3 p2)
 
 void rotate_around_center(Figure* figure, Axis axis, float angle) {
     auto around = figure->center();
-    auto shift1 = build_shift_matrix(around);
+    auto shift1 = build_shift_matrix(-around);
     auto rotate = build_rotation_matrix(axis, angle);
-    auto shift2 = build_shift_matrix(glm::vec3(0.0f));
-    auto tricky_matrix = shift1 * rotate * shift2;
+    auto shift2 = build_shift_matrix(around);
+    auto tricky_matrix = shift2 * rotate * shift1;
     
     figure->transform(tricky_matrix);
 }

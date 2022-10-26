@@ -143,11 +143,13 @@
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="OpenGLWrappers.cpp" />
+    <ClCompile Include="STLLoader.cpp" />
     <ClCompile Include="Widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Bezier.h" />
     <ClInclude Include="Drawer.h" />
+    <ClInclude Include="FigureBuilder.h" />
     <ClInclude Include="Fractal.h" />
     <ClInclude Include="3DChanger.h" />
     <ClInclude Include="Figure.h" />
@@ -161,12 +163,14 @@
     <ClInclude Include="Primitives.h" />
     <ClInclude Include="Projection.h" />
     <ClInclude Include="Selector.h" />
+    <ClInclude Include="STLLoader.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Widgets.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="main.frag" />
     <None Include="main.vert" />
+    <None Include="models\Icosahedron.stl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
