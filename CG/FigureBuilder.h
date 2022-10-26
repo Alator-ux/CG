@@ -4,6 +4,31 @@
 class FigureBuilder {
     float bound = 100;
 public:
+    Figure build_from_function(std::function<float(float, float)> f, int x0, int x1, int y0, int y1, int partition_count) {
+        auto res = FuncFigure();
+        float xstep = float(std::abs(x0 - x1)) / float(partition_count);
+        float ystep = float(std::abs(x0 - x1)) / float(partition_count);
+        for (float x = x0; x < x1; x += xstep) {
+            for (float y = y0; y < y1; y += ystep) {
+                auto facex = Face();
+                auto facey = Face();
+                glm::vec3 p1 = glm::vec3(x, y, f(x, y)); // vanila
+                glm::vec3 p2x = glm::vec3(x + xstep, y, f(x + xstep, y)); // x-shfited
+                glm::vec3 p3 = glm::vec3(x + xstep, y + ystep, f(x + xstep, y + ystep)); // both-shifted
+                glm::vec3 p2y = glm::vec3(x, y + ystep, f(x + xstep, y, ystep)); // y-shfited
+                facex.push_point(p1);
+                facey.push_point(p1);
+                facex.push_point(p2x);
+                facey.push_point(p2y);
+                facex.push_point(p3); //TODO: если оно возвращается обратно в первую точку - заебись. Если нет - не заебись
+                facey.push_point(p3); //TODO: если оно возвращается обратно в первую точку - заебись. Если нет - не заебись
+                res.faces.push_back(facex);
+                res.faces.push_back(facey);
+            }
+        }
+        return res;
+    }
+
     Figure buildFigure(FigureType kind, glm::vec3 color) {
         switch (kind) {
         case Tetrahed:
