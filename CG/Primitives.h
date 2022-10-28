@@ -129,7 +129,7 @@ struct Line : public Primitive {
     }
     void push_point(glm::vec3 coords) {
         points.push_back(coords);
-        drawing_type = GL_LINES;
+        drawing_type = GL_LINE_STRIP;
     }
     bool primitive_is_finished() {
         return points.size() > 1;

@@ -9,6 +9,7 @@ public:
     RotationFigure(Line base) {
         this->base = base;
         this->objects = std::vector<Primitive>();
+        this->objects.push_back(this->base);
         this->type = ThreeDTypes::rotation_figure;
     }
 

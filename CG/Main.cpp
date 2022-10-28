@@ -133,14 +133,16 @@ int main() {
                         auto func = [](float x, float y) {
                             return std::pow((x), 2) + std::pow((y), 2);
                         };
-                        auto base = Line(glm::vec3(0.f, -0.5f, 0.f), colorChooser.rgb_value());
-                        base.push_point(glm::vec3(0.5f, 0.f, 0.f));
-                        base.push_point(glm::vec3(0.f, 0.5f, 0.f));
+                        auto base = Line(glm::vec3(-1.f, -2.5f, 0.f), colorChooser.rgb_value());
+                        base.push_point(glm::vec3(-2.f, 1.f, 0.f));
+                        base.push_point(glm::vec3(-1.0f, 2.5f, 0.f));
+                        base.push_point(glm::vec3(1.0f, 4.5f, 0.f));
                         auto fig = RotationFigure(base);
                         fig.build(Axis::oy, 90);
                         auto pointer = reinterpret_cast<HighLevelInterface*>(&fig);
                         storage.push_back(*pointer);
                         drawer.set_vbo("figure", storage);
+                        break;
                     }
                     if (poly_menu.selectedItem ==5) {
                         auto func = [](float x, float y) {
