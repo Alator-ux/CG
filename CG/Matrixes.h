@@ -26,7 +26,6 @@ glm::mat4x4 build_rotation_matrix(Axis axis, float angle) {
     float radian_angle = toRadians(angle);
     auto angle_cos = cos(radian_angle);
     auto angle_sin = sin(radian_angle);
-    glm::mat4x4 rotation_matrix;
     switch (axis) {
     case Axis::ox:
         return glm::mat4x4(

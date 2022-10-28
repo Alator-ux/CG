@@ -4,9 +4,10 @@
 #include <iostream>
 #include <sstream>
 #include "Figure.h"
+#include "Primitives.h"
 
 class STL {
-    static std::pair<bool, Face> read_face(std::ifstream& stl_file) {
+    static std::pair<bool, Primitive> read_part(std::ifstream& stl_file) {
         std::string str;
         auto out_face = Face();
         std::string next_key_word = "outer loop";
@@ -52,17 +53,28 @@ public:
         if (stl_file.is_open())
         {
             while (true) {
-                auto p = read_face(stl_file);
+                auto p = read_part(stl_file);
                 if (!p.first) {
                     break;
                 }
                 p.second.color = glm::vec3(1.0);
-                stl_model.faces.push_back(p.second);
+                stl_model.objects.push_back(p.second);
             }
             stl_file.close();
         }
         else std::cout << "Unable to open file";
 
         return stl_model;
+    }
+
+    static void save_to_file(const std::string& path, const HighLevelInterface& data) {
+        std::ofstream stl_file(path);
+        for (auto& obj : data.objects) {
+            stl_file << "outer loop\n";
+            for (auto& point : obj.points) {
+                stl_file << "vertex " << point.x << " " << point.y << " " << point.z << std::endl;
+            }
+            stl_file << "endloop\n";
+        }
     }
 };

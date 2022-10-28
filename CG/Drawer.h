@@ -1,8 +1,8 @@
 #pragma once
 #include "OpenGLWrappers.h"
-#include "Figure.h"
+#include "ThreeDInterface.h"
 #include "Projection.h"
-
+#include "Camera.h"
 class Drawer {
     GLuint vPos;
     Shader* shader;
@@ -12,12 +12,14 @@ class Drawer {
     float aspect;
     bool first;
     template <typename T>
-    void prepare_for_drawing(std::vector<T>& elements, const std::string& buffer_name) {
+    void prepare_for_drawing(std::vector<T>& elements, const std::string& buffer_name,
+        Camera& camera) {
         if (elements.size() == 0) {
             return;
         }
+        auto view = camera.GetViewMatrix();
         shader->use_program();
-
+        shader->uniformMatrix4fv("view", view);
         glEnableVertexAttribArray(vPos);
         glBindBuffer(GL_ARRAY_BUFFER, manager->get_buffer_id(buffer_name));
         glVertexAttribPointer(vPos, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -42,8 +44,8 @@ public:
         this->aspect = (float)w_width / (float)w_height;
         
 
-        this->ortho = glm::ortho(0.0f, (float)w_width, (float)w_height, 0.0f,
-            (float)1, -(float)1);
+        this->ortho = glm::ortho(0.0f, (float)w_width, 0.0f, (float)w_height,
+            -(float)w_width, (float)w_width);
         set_projection_mode(projection::pers);
     }
     void set_projection_mode(projection::Type type) {
@@ -52,13 +54,14 @@ public:
         {
         case projection::pers:
         {
-            projection = projection::perspective(glm::radians(60.0f), aspect, 0.001f, 100.0f);
+            projection = projection::perspective(glm::radians(60.0f), aspect, 0.001f, 500.0f);
             shader->uniformMatrix4fv("projection", projection);
             break;
         }
         case projection::axon:
         {
             projection = projection::axonometric(PI / 6, -(PI / 3));
+            projection = ortho;
             shader->uniformMatrix4fv("projection", projection);
             break;
         }
@@ -73,8 +76,9 @@ public:
         }
         shader->disable_program();
     }
-    void draw(std::vector<Primitive>& primitives, const std::string& buffer_name) {
-        prepare_for_drawing(primitives, buffer_name);
+    void draw(std::vector<Primitive>& primitives, const std::string& buffer_name, 
+        Camera& camera) {
+        prepare_for_drawing(primitives, buffer_name, camera);
         GLint from = 0;
         GLint count = 0;
         for (Primitive& pr : primitives) {
@@ -86,12 +90,13 @@ public:
         }
         end_drawing();
     }
-    void draw(std::vector<Figure>& figures, const std::string& buffer_name) {
-        prepare_for_drawing(figures, buffer_name);
+    void draw(std::vector<HighLevelInterface>& highlvl_objs, const std::string& buffer_name,
+        Camera& camera) {
+        prepare_for_drawing(highlvl_objs, buffer_name, camera);
         GLint from = 0;
         GLint count = 0;
-        for (auto& fig : figures) {
-            for (auto& pr : fig.faces) {
+        for (auto& highlvl_obj : highlvl_objs) {
+            for (auto& pr : highlvl_obj.objects) {
                 glLineWidth(pr.width);
                 count = pr.get_points_count();
                 shader->uniform4f("color", pr.color);
@@ -119,14 +124,14 @@ public:
             //first = false;
         }
     }
-    void set_vbo(const std::string& buffer_name, const std::vector<Figure>& data) {
+    void set_vbo(const std::string& buffer_name, const std::vector<HighLevelInterface>& data) {
         if (data.size() == 0) {
             return;
         }
         std::vector<glm::vec3> ndata;
         GLuint size = 0;
-        for (auto& fig : data) {
-            for (auto& pr : fig.faces) {
+        for (auto& highlvl_obj : data) {
+            for (auto& pr : highlvl_obj.objects) {
                 ndata.insert(ndata.end(), pr.points.begin(), pr.points.end());
                 size += GLuint(sizeof(GLfloat) * pr.points.size() * 3);
             }

@@ -10,16 +10,20 @@
 #include "Drawer.h"
 #include "Projection.h"
 #include "FigureBuilder.h"
+#include "FunctionFigure.h"
+#include "Camera.h"
 
 const GLuint W_WIDTH = 1280;
 const GLuint W_HEIGHT = 1280;
 Shader mainShader;
 Drawer drawer;
-std::vector<Figure> storage;
-
+std::vector<HighLevelInterface> storage;
+Camera camera;
 void Init(OpenGLManager*);
 void Draw(OpenGLManager*, int);
 void Release();
+void Do_Movement();
+void keyboard_callback(GLFWwindow*, int, int, int, int);
 void mouse_callback(GLFWwindow*, int, int, int);
 void mouse_scrollback(GLFWwindow*, double, double);
 glm::vec3 convert_coords(GLfloat, GLfloat, GLuint, GLuint);
@@ -38,6 +42,7 @@ int main() {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
+    glfwSetKeyCallback(window, keyboard_callback);
     glfwSetMouseButtonCallback(window, mouse_callback);
     glfwSetScrollCallback(window, mouse_scrollback);
     glewInit();
@@ -66,7 +71,7 @@ int main() {
     auto rbr = RadioButtonRow(items);
 
     // Widgets for Add mode
-    items = {"Tetrahedron", "Octahedron", "Hexahedron", "Icosahedron"};
+    items = {"Tetrahedron", "Octahedron", "Hexahedron", "Icosahedron", "Rotation figure","Function"};
     auto poly_menu = DropDownMenu("Polyhedron type", items);
 
     // Widgets for Shift and Scale mode
@@ -124,10 +129,35 @@ int main() {
                 poly_menu.draw();
                 if (ImGui::Button("Apply")) {
                     storage.clear();
-                    auto fig = fig_builder.buildFigure(FigureType(poly_menu.selectedItem), 
-                        colorChooser.rgb_value());
-                    storage.push_back(fig);
-                    drawer.set_vbo("figure", storage);
+                    if (poly_menu.selectedItem == 4) {
+                        auto func = [](float x, float y) {
+                            return std::pow((x), 2) + std::pow((y), 2);
+                        };
+                        auto base = Line(glm::vec3(0.f, -0.5f, 0.f), colorChooser.rgb_value());
+                        base.push_point(glm::vec3(0.5f, 0.f, 0.f));
+                        base.push_point(glm::vec3(0.f, 0.5f, 0.f));
+                        auto fig = RotationFigure(base);
+                        fig.build(Axis::oy, 90);
+                        auto pointer = reinterpret_cast<HighLevelInterface*>(&fig);
+                        storage.push_back(*pointer);
+                        drawer.set_vbo("figure", storage);
+                    }
+                    if (poly_menu.selectedItem ==5) {
+                        auto func = [](float x, float y) {
+                            return std::pow((x), 2) + std::pow((y), 2);
+                        };
+                        auto fig = FunctionFigure(func, -1, 1, -1, 1, 10);
+                        auto pointer = reinterpret_cast<HighLevelInterface*>(&fig);
+                        storage.push_back(*pointer);
+                        drawer.set_vbo("figure", storage);
+                    }
+                    else {
+                        auto fig = fig_builder.buildFigure(FigureType(poly_menu.selectedItem),
+                            colorChooser.rgb_value());
+                        auto pointer = reinterpret_cast<HighLevelInterface*>(&fig);
+                        storage.push_back(*pointer);
+                        drawer.set_vbo("figure", storage);
+                    }
                 }
                 break;
             }
@@ -194,7 +224,7 @@ int main() {
             {
                 axis_menu.draw();
                 if (ImGui::Button("Apply")) {
-                    reflection_about_the_axis(&storage[0], 
+                    reflection_about_the_axis(&storage[0],
                         Axis(axis_menu.selectedItem));
                     drawer.set_vbo("figure", storage);
                 }
@@ -213,6 +243,7 @@ int main() {
         glViewport(0, 0, display_w, display_h);
         glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        Do_Movement();
         Draw(manager, rbr.get_value());
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -242,6 +273,48 @@ glm::vec3 convert_coords(GLfloat x, GLfloat y, GLuint width, GLuint height) {
     y += height / 2;
     y /= height / 2;*/
     return glm::vec3((GLfloat)x, (GLfloat)y, 1.0f);
+}
+
+bool keys[1024];
+void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    if (key == GLFW_KEY_F1) {
+        camera.Position = glm::vec3(0, 0, 3);
+        //camera.Yaw = -40;
+        //camera.Pitch = -23.5;
+        camera.updateCameraVectors();
+    }else if (key == GLFW_KEY_F2) {
+        camera.Position = glm::vec3(0, 0, 3);
+        //camera.Yaw = -40;
+        //camera.Pitch = -23.5;
+        camera.updateCameraVectors();
+    }
+    if (key >= 0 && key < 1024)
+    {
+        keys[key] = action == GLFW_PRESS;
+    }
+}
+
+void Do_Movement() {
+    if (keys[GLFW_KEY_W])
+        camera.ProcessKeyboard(FORWARD);
+    if (keys[GLFW_KEY_S])
+        camera.ProcessKeyboard(BACKWARD);
+    if (keys[GLFW_KEY_A])
+        camera.ProcessKeyboard(LEFT);
+    if (keys[GLFW_KEY_D])
+        camera.ProcessKeyboard(RIGHT);
+    if (keys[GLFW_KEY_Z])
+        camera.ProcessKeyboard(DOWN);
+    if (keys[GLFW_KEY_X])
+        camera.ProcessKeyboard(UP);
+    if (keys[GLFW_KEY_Q])
+        camera.ProcessKeyboard(LEFT_ROTATE);
+    if (keys[GLFW_KEY_E])
+        camera.ProcessKeyboard(RIGHT_ROTATE);
+    if (keys[GLFW_KEY_R])
+        camera.ProcessKeyboard(DOWN_ROTATE);
+    if (keys[GLFW_KEY_T])
+        camera.ProcessKeyboard(UP_ROTATE);
 }
 
 void mouse_callback(GLFWwindow* window, int button, int action, int mods) {
@@ -337,7 +410,6 @@ void Init(OpenGLManager* manager) {
     
     mainShader = Shader();
     mainShader.init_shader("main.vert", "main.frag");
-
     drawer = Drawer(&mainShader, "vPos", W_WIDTH, W_HEIGHT);
     InitBO(manager);
 
@@ -350,7 +422,7 @@ void Init(OpenGLManager* manager) {
 void Draw(OpenGLManager* manager, int mode) {
     glLineWidth(1.0f);
     if (!storage.empty()) {
-        drawer.draw(storage, "figure");
+        drawer.draw(storage, "figure", camera);
     }
     
     //manager->unbind_framebuffer();

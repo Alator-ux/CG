@@ -1,8 +1,9 @@
 #pragma once
+#include "GL/glew.h"
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <string>
-
+#include <functional>
 struct Color {
     glm::vec4 rgba;
     Color() {
@@ -37,11 +38,17 @@ struct Color {
     }
 };
 
+
+const double PI = 3.141592653589793238463;
+
+inline double toRadians(double angle) {
+    return PI * angle / 180.0;
+}
+
 enum Axis{ox, oy, oz};
 
 struct Primitive {
 public:
-    int type;
     std::vector<glm::vec3> points;
     int drawing_type;
     glm::vec3 color;
@@ -66,7 +73,6 @@ public:
         points.push_back(coord);
         this->color = color;
         drawing_type = GL_POINTS;
-        this->type = 0;
     }
     static std::string get_string_name() {
         return "Point";
@@ -84,29 +90,6 @@ struct BezierPoint : public Primitive {
         this->drawing_type = GL_POINTS;
         this->color = color;
     }
-    glm::vec3& get_main() {
-        return points[0];
-    }
-    glm::vec3& get_fhelp() {
-        return points[1];
-    }
-    glm::vec3& get_shelp() {
-        return points[2];
-    }
-    void set_main(glm::vec3 coords) {
-        auto offset = coords - points[0];
-        points[0] = coords;
-        points[1] += offset;
-        points[2] += offset;
-    }
-    void set_fhelp(glm::vec3 coords) {
-        points[2] -= coords - points[1];
-        points[1] = coords;
-    }
-    void set_shelp(glm::vec3 coords) {
-        points[1] -= coords - points[2];
-        points[2] = coords;
-    }
 };
 
 struct Edge : public Primitive {
@@ -115,13 +98,11 @@ public:
         points.push_back(coords);
         this->color = color;
         drawing_type = GL_POINTS;
-        this->type = 1;
     }
     Edge(glm::vec3 first, glm::vec3 second, glm::vec3 color, float width = 1) {
         points.push_back(first);
         push_point(second);
         this->color = color;
-        this->type = 1;
         this->width = width;
     }
     void push_point(glm::vec3 coords) {
@@ -135,6 +116,57 @@ public:
     }
     static std::string get_string_name() {
         return "Edge";
+    }
+};
+
+struct Line : public Primitive {
+    Line() {}
+    Line(glm::vec3 coords, glm::vec3 color) {
+        points.push_back(coords);
+        this->color = color;
+        drawing_type = GL_POINTS;
+        //this->type = ThreeDTypes::line;
+    }
+    void push_point(glm::vec3 coords) {
+        points.push_back(coords);
+        drawing_type = GL_LINES;
+    }
+    bool primitive_is_finished() {
+        return points.size() > 1;
+    }
+    static std::string get_string_name() {
+        return "Line";
+    }
+
+    glm::vec3 center() {
+        float x = 0, y = 0, z = 0;
+        auto res = glm::vec3(0.0f);
+        for (auto point : points) {
+            res += point;
+        }
+        size_t size = points.size();
+        res /= size;
+        return res;
+    }
+
+    Line copy() {
+        auto res = Line(points[0], color);
+        for (size_t i = 1; i < points.size(); i++) {
+            res.push_point(points[i]);
+        }
+        return res;
+    }
+
+    void transform(std::function<glm::vec3(glm::vec3)> transofrmator) {
+        for (auto i = 0; i < points.size(); i++) {
+            points[i] = transofrmator(points[i]);
+        }
+    }
+
+    void transform(const glm::mat4x4& transform_matrix) {
+        this->transform([transform_matrix](glm::vec3 p)->glm::vec3 {
+            return transform_matrix * glm::vec4(p.x, p.y, p.z, 1);
+            });
     }
 };
 
@@ -169,7 +201,6 @@ public:
         points.push_back(coords);
         this->color = color;
         drawing_type = GL_POINTS;
-        this->type = 2;
     }
     void push_point(glm::vec3 coords) {
         points.push_back(coords);

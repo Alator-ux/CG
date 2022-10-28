@@ -3,6 +3,7 @@
 #include <vector>
 #include "Primitives.h"
 #include <functional>
+#include "ThreeDInterface.h"
 /*
 Immortal temptation
 Takes over my mind, condemned
@@ -72,13 +73,14 @@ Drifting in the ocean all alone
 class Face : public Polygon{
 public:
     Face() {
-        //polygon = std::vector<Polygon>();
-        drawing_type = GL_TRIANGLES;
+        //drawing_type = GL_TRIANGLES;
+        drawing_type = GL_LINE_STRIP;
     }
     Face(glm::vec3 coords, glm::vec3 color) {
         this->points.push_back(coords);
         this->color = color;
-        this->drawing_type = GL_TRIANGLES;
+        drawing_type = GL_LINE_STRIP;
+        //this->drawing_type = GL_TRIANGLES;
     }
     void push_point(glm::vec3 coords) {
         points.push_back(coords);
@@ -87,7 +89,8 @@ public:
         if (points.size() < 3) {
             return false;
         }
-        drawing_type = GL_TRIANGLE_FAN;
+        drawing_type = GL_LINE_LOOP;
+        //drawing_type = GL_TRIANGLE_FAN;
         return true;
 
     }
@@ -102,27 +105,39 @@ public:
         return res;
     }
 };
+
+class SkeletalFace : public Face {
+public:
+    SkeletalFace() {
+        drawing_type = GL_LINE_STRIP;
+    }
+    bool primitive_is_finished() {
+        if (points.size() > 1) {
+            return false;
+        }
+        drawing_type = GL_LINE_LOOP;
+        return true;
+    }
+};
+
 /// <summary>
 /// Ну, типа, фигура, да
 /// </summary>
-class Figure {
+class Figure : public HighLevelInterface {
 public:
-    /// <summary>
-    /// Гляньте на него, каков лицемер!
-    /// </summary>
-    std::vector<Face> faces;
-
     Figure() {
-        faces = std::vector<Face>();
+        objects = std::vector<Primitive>();
+        type = ThreeDTypes::figure;
     }
 
     glm::vec3 center() {
         float x = 0, y = 0, z = 0;
         auto res = glm::vec3(0.0f);
-        for (auto face : faces) {
-            res += face.center();
+        for (auto prim : objects) {
+            Face* face = reinterpret_cast<Face*>(&prim);
+            res += face->center();
         }
-        size_t size = faces.size();
+        size_t size = objects.size();
         res /= size;
         return res;
     }
@@ -131,15 +146,15 @@ public:
     /// Трансформаторная будка
     /// ту-ту-ту
     /// </summary>
-    void transform(std::function<glm::vec3(glm::vec3)> transofrmator) { //TODO: если найдёшь, как передавать по ссылке аргумент - молодец, поменяй
-        for (auto i = 0; i < faces.size(); i++) {
-            for (auto j = 0; j < faces[i].points.size(); j++) {
-                faces[i].points[j] = transofrmator(faces[i].points[j]);
+    void transform(std::function<glm::vec3(glm::vec3)> transofrmator) {
+        for (auto i = 0; i < objects.size(); i++) {
+            for (auto j = 0; j < objects[i].points.size(); j++) {
+                objects[i].points[j] = transofrmator(objects[i].points[j]);
             }
         }
     }
     
-    void transform(glm::mat4x4 transform_matrix) {
+    void transform(const glm::mat4x4& transform_matrix) {
         this->transform([transform_matrix](glm::vec3 p)->glm::vec3 {
             return transform_matrix * glm::vec4(p.x, p.y, p.z, 1);
             });

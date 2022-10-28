@@ -37,6 +37,12 @@
     <ClCompile Include="STLLoader.cpp">
       <Filter>Пиписи\Drawable</Filter>
     </ClCompile>
+    <ClCompile Include="3DChanger.cpp">
+      <Filter>Пиписи\Changers</Filter>
+    </ClCompile>
+    <ClCompile Include="RotationFigure.cpp">
+      <Filter>Пиписи\Drawable\Figure</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Material.h">
@@ -96,6 +102,18 @@
     <ClInclude Include="Figure.h">
       <Filter>Заголовочные файлы\Drawing\Drawable\Figure</Filter>
     </ClInclude>
+    <ClInclude Include="RotationFigure.h">
+      <Filter>Заголовочные файлы\Drawing\Drawable\Figure</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreeDInterface.h">
+      <Filter>Заголовочные файлы\Drawing\Drawable\Figure</Filter>
+    </ClInclude>
+    <ClInclude Include="FunctionFigure.h">
+      <Filter>Заголовочные файлы\Drawing\Drawable\Figure</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="main.frag">
@@ -145,6 +163,12 @@
     </Filter>
     <Filter Include="Заголовочные файлы\Drawing\Drawable\Figure">
       <UniqueIdentifier>{f534ff00-835e-4650-998c-c34a11622a05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Пиписи\Changers">
+      <UniqueIdentifier>{5dc91577-069f-453e-a011-230f7d4d9947}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Пиписи\Drawable\Figure">
+      <UniqueIdentifier>{63891ad8-b9c9-4bd2-9cb7-1e1207b35abd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

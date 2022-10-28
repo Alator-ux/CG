@@ -4,31 +4,6 @@
 class FigureBuilder {
     float bound = 100;
 public:
-    Figure build_from_function(std::function<float(float, float)> f, int x0, int x1, int y0, int y1, int partition_count) {
-        auto res = FuncFigure();
-        float xstep = float(std::abs(x0 - x1)) / float(partition_count);
-        float ystep = float(std::abs(x0 - x1)) / float(partition_count);
-        for (float x = x0; x < x1; x += xstep) {
-            for (float y = y0; y < y1; y += ystep) {
-                auto facex = Face();
-                auto facey = Face();
-                glm::vec3 p1 = glm::vec3(x, y, f(x, y)); // vanila
-                glm::vec3 p2x = glm::vec3(x + xstep, y, f(x + xstep, y)); // x-shfited
-                glm::vec3 p3 = glm::vec3(x + xstep, y + ystep, f(x + xstep, y + ystep)); // both-shifted
-                glm::vec3 p2y = glm::vec3(x, y + ystep, f(x + xstep, y, ystep)); // y-shfited
-                facex.push_point(p1);
-                facey.push_point(p1);
-                facex.push_point(p2x);
-                facey.push_point(p2y);
-                facex.push_point(p3); //TODO: если оно возвращается обратно в первую точку - заебись. Если нет - не заебись
-                facey.push_point(p3); //TODO: если оно возвращается обратно в первую точку - заебись. Если нет - не заебись
-                res.faces.push_back(facex);
-                res.faces.push_back(facey);
-            }
-        }
-        return res;
-    }
-
     Figure buildFigure(FigureType kind, glm::vec3 color) {
         switch (kind) {
         case Tetrahed:
@@ -75,10 +50,10 @@ public:
         face4.push_point(a);
         face4.primitive_is_finished();
 
-        tetr.faces.push_back(face1);
-        tetr.faces.push_back(face2);
-        tetr.faces.push_back(face3);
-        tetr.faces.push_back(face4);
+        tetr.objects.push_back(face1);
+        tetr.objects.push_back(face2);
+        tetr.objects.push_back(face3);
+        tetr.objects.push_back(face4);
         return tetr;
 
     }
@@ -139,12 +114,12 @@ public:
         face6.push_point(h);
         face6.primitive_is_finished();
 
-        hexa.faces.push_back(face1);
-        hexa.faces.push_back(face2);
-        hexa.faces.push_back(face3);
-        hexa.faces.push_back(face4);
-        hexa.faces.push_back(face5);
-        hexa.faces.push_back(face6);
+        hexa.objects.push_back(face1);
+        hexa.objects.push_back(face2);
+        hexa.objects.push_back(face3);
+        hexa.objects.push_back(face4);
+        hexa.objects.push_back(face5);
+        hexa.objects.push_back(face6);
 
         return hexa;
     }
@@ -152,12 +127,18 @@ public:
     Octahedron buildOctahedron(glm::vec3 color) {
         auto res = Octahedron();
         auto core = buildHexahedron(color);
-        auto a = core.faces[0].center();
-        auto b = core.faces[1].center();
-        auto c = core.faces[2].center();
-        auto d = core.faces[3].center();
-        auto e = core.faces[4].center();
-        auto f = core.faces[5].center();
+        Face* face = reinterpret_cast<Face*>(&core.objects[0]);
+        auto a = face->center();
+        face = reinterpret_cast<Face*>(&core.objects[1]);
+        auto b = face->center();
+        face = reinterpret_cast<Face*>(&core.objects[2]);
+        auto c = face->center();
+        face = reinterpret_cast<Face*>(&core.objects[3]);
+        auto d = face->center();
+        face = reinterpret_cast<Face*>(&core.objects[4]);
+        auto e = face->center();
+        face = reinterpret_cast<Face*>(&core.objects[5]);
+        auto f = face->center();
 
         Face face1 = Face(a, glm::vec3(1.f, 0.f, 0.f));
         face1.push_point(f);
@@ -199,14 +180,14 @@ public:
         face8.push_point(a);
         face8.primitive_is_finished();
 
-        res.faces.push_back(face1);
-        res.faces.push_back(face2);
-        res.faces.push_back(face3);
-        res.faces.push_back(face4);
-        res.faces.push_back(face5);
-        res.faces.push_back(face6);
-        res.faces.push_back(face7);
-        res.faces.push_back(face8);
+        res.objects.push_back(face1);
+        res.objects.push_back(face2);
+        res.objects.push_back(face3);
+        res.objects.push_back(face4);
+        res.objects.push_back(face5);
+        res.objects.push_back(face6);
+        res.objects.push_back(face7);
+        res.objects.push_back(face8);
         return res;
     }
 
