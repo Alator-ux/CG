@@ -69,12 +69,16 @@ public:
 
     static void save_to_file(const std::string& path, const HighLevelInterface& data) {
         std::ofstream stl_file(path);
+        stl_file << "solid Chernovilkin\n";
         for (auto& obj : data.objects) {
+            stl_file << "facet normal 1.0 1.0 1.0\n";
             stl_file << "outer loop\n";
             for (auto& point : obj.points) {
                 stl_file << "vertex " << point.x << " " << point.y << " " << point.z << std::endl;
             }
             stl_file << "endloop\n";
+            stl_file << "endfacet\n";
         }
+        stl_file << "endsolid Chernovilkin\n";
     }
 };
