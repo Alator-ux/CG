@@ -2,6 +2,7 @@
 #include "ThreeDInterface.h"
 #include <functional>
 #include "3DChanger.h"
+#include "Primitives.h"
 
 class RotationFigure : public HighLevelInterface {
     Line base;
