@@ -47,184 +47,187 @@ inline double toRadians(double angle) {
 
 enum Axis{ox, oy, oz};
 
-struct Primitive {
-public:
-    std::vector<glm::vec3> points;
-    int drawing_type;
-    glm::vec3 color;
-    float width = 1;
-    GLint get_points_count() {
-        return (GLint)points.size();
-    }
-    void push_point(glm::vec2 coords) {
+namespace primitives {
 
-    }
-    bool primitive_is_finished() {
-        return true;
-    }
-    static std::string get_string_name() {
-        return "Primitive";
-    }
-};
+    struct Primitive {
+    public:
+        std::vector<glm::vec3> points;
+        int drawing_type;
+        glm::vec3 color;
+        float width = 1;
+        GLint get_points_count() {
+            return (GLint)points.size();
+        }
+        void push_point(glm::vec2 coords) {
 
-struct Point : public Primitive {
-public:
-    Point(glm::vec3 coord, glm::vec3 color) {
-        points.push_back(coord);
-        this->color = color;
-        drawing_type = GL_POINTS;
-    }
-    static std::string get_string_name() {
-        return "Point";
-    }
-};
+        }
+        bool primitive_is_finished() {
+            return true;
+        }
+        static std::string get_string_name() {
+            return "Primitive";
+        }
+    };
 
-struct BezierPoint : public Primitive {
-    BezierPoint(glm::vec3 coord, glm::vec3 color, int offset = 50) {
-        this->points.push_back(coord);
-        auto help_p = glm::vec3(coord.x - offset, coord.y, 1);
-        this->points.push_back(help_p);
-        help_p = glm::vec3(coord.x + offset, coord.y, 1);
-        this->points.push_back(help_p);
+    struct Point : public Primitive {
+    public:
+        Point(glm::vec3 coord, glm::vec3 color) {
+            points.push_back(coord);
+            this->color = color;
+            drawing_type = GL_POINTS;
+        }
+        static std::string get_string_name() {
+            return "Point";
+        }
+    };
 
-        this->drawing_type = GL_POINTS;
-        this->color = color;
-    }
-};
+    struct BezierPoint : public Primitive {
+        BezierPoint(glm::vec3 coord, glm::vec3 color, int offset = 50) {
+            this->points.push_back(coord);
+            auto help_p = glm::vec3(coord.x - offset, coord.y, 1);
+            this->points.push_back(help_p);
+            help_p = glm::vec3(coord.x + offset, coord.y, 1);
+            this->points.push_back(help_p);
 
-struct Edge : public Primitive {
-public:
-    Edge(glm::vec3 coords, glm::vec3 color) {
-        points.push_back(coords);
-        this->color = color;
-        drawing_type = GL_POINTS;
-    }
-    Edge(glm::vec3 first, glm::vec3 second, glm::vec3 color, float width = 1) {
-        points.push_back(first);
-        push_point(second);
-        this->color = color;
-        this->width = width;
-    }
-    void push_point(glm::vec3 coords) {
-        if (points.size() == 1) {
+            this->drawing_type = GL_POINTS;
+            this->color = color;
+        }
+    };
+
+    struct Edge : public Primitive {
+    public:
+        Edge(glm::vec3 coords, glm::vec3 color) {
             points.push_back(coords);
-            drawing_type = GL_LINES;
+            this->color = color;
+            drawing_type = GL_POINTS;
         }
-    }
-    bool primitive_is_finished() {
-        return points.size() == 2;
-    }
-    static std::string get_string_name() {
-        return "Edge";
-    }
-};
-
-struct Line : public Primitive {
-    Line() {}
-    Line(glm::vec3 coords, glm::vec3 color) {
-        points.push_back(coords);
-        this->color = color;
-        drawing_type = GL_POINTS;
-        //this->type = ThreeDTypes::line;
-    }
-    void push_point(glm::vec3 coords) {
-        points.push_back(coords);
-        drawing_type = GL_LINE_STRIP;
-    }
-    bool primitive_is_finished() {
-        return points.size() > 1;
-    }
-    static std::string get_string_name() {
-        return "Line";
-    }
-
-    glm::vec3 center() {
-        float x = 0, y = 0, z = 0;
-        auto res = glm::vec3(0.0f);
-        for (auto point : points) {
-            res += point;
+        Edge(glm::vec3 first, glm::vec3 second, glm::vec3 color, float width = 1) {
+            points.push_back(first);
+            push_point(second);
+            this->color = color;
+            this->width = width;
         }
-        size_t size = points.size();
-        res /= size;
-        return res;
-    }
-
-    Line copy() {
-        auto res = Line(points[0], color);
-        for (size_t i = 1; i < points.size(); i++) {
-            res.push_point(points[i]);
+        void push_point(glm::vec3 coords) {
+            if (points.size() == 1) {
+                points.push_back(coords);
+                drawing_type = GL_LINES;
+            }
         }
-        return res;
-    }
-
-    void transform(std::function<glm::vec3(glm::vec3)> transofrmator) {
-        for (auto i = 0; i < points.size(); i++) {
-            points[i] = transofrmator(points[i]);
+        bool primitive_is_finished() {
+            return points.size() == 2;
         }
-    }
+        static std::string get_string_name() {
+            return "Edge";
+        }
+    };
 
-    void transform(const glm::mat4x4& transform_matrix) {
-        this->transform([transform_matrix](glm::vec3 p)->glm::vec3 {
-            return transform_matrix * glm::vec4(p.x, p.y, p.z, 1);
-            });
-    }
-};
-
-struct Segment : public Primitive {
-public:
-    Segment(glm::vec3 left_point, glm::vec3 right_point, glm::vec3 color) {
-        points.push_back(left_point);
-        points.push_back(right_point);
-        drawing_type = GL_LINES;
-        this->color = color;
-    }
-    glm::vec3 left() {
-        return points[0];
-    }
-    
-    glm::vec3 right() {
-        return points[1];
-    }
-    bool primitive_is_finished() {
-        return points.size() == 2;
-    }
-    static std::string get_string_name() {
-        return "Segment";
-    }
-};
-
-
-struct Polygon : public Primitive {
-public:
-    Polygon(){}
-    Polygon(glm::vec3 coords, glm::vec3 color) {
-        points.push_back(coords);
-        this->color = color;
-        drawing_type = GL_POINTS;
-    }
-    void push_point(glm::vec3 coords) {
-        points.push_back(coords);
-        if (points.size() > 1) {
+    struct Line : public Primitive {
+        Line() {}
+        Line(glm::vec3 coords, glm::vec3 color) {
+            points.push_back(coords);
+            this->color = color;
+            drawing_type = GL_POINTS;
+            //this->type = ThreeDTypes::line;
+        }
+        void push_point(glm::vec3 coords) {
+            points.push_back(coords);
             drawing_type = GL_LINE_STRIP;
         }
-    }
-    bool primitive_is_finished() {
-        if (points.size() < 3) {
-            return false;
+        bool primitive_is_finished() {
+            return points.size() > 1;
         }
-        drawing_type = GL_LINE_LOOP;
-        return true;
+        static std::string get_string_name() {
+            return "Line";
+        }
 
-    }
-    static std::string get_string_name() {
-        return "Polygon";
-    }
-};
+        glm::vec3 center() {
+            float x = 0, y = 0, z = 0;
+            auto res = glm::vec3(0.0f);
+            for (auto point : points) {
+                res += point;
+            }
+            size_t size = points.size();
+            res /= size;
+            return res;
+        }
+
+        Line copy() {
+            auto res = Line(points[0], color);
+            for (size_t i = 1; i < points.size(); i++) {
+                res.push_point(points[i]);
+            }
+            return res;
+        }
+
+        void transform(std::function<glm::vec3(glm::vec3)> transofrmator) {
+            for (auto i = 0; i < points.size(); i++) {
+                points[i] = transofrmator(points[i]);
+            }
+        }
+
+        void transform(const glm::mat4x4& transform_matrix) {
+            this->transform([transform_matrix](glm::vec3 p)->glm::vec3 {
+                return transform_matrix * glm::vec4(p.x, p.y, p.z, 1);
+                });
+        }
+    };
+
+    struct Segment : public Primitive {
+    public:
+        Segment(glm::vec3 left_point, glm::vec3 right_point, glm::vec3 color) {
+            points.push_back(left_point);
+            points.push_back(right_point);
+            drawing_type = GL_LINES;
+            this->color = color;
+        }
+        glm::vec3 left() {
+            return points[0];
+        }
+
+        glm::vec3 right() {
+            return points[1];
+        }
+        bool primitive_is_finished() {
+            return points.size() == 2;
+        }
+        static std::string get_string_name() {
+            return "Segment";
+        }
+    };
+
+
+    struct Polygon : public Primitive {
+    public:
+        Polygon() {}
+        Polygon(glm::vec3 coords, glm::vec3 color) {
+            points.push_back(coords);
+            this->color = color;
+            drawing_type = GL_POINTS;
+        }
+        void push_point(glm::vec3 coords) {
+            points.push_back(coords);
+            if (points.size() > 1) {
+                drawing_type = GL_LINE_STRIP;
+            }
+        }
+        bool primitive_is_finished() {
+            if (points.size() < 3) {
+                return false;
+            }
+            drawing_type = GL_LINE_LOOP;
+            return true;
+
+        }
+        static std::string get_string_name() {
+            return "Polygon";
+        }
+    };
+}
 
 class PrimitiveFabric {
     int code = 0;
     glm::vec3 color;
-    std::vector<Primitive> primitives;
+    std::vector<primitives::Primitive> primitives;
     bool prim_finished = true;
     size_t max_size;
 public:
@@ -256,7 +259,7 @@ public:
                 create_edge(coords);
             }
             else {
-                Edge* edge = reinterpret_cast<Edge*>(&primitives[primitives.size() - 1]);
+                primitives::Edge* edge = reinterpret_cast<primitives::Edge*>(&primitives[primitives.size() - 1]);
                 edge->push_point(coords);
                 prim_finished = edge->primitive_is_finished();
             }
@@ -266,7 +269,7 @@ public:
                 create_polygon(coords);
             }
             else {
-                Polygon* polygon = reinterpret_cast<Polygon*>(&primitives[primitives.size() - 1]);
+                primitives::Polygon* polygon = reinterpret_cast<primitives::Polygon*>(&primitives[primitives.size() - 1]);
                 polygon->push_point(coords);
             }
         default:
@@ -281,13 +284,13 @@ public:
             break;
         case 1:
         {
-            Edge* edge = reinterpret_cast<Edge*>(&primitives[primitives.size() - 1]);
+            primitives::Edge* edge = reinterpret_cast<primitives::Edge*>(&primitives[primitives.size() - 1]);
             prim_finished = edge->primitive_is_finished();
             break;
         }
         case 2: 
         {
-            Polygon* polygon = reinterpret_cast<Polygon*>(&primitives[primitives.size() - 1]);
+            primitives::Polygon* polygon = reinterpret_cast<primitives::Polygon*>(&primitives[primitives.size() - 1]);
             prim_finished = polygon->primitive_is_finished();
             break;
         }
@@ -299,28 +302,28 @@ public:
         if (primitives.size() == max_size) {
             return;
         }
-        primitives.push_back(Point(coord, color));
+        primitives.push_back(primitives::Point(coord, color));
         prim_finished = true;
     }
     void create_edge(glm::vec3 coords) {
         if (primitives.size() == max_size) {
             return;
         }
-        primitives.push_back(Edge(coords, color));
+        primitives.push_back(primitives::Edge(coords, color));
         prim_finished = false;
     }
     void create_polygon(glm::vec3 coords) {
         if (primitives.size() == max_size) {
             return;
         }
-        primitives.push_back(Polygon(coords, color));
+        primitives.push_back(primitives::Polygon(coords, color));
         prim_finished = false;
     }
     void clear() {
         primitives.clear();
         prim_finished = true;
     }
-    std::vector<Primitive>& get_items() {
+    std::vector<primitives::Primitive>& get_items() {
         return primitives;
     }
     size_t size() {

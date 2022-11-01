@@ -76,12 +76,12 @@ public:
         }
         shader->disable_program();
     }
-    void draw(std::vector<Primitive>& primitives, const std::string& buffer_name, 
+    void draw(std::vector<primitives::Primitive>& primitives, const std::string& buffer_name,
         Camera& camera) {
         prepare_for_drawing(primitives, buffer_name, camera);
         GLint from = 0;
         GLint count = 0;
-        for (Primitive& pr : primitives) {
+        for (primitives::Primitive& pr : primitives) {
             glLineWidth(pr.width);
             count = pr.get_points_count();
             shader->uniform4f("color", pr.color);
@@ -106,7 +106,7 @@ public:
         }
         end_drawing();
     }
-    void set_vbo(const std::string& buffer_name, const std::vector<Primitive>& data) {
+    void set_vbo(const std::string& buffer_name, const std::vector<primitives::Primitive>& data) {
         if (data.size() == 0) {
             return;
         }

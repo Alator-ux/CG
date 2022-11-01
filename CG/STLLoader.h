@@ -7,7 +7,7 @@
 #include "Primitives.h"
 
 class STL {
-    static std::pair<bool, Primitive> read_part(std::ifstream& stl_file) {
+    static std::pair<bool, primitives::Primitive> read_part(std::ifstream& stl_file) {
         std::string str;
         auto out_face = Face();
         std::string next_key_word = "outer loop";

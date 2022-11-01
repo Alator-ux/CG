@@ -9,8 +9,8 @@ class FunctionFigure : public HighLevelInterface {
         float ystep = float(std::abs(x0 - x1)) / float(partition_count);
         for (float x = x0; x < x1; x += xstep) {
             for (float y = y0; y < y1; y += ystep) {
-                auto facex = Polygon();
-                auto facey = Polygon();
+                auto facex = primitives::Polygon();
+                auto facey = primitives::Polygon();
                 glm::vec3 p1 = glm::vec3(x, y, f(x, y)); // vanila
                 glm::vec3 p2x = glm::vec3(x + xstep, y, f(x + xstep, y)); // x-shfited
                 glm::vec3 p3 = glm::vec3(x + xstep, y + ystep, f(x + xstep, y + ystep)); // both-shifted
@@ -31,7 +31,7 @@ class FunctionFigure : public HighLevelInterface {
     }
 public:
     FunctionFigure(std::function<float(float, float)> f, int x0, int x1, int y0, int y1, int partition_count) {
-        this->objects = std::vector<Primitive>();
+        this->objects = std::vector<primitives::Primitive>();
         this->type = ThreeDTypes::rotation_figure;
         this->build(f, x0, x1, y0, y1, partition_count);
     }
@@ -39,7 +39,7 @@ public:
         float x = 0, y = 0, z = 0;
         auto res = glm::vec3(0.0f);
         for (auto& prim : objects) {
-            Line* line = reinterpret_cast<Line*>(&prim);
+            primitives::Line* line = reinterpret_cast<primitives::Line*>(&prim);
             res += line->center();
         }
         size_t size = objects.size();
@@ -48,7 +48,7 @@ public:
     }
     void transform(const glm::mat4x4& transform_matrix) {
         for (size_t i = 0; i < objects.size(); i++) {
-            Line* line = reinterpret_cast<Line*>(&objects[i]);
+            primitives::Line* line = reinterpret_cast<primitives::Line*>(&objects[i]);
             line->transform(transform_matrix);
         }
     }

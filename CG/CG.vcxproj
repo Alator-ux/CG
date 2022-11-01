@@ -107,7 +107,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\Linking\include\imgui;$(SolutionDir)\Linking\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\Linking\include\imgui;$(SolutionDir)\Linking\include;$(SolutionDir)\Linking\include\CImg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -170,6 +170,7 @@
     <ClInclude Include="Selector.h" />
     <ClInclude Include="STLLoader.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="TextureDrawer.h" />
     <ClInclude Include="ThreeDInterface.h" />
     <ClInclude Include="Widgets.h" />
   </ItemGroup>

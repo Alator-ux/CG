@@ -38,12 +38,12 @@ public:
 
 class ListBox {
     const char* label;
-    std::vector<Primitive>* items;
+    std::vector<primitives::Primitive>* items;
     std::vector<std::string> str_values;
     int height;
 public:
     int selectedItem = -1;
-    ListBox(const char* label, std::vector<Primitive>* items, int height = 10) {
+    ListBox(const char* label, std::vector<primitives::Primitive>* items, int height = 10) {
         this->label = label;
         this->items = items;
         this->height = height;

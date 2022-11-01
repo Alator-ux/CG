@@ -4,7 +4,7 @@
 #include "Matrixes.h"
 #include "FunctionFigure.h"
 
-void rotate_line1(Line* obj, Axis axis, float angle) {
+void rotate_line1(primitives::Line* obj, Axis axis, float angle) {
     auto rotation_matrix = build_rotation_matrix(axis, angle);
     obj->transform(rotation_matrix);
 }
@@ -33,7 +33,7 @@ void rotate(ThreeDInterface* obj, Axis axis, float angle) {
     }
     case ThreeDTypes::line:
     {
-        Polygon* figure = reinterpret_cast<Polygon*>(obj);
+        primitives::Polygon* figure = reinterpret_cast<primitives::Polygon*>(obj);
         auto a = 1;
         //figure->transform(rotation_matrix);
         break;
@@ -77,7 +77,7 @@ void shift(ThreeDInterface* obj, glm::vec3 vec) {
     }
     case ThreeDTypes::line:
     {
-        Line* figure = reinterpret_cast<Line*>(obj);
+        primitives::Line* figure = reinterpret_cast<primitives::Line*>(obj);
         auto center = figure->center();
         auto d = vec - center;
         auto shift_matrix = build_shift_matrix(d);
@@ -113,7 +113,7 @@ void scale(ThreeDInterface* obj, glm::vec3 vec) {
     }
     case ThreeDTypes::line:
     {
-        Line* figure = reinterpret_cast<Line*>(obj);
+        primitives::Line* figure = reinterpret_cast<primitives::Line*>(obj);
         figure->transform(scale_matrix);
         break;
     }
@@ -160,7 +160,7 @@ void scale_around_center(ThreeDInterface* obj, glm::vec3 vec) {
     }
     case ThreeDTypes::line:
     {
-        Line* figure = reinterpret_cast<Line*>(obj);
+        primitives::Line* figure = reinterpret_cast<primitives::Line*>(obj);
         auto around = figure->center();
         auto shift1 = build_shift_matrix(around);
         auto scale = build_scale_matrix(vec);
@@ -205,7 +205,7 @@ void rotate_around_line(ThreeDInterface* obj, float angle, glm::vec3 p1, glm::ve
     }
     case ThreeDTypes::line:
     {
-        Line* figure = reinterpret_cast<Line*>(obj);
+        primitives::Line* figure = reinterpret_cast<primitives::Line*>(obj);
         center = figure->center();
         break;
     }
@@ -255,7 +255,7 @@ void rotate_around_line(ThreeDInterface* obj, float angle, glm::vec3 p1, glm::ve
     }
     case ThreeDTypes::line:
     {
-        Line* figure = reinterpret_cast<Line*>(obj);
+        primitives::Line* figure = reinterpret_cast<primitives::Line*>(obj);
         figure->transform(tricky_matrix);
         break;
     }
@@ -289,7 +289,7 @@ void rotate_around_center(ThreeDInterface* obj, Axis axis, float angle) {
     }
     case ThreeDTypes::line:
     {
-        Line* figure = reinterpret_cast<Line*>(obj);
+        primitives::Line* figure = reinterpret_cast<primitives::Line*>(obj);
         around = figure->center();
         break;
     }
@@ -323,7 +323,7 @@ void rotate_around_center(ThreeDInterface* obj, Axis axis, float angle) {
     }
     case ThreeDTypes::line:
     {
-        Line* figure = reinterpret_cast<Line*>(obj);
+        primitives::Line* figure = reinterpret_cast<primitives::Line*>(obj);
         figure->transform(tricky_matrix);
         break;
     }
@@ -358,7 +358,7 @@ void reflection_about_the_axis(ThreeDInterface* obj, Axis axis)
     }
     case ThreeDTypes::line:
     {
-        Line* figure = reinterpret_cast<Line*>(obj);
+        primitives::Line* figure = reinterpret_cast<primitives::Line*>(obj);
         figure->transform(reflection_matrix);
         break;
     }

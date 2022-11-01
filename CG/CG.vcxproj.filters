@@ -90,9 +90,6 @@
     <ClInclude Include="Projection.h">
       <Filter>Заголовочные файлы\Drawing</Filter>
     </ClInclude>
-    <ClInclude Include="Drawer.h">
-      <Filter>Заголовочные файлы\Drawing</Filter>
-    </ClInclude>
     <ClInclude Include="STLLoader.h">
       <Filter>Заголовочные файлы\Drawing</Filter>
     </ClInclude>
@@ -113,6 +110,12 @@
     </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="Drawer.h">
+      <Filter>Заголовочные файлы\Drawing\Drawers</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureDrawer.h">
+      <Filter>Заголовочные файлы\Drawing\Drawers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -169,6 +172,9 @@
     </Filter>
     <Filter Include="Пиписи\Drawable\Figure">
       <UniqueIdentifier>{63891ad8-b9c9-4bd2-9cb7-1e1207b35abd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Заголовочные файлы\Drawing\Drawers">
+      <UniqueIdentifier>{885f352d-3677-4ac9-8da2-31791e8f812e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

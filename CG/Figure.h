@@ -70,7 +70,7 @@ Drifting in the ocean all alone
 /// ...и тут товарищ майор, вы не поверите,
 /// вы€сн€етс€, что грань фигуры - это фэйс
 /// </summary>
-class Face : public Polygon{
+class Face : public primitives::Polygon{
 public:
     Face() {
         //drawing_type = GL_TRIANGLES;
@@ -126,7 +126,7 @@ public:
 class Figure : public HighLevelInterface {
 public:
     Figure() {
-        objects = std::vector<Primitive>();
+        objects = std::vector<primitives::Primitive>();
         type = ThreeDTypes::figure;
     }
 

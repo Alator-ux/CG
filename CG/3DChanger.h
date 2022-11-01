@@ -3,7 +3,7 @@
 #include "ThreeDInterface.h"
 #include "Primitives.h"
 
-void rotate_line1(Line* obj, Axis axis, float angle);
+void rotate_line1(primitives::Line* obj, Axis axis, float angle);
 
 void rotate(ThreeDInterface* obj, Axis axis, float angle);
 

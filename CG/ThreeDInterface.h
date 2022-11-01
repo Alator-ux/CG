@@ -15,11 +15,11 @@ public:
     };
 };
 
-class ThreeDPrimInterface : public ThreeDInterface, public Primitive{
+class ThreeDPrimInterface : public ThreeDInterface, public primitives::Primitive {
 
 };
 
 class HighLevelInterface : public ThreeDInterface {
 public:
-    std::vector<Primitive> objects;
+    std::vector<primitives::Primitive> objects;
 };

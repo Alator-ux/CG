@@ -12,6 +12,8 @@
 #include "FigureBuilder.h"
 #include "FunctionFigure.h"
 #include "Camera.h"
+#include "Texture.h"
+#include "TextureDrawer.h"
 
 const GLuint W_WIDTH = 1280;
 const GLuint W_HEIGHT = 1280;
@@ -96,7 +98,15 @@ int main() {
 
     // Widgets for Reflection relative to the selected coordinate plane
     // axis_menu
-
+    CImgTexture tex(W_WIDTH / 2, W_HEIGHT / 2);
+    tex.draw_line(glm::vec3(200), glm::vec3(0, 400, 0), glm::vec3(255, 0, 0));
+    tex.draw_line(glm::vec3(200), glm::vec3(100, 400, 0), glm::vec3(0, 0, 255));
+    tex.draw_line(glm::vec3(200), glm::vec3(100, 50, 0), glm::vec3(0, 255, 0));
+    TextureDrawer tex_drawer(&tex);
+    primitives::Polygon poly(glm::vec3(200, 200, 0), glm::vec3(0));
+    poly.push_point(glm::vec3(100, 50, 0));
+    poly.push_point(glm::vec3(300, 400, 0));
+    tex_drawer.set_projection_mode(projection::pers);
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
@@ -110,9 +120,16 @@ int main() {
             ImGui::ShowDemoWindow(&show_demo_window);
 
         {
+            ImGui::Begin("Canvas", 0);
+            ImGui::Image(tex.get_void_id(), ImVec2(tex.get_width(), tex.get_height()));
+            ImGui::End();
+        }
+
+        {
             ImGui::Begin("Hello, world!", 0, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 
             if (ddm.draw()) {
+                tex_drawer.set_projection_mode(projection::Type(ddm.selectedItem));
                 drawer.set_projection_mode(projection::Type(ddm.selectedItem));
             }
 
@@ -133,7 +150,7 @@ int main() {
                         auto func = [](float x, float y) {
                             return std::pow((x), 2) + std::pow((y), 2);
                         };
-                        auto base = Line(glm::vec3(-1.f, -2.5f, 0.f), colorChooser.rgb_value());
+                        auto base = primitives::Line(glm::vec3(-1.f, -2.5f, 0.f), colorChooser.rgb_value());
                         base.push_point(glm::vec3(-2.f, 1.f, 0.f));
                         base.push_point(glm::vec3(-1.0f, 2.5f, 0.f));
                         base.push_point(glm::vec3(1.0f, 4.5f, 0.f));
@@ -247,6 +264,7 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         Do_Movement();
         Draw(manager, rbr.get_value());
+        tex_drawer.draw(poly, camera.GetViewMatrix());
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwMakeContextCurrent(window);
@@ -279,6 +297,14 @@ glm::vec3 convert_coords(GLfloat x, GLfloat y, GLuint width, GLuint height) {
 
 bool keys[1024];
 void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    auto mat = camera.GetViewMatrix();
+    for (size_t i = 0; i < mat.length(); i++) {
+        for (size_t j = 0; j < mat.length(); j++) {
+            std::cout << mat[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "----------------------" << std::endl;
     if (key == GLFW_KEY_F1) {
         camera.Position = glm::vec3(0, 0, 3);
         //camera.Yaw = -40;
@@ -320,73 +346,9 @@ void Do_Movement() {
 }
 
 void mouse_callback(GLFWwindow* window, int button, int action, int mods) {
-    /*if (action == GLFW_PRESS) {
-        double xpos, ypos;
-        glfwGetCursorPos(window, &xpos, &ypos);
-        if (xpos <= W_WIDTH / 2) {
-            return;
-        }
-        std::cout << xpos << " " << ypos << std::endl;
-
- 
-
-        if (button == GLFW_MOUSE_BUTTON_LEFT) {
-            switch (mode)
-            {
-            case 0: 
-            {
-                bezier.add_point(glm::vec3(xpos, ypos, 1));
-                drawer.set_vbo("bez_points", bezier.get_points());
-                break;
-            }
-            case 1:
-            {
-                bezier.shift_point(glm::vec3(xpos, ypos, 1));
-                drawer.set_vbo("bez_points", bezier.get_points());
-                break;
-            }
-            default:
-                break;
-            }
-        }
-    }*/
-    
 }
 
 void mouse_scrollback(GLFWwindow* window, double xoffset, double yoffset) {
-    /*double xpos, ypos;
-    glfwGetCursorPos(window, &xpos, &ypos);
-    std::cout << xoffset << " " << yoffset << std::endl;
-    switch (mode)
-    {
-    case 2:
-    {
-        auto coords = convert_coords(xpos, ypos, W_WIDTH, W_HEIGHT);
-        pc.rotate_around_point(selector.get_item(), coords, yoffset);
-        drawer.set_vbo("primitives", pf.get_items());
-        break;
-    }
-    case 3:
-    {
-        pc.rotate_90(selector.get_item());
-        drawer.set_vbo("primitives", pf.get_items());
-        break;
-    }
-    case 4:
-    {
-        auto coords = convert_coords(xpos, ypos, W_WIDTH, W_HEIGHT);
-        if (yoffset > 0) {
-            pc.scale_from_point(selector.get_item(), coords, 2, 2);
-        }
-        else {
-            pc.scale_from_point(selector.get_item(), coords, 0.5, 0.5);
-        }
-        drawer.set_vbo("primitives", pf.get_items());
-        break;
-    }
-    default:
-        break;
-    }*/
 }
 
 
