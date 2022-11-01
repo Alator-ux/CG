@@ -15,10 +15,15 @@ public:
         case Icosahed:
             return buildIcosahedron(color);
         case Dodecahed:
+            return buildDodecahedron(color);
             break;
         }
     }
-
+    Dodecahedron buildDodecahedron(glm::vec3 color) {
+        auto r = STL::load_from_file("./models/ddc.stl");
+        Dodecahedron* res = reinterpret_cast<Dodecahedron*>(&r);
+        return *res;
+    }
     Tetrahedron buildTetrahedron(glm::vec3 color) {
         auto tetr = Tetrahedron();
         glm::vec3 a = glm::vec3(0, 0, 0);
@@ -195,143 +200,6 @@ public:
         auto r = STL::load_from_file("./models/icosahedron.stl");
         Icosahedron* res = reinterpret_cast<Icosahedron*>(&r);
         return *res;
-        //        auto res = Icosahedron();
-                /*auto an_color = glm::vec3(1.f) - color;
-                auto half_bound = bound / 2;
-                float r = half_bound;
-                auto p1 = glm::vec3(0, -half_bound, -r) / bound;
-                auto p2 = glm::vec3(0, half_bound, -r) / bound;
-                auto p3 = glm::vec3(half_bound, r, 0) / bound;
-                auto p4 = glm::vec3(r, 0, -half_bound) / bound;
-                auto p5 = glm::vec3(half_bound, -r, 0) / bound;
-                auto p6 = glm::vec3(-half_bound, -r, 0) / bound;
-                auto p7 = glm::vec3(-r, 0, -half_bound) / bound;
-                auto p8 = glm::vec3(-half_bound, r, 0) / bound;
-                auto p9 = glm::vec3(r, 0, half_bound) / bound;
-                auto p10 = glm::vec3(-r, 0, half_bound) / bound;
-                auto p11 = glm::vec3(0, -half_bound, r) / bound;
-                auto p12 = glm::vec3(0, half_bound, r) / bound;
 
-                Face face = Face(p1, glm::vec3(1.f, 0.f, 0.f));
-                face.push_point(p2);
-                face.push_point(p4);
-                face.primitive_is_finished();
-                res.faces.push_back(face);
-
-                face = Face(p1, glm::vec3(0.f, 1.f, 0.f));
-                face.push_point(p2);
-                face.push_point(p7);
-                face.primitive_is_finished();
-                res.faces.push_back(face);
-
-                face = Face(p7, glm::vec3(0.f, 0.f, 1.f));
-                face.push_point(p2);
-                face.push_point(p8);
-                face.primitive_is_finished();
-                res.faces.push_back(face);
-
-                face = Face(p8, glm::vec3(1.f, 1.f, 0.f));
-                face.push_point(p2);
-                face.push_point(p3);
-                face.primitive_is_finished();
-                res.faces.push_back(face);
-
-                face = Face(p4, glm::vec3(1.f, 0.f, 1.f));
-                face.push_point(p2);
-                face.push_point(p3);
-                face.primitive_is_finished();
-                res.faces.push_back(face);
-
-                face = Face(p6, glm::vec3(0.f, 1.f, 1.f));
-                face.push_point(p1);
-                face.push_point(p5);
-                face.primitive_is_finished();
-                res.faces.push_back(face);
-
-                face = Face(p6, glm::vec3(1.f, 1.f, 1.f));
-                face.push_point(p7);
-                face.push_point(p10);
-                face.primitive_is_finished();
-                res.faces.push_back(face);
-
-                face = Face(p10, glm::vec3(0.f, 0.f, 0.f));
-                face.push_point(p7);
-                face.push_point(p8);
-                face.primitive_is_finished();
-                res.faces.push_back(face);
-
-                face = Face(p10, glm::vec3(0.5f, 0.f, 0.f));
-                face.push_point(p8);
-                face.push_point(p12);
-                face.primitive_is_finished();
-                res.faces.push_back(face);
-
-                face = Face(p12, glm::vec3(0.5f, 0.5f, 0.f));
-                face.push_point(p8);
-                face.push_point(p3);
-                face.primitive_is_finished();
-                res.faces.push_back(face);
-
-                face = Face(p9, glm::vec3(0.5f, 0.0f, 0.5f));
-                face.push_point(p4);
-                face.push_point(p3);
-                face.primitive_is_finished();
-                res.faces.push_back(face);
-
-                face = Face(p5, glm::vec3(0.0f, 0.5f, 0.5f));
-                face.push_point(p4);
-                face.push_point(p9);
-                face.primitive_is_finished();
-                res.faces.push_back(face);
-
-                face = Face(p12, glm::vec3(0.5f, 0.5f, 0.5f));
-                face.push_point(p3);
-                face.push_point(p9);
-                face.primitive_is_finished();
-                res.faces.push_back(face);
-
-                face = Face(p5, glm::vec3(1.0f, 0.5f, 0.5f));
-                face.push_point(p1);
-                face.push_point(p4);
-                face.primitive_is_finished();
-                res.faces.push_back(face);
-
-                face = Face(p7, glm::vec3(1.0f, 0.5f, 0.5f));
-                face.push_point(p1);
-                face.push_point(p6);
-                face.primitive_is_finished();
-                res.faces.push_back(face);
-
-                face = Face(p11, glm::vec3(1.0f, 1.0f, 0.5f));
-                face.push_point(p5);
-                face.push_point(p6);
-                face.primitive_is_finished();
-                res.faces.push_back(face);
-
-                face = Face(p11, glm::vec3(1.0f, 0.5f, 1.0f));
-                face.push_point(p6);
-                face.push_point(p10);
-                face.primitive_is_finished();
-                res.faces.push_back(face);
-
-                face = Face(p11, glm::vec3(0.5f, 1.0f, 1.0f));
-                face.push_point(p10);
-                face.push_point(p12);
-                face.primitive_is_finished();
-                res.faces.push_back(face);
-
-                face = Face(p11, glm::vec3(0.0f, 0.5f, 0.5f));
-                face.push_point(p12);
-                face.push_point(p9);
-                face.primitive_is_finished();
-                res.faces.push_back(face);
-
-                face = Face(p11, glm::vec3(0.5f, 0.0f, 0.5f));
-                face.push_point(p5);
-                face.push_point(p9);
-                face.primitive_is_finished();
-                res.faces.push_back(face);
-
-                return res;*/
     }
 };

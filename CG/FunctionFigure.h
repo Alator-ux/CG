@@ -15,14 +15,19 @@ class FunctionFigure : public HighLevelInterface {
                 glm::vec3 p2x = glm::vec3(x + xstep, y, f(x + xstep, y)); // x-shfited
                 glm::vec3 p3 = glm::vec3(x + xstep, y + ystep, f(x + xstep, y + ystep)); // both-shifted
                 glm::vec3 p2y = glm::vec3(x, y + ystep, f(x, y + ystep)); // y-shfited
+                
                 facex.push_point(p1);
                 facey.push_point(p1);
+
                 facex.push_point(p2x);
                 facey.push_point(p2y);
-                facex.push_point(p3); //TODO: если оно возвращается обратно в первую точку - заебись. Если нет - не заебись
-                facey.push_point(p3); //TODO: если оно возвращается обратно в первую точку - заебись. Если нет - не заебись
+
+                facex.push_point(p3);
+                facey.push_point(p3); 
+
                 facex.primitive_is_finished();
                 facey.primitive_is_finished();
+
                 objects.push_back(facex);
                 objects.push_back(facey);
             }

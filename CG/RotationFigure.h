@@ -16,12 +16,24 @@ public:
 
     void build(Axis axis, size_t partitions_count) {
         float step = 360.f / partitions_count;
-        float angle = 0;
-
+        float angle = step;
+        auto prev = base.copy();
         for (size_t i = 0; i < partitions_count; i++) {
             primitives::Line new_line = base.copy();
             rotate_line1(&new_line, axis, angle);
-            objects.push_back(new_line);
+            for (size_t i = 0; i < new_line.points.size() - 1; i++) {
+                Polygon poly;
+                poly.color = base.color;
+                poly.push_point(prev.points[i]);
+                poly.push_point(prev.points[i + 1]);
+                poly.push_point(new_line.points[i + 1]);
+                poly.push_point(new_line.points[i]);
+                poly.primitive_is_finished();
+
+                objects.push_back(poly);
+            }
+            
+            prev = new_line;
             angle += step;
         }
     }

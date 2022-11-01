@@ -73,7 +73,7 @@ int main() {
     auto rbr = RadioButtonRow(items);
 
     // Widgets for Add mode
-    items = {"Tetrahedron", "Octahedron", "Hexahedron", "Icosahedron", "Rotation figure","Function"};
+    items = {"Tetrahedron", "Octahedron", "Hexahedron", "Icosahedron", "Dodec", "Rotation figure","Function"};
     auto poly_menu = DropDownMenu("Polyhedron type", items);
 
     // Widgets for Shift and Scale mode
@@ -146,7 +146,7 @@ int main() {
                 poly_menu.draw();
                 if (ImGui::Button("Apply")) {
                     storage.clear();
-                    if (poly_menu.selectedItem == 4) {
+                    if (poly_menu.selectedItem == 5) {
                         auto func = [](float x, float y) {
                             return std::pow((x), 2) + std::pow((y), 2);
                         };
@@ -157,17 +157,21 @@ int main() {
                         auto fig = RotationFigure(base);
                         fig.build(Axis::oy, 90);
                         auto pointer = reinterpret_cast<HighLevelInterface*>(&fig);
-                        storage.push_back(*pointer);
+                        STL::save_to_file("./models/model.stl", *pointer);
+                        auto model = STL::load_from_file("./models/model.stl");
+                        storage.push_back(model);
                         drawer.set_vbo("figure", storage);
                         break;
                     }
-                    if (poly_menu.selectedItem ==5) {
+                    if (poly_menu.selectedItem == 6) {
                         auto func = [](float x, float y) {
                             return std::pow((x), 2) + std::pow((y), 2);
                         };
                         auto fig = FunctionFigure(func, -1, 1, -1, 1, 10);
                         auto pointer = reinterpret_cast<HighLevelInterface*>(&fig);
-                        storage.push_back(*pointer);
+                        STL::save_to_file("./models/model.stl", *pointer);
+                        auto model = STL::load_from_file("./models/model.stl");
+                        storage.push_back(model);
                         drawer.set_vbo("figure", storage);
                     }
                     else {
