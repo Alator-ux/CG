@@ -66,7 +66,7 @@ int main() {
     bool show_another_window = false;
     
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-    std::vector<string> items = { "Point", "Edge", "Polygon"};
+    std::vector<string> items = { "Point", "Edge", "Polygon", "Graham"};
     auto lb = DropDownMenu("Primitive", items);
     auto colorChooser = ColorChooser("Primitive Color");
     auto polygon_list = ListBox("Primitives", &pf.get_items());
@@ -240,6 +240,7 @@ void mouse_callback(GLFWwindow* window, int button, int action, int mods) {
             {
             case 0:
                 pf.finish_primitive();
+                drawer.set_vbo("primitives", pf.get_items());
             default:
                 break;
             }

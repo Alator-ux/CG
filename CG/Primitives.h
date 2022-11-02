@@ -118,10 +118,7 @@ public:
         return true;
 
     }
-    int rotate_side(Point point1, Point point2, Point point3) {
-        auto p1 = point1.points[0];
-        auto p2 = point2.points[0];
-        auto p3 = point3.points[0];
+    static int rotate_side(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3) {
         return (p3.x - p1.x) * (p1.y - p2.y)
             - (p3.y - p1.y) * (p1.x - p2.x);
     }
@@ -129,11 +126,11 @@ public:
     static std::string get_string_name() {
         return "Polygon";
     }
-    Polygon graham(std::vector<Point> points, glm::vec3 color) {
-        std::sort(points.begin(), points.end(), [](Point& p1, Point& p2) {
-            return p1.points[0].x < p2.points[0].x;
-            }); // сортируем точки от самой левой к самой правой
-        std::vector<Point> ps = std::vector<Point>();
+    static Polygon graham(std::vector<glm::vec3> points, glm::vec3 color) {
+        //std::sort(points.begin(), points.end(), [](glm::vec3& p1, glm::vec3& p2) {
+        //    return p1.x < p2.x;
+        //    }); // сортируем точки от самой левой к самой правой
+        std::vector<glm::vec3> ps = std::vector<glm::vec3>();
         ps.push_back(points[0]);
         ps.push_back(points[1]);
 
@@ -146,9 +143,9 @@ public:
                 ps.push_back(points[i]);
             }
         }
-        Polygon res = Polygon(ps[0].points[0], ps[0].color);
+        Polygon res = Polygon(ps[0], color);
         for (size_t i = 1; i < ps.size(); i++) {
-            res.points.push_back(ps[i].points[0]);
+            res.push_point(ps[i]);
         }
         return res;
     }
@@ -210,6 +207,15 @@ public:
                 Polygon* polygon = reinterpret_cast<Polygon*>(&primitives[primitives.size() - 1]);
                 polygon->push_point(coords);
             }
+        case 3:
+            if (prim_finished) {
+                create_graham(coords);
+                prim_finished = false;
+            }
+            else {
+                Polygon* polygon = reinterpret_cast<Polygon*>(&primitives[primitives.size() - 1]);
+                polygon->points.push_back(coords);
+            }
         default:
             break;
         }
@@ -230,6 +236,17 @@ public:
         {
             Polygon* polygon = reinterpret_cast<Polygon*>(&primitives[primitives.size() - 1]);
             prim_finished = polygon->primitive_is_finished();
+            break;
+        }
+        case 3:
+        {
+            Polygon* polygon = reinterpret_cast<Polygon*>(&primitives[primitives.size() - 1]);
+            if (polygon->points.size() > 2) {
+                auto poly = Polygon::graham(polygon->points, polygon->color);
+                //poly.primitive_is_finished();
+                primitives.push_back(poly);
+                prim_finished = true;
+            }
             break;
         }
         default:
@@ -253,6 +270,15 @@ public:
             return;
         }
         primitives.push_back(Polygon(coords, color));
+    }
+    void create_graham(glm::vec3 coords) {
+        if (primitives.size() == max_size) {
+            return;
+        }
+        auto prim = Polygon(coords, color);
+        prim.drawing_type = GL_POINTS;
+        primitives.push_back(prim);
+
     }
     void clear() {
         primitives.clear();
