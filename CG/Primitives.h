@@ -1,10 +1,9 @@
 #pragma once
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <string>
 #include "OpenGLWrappers.h"
-#include <stack>
-
 
 
 struct Color {
@@ -118,39 +117,13 @@ public:
         return true;
 
     }
-    static int rotate_side(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3) {
-        return (p3.x - p1.x) * (p1.y - p2.y)
-            - (p3.y - p1.y) * (p1.x - p2.x);
-    }
+    
 
     static std::string get_string_name() {
         return "Polygon";
     }
-    static Polygon graham(std::vector<glm::vec3> points, glm::vec3 color) {
-        //std::sort(points.begin(), points.end(), [](glm::vec3& p1, glm::vec3& p2) {
-        //    return p1.x < p2.x;
-        //    }); // сортируем точки от самой левой к самой правой
-        std::vector<glm::vec3> ps = std::vector<glm::vec3>();
-        ps.push_back(points[0]);
-        ps.push_back(points[1]);
-
-        for (size_t i = 2; i < points.size(); i++) {
-            // ≈сли поворот направо - мен€ем последнюю точку
-            if(rotate_side(ps[ps.size() - 2], ps[ps.size() - 1], points[i])<0) {
-                ps[ps.size() - 1] = points[i];
-            }
-            else {
-                ps.push_back(points[i]);
-            }
-        }
-        Polygon res = Polygon(ps[0], color);
-        for (size_t i = 1; i < ps.size(); i++) {
-            res.push_point(ps[i]);
-        }
-        return res;
-    }
 };
-
+Polygon graham(std::vector<glm::vec3> points, glm::vec3 color);
 class PrimitiveFabric {
     int code = 0;
     glm::vec3 color;
@@ -242,8 +215,8 @@ public:
         {
             Polygon* polygon = reinterpret_cast<Polygon*>(&primitives[primitives.size() - 1]);
             if (polygon->points.size() > 2) {
-                auto poly = Polygon::graham(polygon->points, polygon->color);
-                //poly.primitive_is_finished();
+                auto poly = graham(polygon->points, polygon->color);
+                poly.primitive_is_finished();
                 primitives.push_back(poly);
                 prim_finished = true;
             }

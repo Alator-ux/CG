@@ -25,6 +25,9 @@
     <Filter Include="Исходные файлы\Widgets">
       <UniqueIdentifier>{7f57b94e-92de-44a3-b808-4f50029b679d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\Models">
+      <UniqueIdentifier>{2ec91505-9d9c-4a0b-aa7b-4bc8b0181883}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -59,6 +62,9 @@
     </ClCompile>
     <ClCompile Include="Widgets.cpp">
       <Filter>Исходные файлы\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Primitives.cpp">
+      <Filter>Исходные файлы\Models</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
