@@ -172,6 +172,7 @@
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureDrawer.h" />
     <ClInclude Include="ThreeDInterface.h" />
+    <ClInclude Include="View.h" />
     <ClInclude Include="Widgets.h" />
   </ItemGroup>
   <ItemGroup>

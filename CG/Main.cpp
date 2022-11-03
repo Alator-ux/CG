@@ -99,14 +99,12 @@ int main() {
     // Widgets for Reflection relative to the selected coordinate plane
     // axis_menu
     CImgTexture tex(W_WIDTH / 2, W_HEIGHT / 2);
-    tex.draw_line(glm::vec3(200), glm::vec3(0, 400, 0), glm::vec3(255, 0, 0));
-    tex.draw_line(glm::vec3(200), glm::vec3(100, 400, 0), glm::vec3(0, 0, 255));
-    tex.draw_line(glm::vec3(200), glm::vec3(100, 50, 0), glm::vec3(0, 255, 0));
     TextureDrawer tex_drawer(&tex);
     primitives::Polygon poly(glm::vec3(200, 200, 0), glm::vec3(0));
     poly.push_point(glm::vec3(100, 50, 0));
     poly.push_point(glm::vec3(300, 400, 0));
     tex_drawer.set_projection_mode(projection::pers);
+    cimg_library::CImgDisplay main_disp(tex.image, "Click a point");
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
@@ -124,7 +122,6 @@ int main() {
             ImGui::Image(tex.get_void_id(), ImVec2(tex.get_width(), tex.get_height()));
             ImGui::End();
         }
-
         {
             ImGui::Begin("Hello, world!", 0, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 
@@ -132,7 +129,7 @@ int main() {
                 tex_drawer.set_projection_mode(projection::Type(ddm.selectedItem));
                 drawer.set_projection_mode(projection::Type(ddm.selectedItem));
             }
-
+            main_disp.display(tex.image);
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
             double xpos, ypos;
             glfwGetCursorPos(window, &xpos, &ypos);
@@ -268,7 +265,9 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         Do_Movement();
         Draw(manager, rbr.get_value());
-        tex_drawer.draw(poly, camera.GetViewMatrix());
+        if (!storage.empty()) {
+            tex_drawer.draw(storage[0], camera.GetViewMatrix());
+        }
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwMakeContextCurrent(window);

@@ -86,7 +86,6 @@ public:
 
 class CImgTexture {
     GLuint id;
-    cimg_library::CImg<unsigned char> image;
     void create_rgb16_texture(GLuint width, GLuint height, const unsigned char* data = NULL) {
         glGenTextures(1, &id);
         glBindTexture(GL_TEXTURE_2D, id);
@@ -100,6 +99,12 @@ class CImgTexture {
     }
     void update_texture(int x, int y, unsigned char* data) {
         glTextureSubImage2D(id, 0, x, y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, (void*)data);
+        GLenum errCode;
+        // Коды ошибок можно смотреть тут
+        // https://www.khronos.org/opengl/wiki/OpenGL_Error
+        if ((errCode = glGetError()) != GL_NO_ERROR)
+            std::cout << "OpenGl error!: " << errCode << " while inserting x=" << x
+            << " y=" << y << std::endl;
     }
     int _define_sign(int d) {
         if (d > 0) {
@@ -110,7 +115,15 @@ class CImgTexture {
         }
         return 0;
     }
+    void checkOpenGLerror() {
+        GLenum errCode;
+        // Коды ошибок можно смотреть тут
+        // https://www.khronos.org/opengl/wiki/OpenGL_Error
+        if ((errCode = glGetError()) != GL_NO_ERROR)
+            std::cout << "OpenGl error!: " << errCode << std::endl;
+    }
 public:
+    cimg_library::CImg<unsigned char> image;
     CImgTexture(GLuint width, GLuint height) {
         this->image = cimg_library::CImg<unsigned char>(width, height, 1, 3, 255);
         create_rgb16_texture(width, height, image.data());
@@ -118,6 +131,7 @@ public:
     void clear() {
         this->image = cimg_library::CImg<unsigned char>(image.width(), image.height(), 1, 3, 255);
         clear_texture(image.width(), image.height(), image.data());
+        checkOpenGLerror();
     }
     void set_rgb(glm::vec3 coord, glm::vec3 color) {
         unsigned char rgb[3];
@@ -128,7 +142,7 @@ public:
         update_texture(coord.x, coord.y, rgb);
     }
     void set_rgb(int x, int y, glm::vec3 color) {
-        if (x > image.width() || x < 0 || y < 0 || y > image.height()) {
+        if (x > image.width() - 1 || x < 0 || y < 0 || y > image.height() - 1) {
             return;
         }
         unsigned char rgb[3];
@@ -137,6 +151,14 @@ public:
             rgb[i] = color[i];
         }
         update_texture(x, y, rgb);
+    }
+    void draw_st_line(glm::vec3 fc, glm::vec3 sc, glm::vec3 color) {
+        unsigned char uch_color[3];
+        for (size_t i = 0; i < 3; i++) {
+            uch_color[i] = color[i];
+        }
+        image.draw_line(fc.x, fc.y, sc.x, sc.y, uch_color);
+        //create_rgb16_texture(image.width(), image.height(), image.data());
     }
     void draw_line(glm::vec3 fc, glm::vec3 sc, glm::vec3 color) {
         int dx = sc.x - fc.x;

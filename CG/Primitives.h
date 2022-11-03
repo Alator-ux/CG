@@ -198,6 +198,7 @@ namespace primitives {
 
     struct Polygon : public Primitive {
     public:
+        glm::vec3 normal;
         Polygon() {}
         Polygon(glm::vec3 coords, glm::vec3 color) {
             points.push_back(coords);
@@ -215,8 +216,17 @@ namespace primitives {
                 return false;
             }
             drawing_type = GL_LINE_LOOP;
+            calc_normal();
             return true;
 
+        }
+        bool calc_normal() {
+            if (points.size() < 3) {
+                return false;
+            }
+            auto v1 = points[1] - points[0];
+            auto v2 = points[points.size() - 1] - points[0];
+            normal = glm::normalize(glm::cross(v1, v2));
         }
         static std::string get_string_name() {
             return "Polygon";

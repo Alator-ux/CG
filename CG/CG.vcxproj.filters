@@ -87,9 +87,6 @@
     <ClInclude Include="OpenGLWrappers.h">
       <Filter>Заголовочные файлы\Drawing</Filter>
     </ClInclude>
-    <ClInclude Include="Projection.h">
-      <Filter>Заголовочные файлы\Drawing</Filter>
-    </ClInclude>
     <ClInclude Include="STLLoader.h">
       <Filter>Заголовочные файлы\Drawing</Filter>
     </ClInclude>
@@ -108,14 +105,20 @@
     <ClInclude Include="FunctionFigure.h">
       <Filter>Заголовочные файлы\Drawing\Drawable\Figure</Filter>
     </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
     <ClInclude Include="Drawer.h">
       <Filter>Заголовочные файлы\Drawing\Drawers</Filter>
     </ClInclude>
     <ClInclude Include="TextureDrawer.h">
       <Filter>Заголовочные файлы\Drawing\Drawers</Filter>
+    </ClInclude>
+    <ClInclude Include="Projection.h">
+      <Filter>Заголовочные файлы\MVP</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Заголовочные файлы\MVP</Filter>
+    </ClInclude>
+    <ClInclude Include="View.h">
+      <Filter>Заголовочные файлы\MVP</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -175,6 +178,9 @@
     </Filter>
     <Filter Include="Заголовочные файлы\Drawing\Drawers">
       <UniqueIdentifier>{885f352d-3677-4ac9-8da2-31791e8f812e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Заголовочные файлы\MVP">
+      <UniqueIdentifier>{3490c16f-edfb-42ea-a45c-3f1ab56b4c1d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

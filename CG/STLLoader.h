@@ -10,37 +10,35 @@ class STL {
     static std::pair<bool, primitives::Primitive> read_part(std::ifstream& stl_file) {
         std::string str;
         auto out_face = Face();
-        std::string next_key_word = "outer loop";
-        while (std::getline(stl_file, str))
-        {
-            if (str == next_key_word) {
-                next_key_word = "vertex";
-                break;
-            }
-        }
         bool suc = false;
         while (std::getline(stl_file, str))
         {
-            if (str == "endloop") {
-                break;
-            }
             std::stringstream iss;
             iss << str;
             std::string word;
-            while (std::getline(iss, word, ' '))
-            {
-                if (word == next_key_word) {
-                    suc = true;
-                    glm::vec3 coord;
-                    for (size_t i = 0; i < 3; i++) {
-                        std::getline(iss, word, ' ');
-                        coord[i] = std::atof(word.c_str());
-                    }
-                    out_face.push_point(coord);
+            
+            std::getline(iss, word, ' ');
+            if (word == "facet") {
+                suc = true;
+                std::getline(iss, word, ' ');
+                for (size_t i = 0; i < 3; i++) {
+                    std::getline(iss, word, ' ');
+                    out_face.normal[i] = std::atof(word.c_str());
                 }
             }
-            iss.clear();
+            else if (word == "vertex") {
+                glm::vec3 coord;
+                for (size_t i = 0; i < 3; i++) {
+                    std::getline(iss, word, ' ');
+                    coord[i] = std::atof(word.c_str());
+                }
+                out_face.push_point(coord);
+            }
+            else if (word == "endfacet") {
+                break;
+            }
         }
+
         return { suc, out_face };
     }
 public:
@@ -52,6 +50,7 @@ public:
         Figure stl_model;
         if (stl_file.is_open())
         {
+            std::getline(stl_file, word);
             while (true) {
                 auto p = read_part(stl_file);
                 if (!p.first) {
@@ -71,9 +70,11 @@ public:
         std::ofstream stl_file(path);
         stl_file << "solid Chernovilkin\n";
         for (auto& obj : data.objects) {
-            stl_file << "facet normal 1.0 1.0 1.0\n";
+            const primitives::Polygon* poly = reinterpret_cast<const primitives::Polygon*>(&obj);
+            stl_file << "facet normal " << poly->normal.x << " " 
+                << poly->normal.y << " " << poly->normal.z << std::endl;
             stl_file << "outer loop\n";
-            for (auto& point : obj.points) {
+            for (auto& point : poly->points) {
                 stl_file << "vertex " << point.x << " " << point.y << " " << point.z << std::endl;
             }
             stl_file << "endloop\n";

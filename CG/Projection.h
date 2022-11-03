@@ -15,6 +15,12 @@ namespace projection {
         return res;
     }
 
+    glm::mat4x4 perspective(float r = 0.005) {
+        glm::mat4x4 res(1);
+        res[2][3] = r;
+        return res;
+    }
+
     glm::mat4x4 axonometric(float fi, float psi) {
         auto sin_fi = sin(fi);
         auto cos_fi = cos(fi);

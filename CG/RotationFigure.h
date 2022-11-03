@@ -22,7 +22,7 @@ public:
             primitives::Line new_line = base.copy();
             rotate_line1(&new_line, axis, angle);
             for (size_t i = 0; i < new_line.points.size() - 1; i++) {
-                Polygon poly;
+                primitives::Polygon poly;
                 poly.color = base.color;
                 poly.push_point(prev.points[i]);
                 poly.push_point(prev.points[i + 1]);
