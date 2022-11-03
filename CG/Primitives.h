@@ -118,9 +118,15 @@ public:
         return true;
 
     }
-    static float rotate_side(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3) {
-        return (p2.x - p1.x) * (p3.y - p2.y)
-            - (p2.y - p1.y) * (p3.x - p2.x);
+    // 1 - clockwise
+    // 2 - anti 1
+    static int rotate_side(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3) {
+        auto rotation = (p2.y - p1.y) * (p3.x - p2.x)- 
+            (p2.x - p1.x) * (p3.y - p2.y);
+        if (rotation == 0) {
+            return 0;
+        }
+        return rotation > 0 ? 1 : 2;
     }
 
     static std::string get_string_name() {
@@ -130,16 +136,26 @@ public:
         std::sort(points.begin(), points.end(), [](glm::vec3& p1, glm::vec3& p2) {
             return p1.x < p2.x;
             }); // сортируем точки от самой левой к самой правой
+        
+        
+        for (auto i = 2; i < points.size(); i++) {
+            auto j = i;
+            while (j > 1 and (rotate_side(points[0], points[j - 1], points[j]) != 2)) {
+                 std::swap(points[j - 1], points[j]);
+                j--;
+            }
+        }
+        
         std::vector<glm::vec3> ps = std::vector<glm::vec3>();
         ps.push_back(points[0]);
         ps.push_back(points[1]);
+        ps.push_back(points[2]);
 
-        for (size_t i = 2; i < points.size(); i++) {
-            // ≈сли поворот направо - мен€ем последнюю точку
-            while(ps.size()>1 && rotate_side(ps[ps.size() - 2], ps[ps.size() - 1], points[i])<0.f) {
+        for (size_t i = 3; i < points.size(); i++) {
+            while(ps.size()>1 && rotate_side(ps[ps.size() - 2], ps[ps.size() - 1], points[i]) != 2 )
                 ps.pop_back();
-            }
-                ps.push_back(points[i]);
+
+            ps.push_back(points[i]);
         }
 
         Polygon res = Polygon(ps[0], color);
