@@ -119,8 +119,8 @@ public:
 
     }
     static float rotate_side(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3) {
-        return (p3.x - p1.x) * (p1.y - p2.y)
-            - (p3.y - p1.y) * (p1.x - p2.x);
+        return (p2.x - p1.x) * (p3.y - p2.y)
+            - (p2.y - p1.y) * (p3.x - p2.x);
     }
 
     static std::string get_string_name() {
@@ -136,17 +136,18 @@ public:
 
         for (size_t i = 2; i < points.size(); i++) {
             // Если поворот направо - меняем последнюю точку
-            if(rotate_side(ps[ps.size() - 2], ps[ps.size() - 1], points[i])<0) {
-                ps[ps.size() - 1] = points[i];
+            while(ps.size()>1 && rotate_side(ps[ps.size() - 2], ps[ps.size() - 1], points[i])<0.f) {
+                ps.pop_back();
             }
-            else {
                 ps.push_back(points[i]);
-            }
         }
+
         Polygon res = Polygon(ps[0], color);
-        for (size_t i = 1; i < ps.size(); i++) {
+        for (int i = 1; i < ps.size(); i++) {
             res.push_point(ps[i]);
         }
+
+        res.primitive_is_finished();
         return res;
     }
 };
@@ -244,7 +245,6 @@ public:
             Polygon* polygon = reinterpret_cast<Polygon*>(&primitives[primitives.size() - 1]);
             if (polygon->points.size() > 2) {
                 auto poly = Polygon::graham(polygon->points, polygon->color);
-                //poly.primitive_is_finished();
                 primitives.push_back(poly);
                 prim_finished = true;
             }
