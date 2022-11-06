@@ -103,8 +103,8 @@ public:
     }
     void draw(const HighLevelInterface& highlvl_obj, Camera& camera) {
         clear();
-        auto trimed = trim_object(highlvl_obj, camera);
-        for (auto& prim : trimed.objects) {
+        //auto trimed = trim_object(highlvl_obj, camera);
+        for (auto& prim : highlvl_obj.objects) {
             draw_polygon(prim, camera.GetViewMatrix());
         }
     }
