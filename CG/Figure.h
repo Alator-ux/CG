@@ -94,6 +94,16 @@ public:
         return true;
 
     }
+    glm::vec3 center() const {
+        float x = 0, y = 0, z = 0;
+        auto res = glm::vec3(0.0f);
+        for (auto point : points) {
+            res += point;
+        }
+        size_t size = points.size();
+        res /= size;
+        return res;
+    }
     glm::vec3 center() {
         float x=0, y=0, z=0;
         auto res = glm::vec3(0.0f);

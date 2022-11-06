@@ -266,7 +266,7 @@ int main() {
         Do_Movement();
         Draw(manager, rbr.get_value());
         if (!storage.empty()) {
-            tex_drawer.draw(storage[0], camera.GetViewMatrix());
+            tex_drawer.draw(storage[0], camera);
         }
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 

@@ -120,6 +120,9 @@
     <ClInclude Include="View.h">
       <Filter>Заголовочные файлы\MVP</Filter>
     </ClInclude>
+    <ClInclude Include="NonFacial.h">
+      <Filter>Заголовочные файлы\Analyzers\3D</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="main.frag">
@@ -181,6 +184,9 @@
     </Filter>
     <Filter Include="Заголовочные файлы\MVP">
       <UniqueIdentifier>{3490c16f-edfb-42ea-a45c-3f1ab56b4c1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Заголовочные файлы\Analyzers\3D">
+      <UniqueIdentifier>{7f63468f-9680-4f6a-8d71-6d63665a86e3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
