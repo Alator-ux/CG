@@ -118,11 +118,6 @@ int main() {
             ImGui::ShowDemoWindow(&show_demo_window);
 
         {
-            ImGui::Begin("Canvas", 0);
-            ImGui::Image(tex.get_void_id(), ImVec2(tex.get_width(), tex.get_height()));
-            ImGui::End();
-        }
-        {
             ImGui::Begin("Hello, world!", 0, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 
             if (ddm.draw()) {
@@ -301,13 +296,13 @@ glm::vec3 convert_coords(GLfloat x, GLfloat y, GLuint width, GLuint height) {
 bool keys[1024];
 void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     auto mat = camera.GetViewMatrix();
-    for (size_t i = 0; i < mat.length(); i++) {
+    /*for (size_t i = 0; i < mat.length(); i++) {
         for (size_t j = 0; j < mat.length(); j++) {
             std::cout << mat[i][j] << " ";
         }
         std::cout << std::endl;
     }
-    std::cout << "----------------------" << std::endl;
+    std::cout << "----------------------" << std::endl;*/
     if (key == GLFW_KEY_F1) {
         camera.Position = glm::vec3(0, 0, 3);
         //camera.Yaw = -40;

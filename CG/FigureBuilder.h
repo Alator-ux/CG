@@ -35,17 +35,17 @@ public:
         f /= bound;
         h /= bound;
 
-        Face face1 = Face(a, glm::vec3(1.f, 0.f, 0.f));
+        Face face1 = Face(a, glm::vec3(255.f, 0.f, 0.f));
         face1.push_point(f);
         face1.push_point(c);
         face1.primitive_is_finished();
 
-        Face face2 = Face(f, glm::vec3(0.f, 1.f, 0.f));
+        Face face2 = Face(f, glm::vec3(0.f, 255.f, 0.f));
         face2.push_point(c);
         face2.push_point(h);
         face2.primitive_is_finished();
 
-        Face face3 = Face(c, glm::vec3(0.f, 0.f, 1.f));
+        Face face3 = Face(c, glm::vec3(0.f, 0.f, 255.f));
         face3.push_point(h);
         face3.push_point(a);
         face3.primitive_is_finished();

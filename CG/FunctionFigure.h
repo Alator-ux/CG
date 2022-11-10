@@ -20,10 +20,10 @@ class FunctionFigure : public HighLevelInterface {
                 facey.push_point(p1);
 
                 facex.push_point(p2x);
-                facey.push_point(p2y);
+                facey.push_point(p3);
 
                 facex.push_point(p3);
-                facey.push_point(p3); 
+                facey.push_point(p2y);
 
                 facex.primitive_is_finished();
                 facey.primitive_is_finished();

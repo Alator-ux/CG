@@ -123,6 +123,9 @@
     <ClInclude Include="NonFacial.h">
       <Filter>Заголовочные файлы\Analyzers\3D</Filter>
     </ClInclude>
+    <ClInclude Include="ZBuffer.h">
+      <Filter>Заголовочные файлы\Drawing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="main.frag">

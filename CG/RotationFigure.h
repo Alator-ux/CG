@@ -15,6 +15,7 @@ public:
     }
 
     void build(Axis axis, size_t partitions_count) {
+        this->objects.clear();
         float step = 360.f / partitions_count;
         float angle = step;
         auto prev = base.copy();

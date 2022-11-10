@@ -85,27 +85,6 @@ public:
 
 
 class CImgTexture {
-    GLuint id;
-    void create_rgb16_texture(GLuint width, GLuint height, const unsigned char* data = NULL) {
-        glGenTextures(1, &id);
-        glBindTexture(GL_TEXTURE_2D, id);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, (void*)data);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    }
-    void clear_texture(GLuint width, GLuint height, const unsigned char* data = NULL) {
-        glBindTexture(GL_TEXTURE_2D, id);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, (void*)data);
-    }
-    void update_texture(int x, int y, unsigned char* data) {
-        glTextureSubImage2D(id, 0, x, y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, (void*)data);
-        GLenum errCode;
-        // Коды ошибок можно смотреть тут
-        // https://www.khronos.org/opengl/wiki/OpenGL_Error
-        if ((errCode = glGetError()) != GL_NO_ERROR)
-            std::cout << "OpenGl error!: " << errCode << " while inserting x=" << x
-            << " y=" << y << std::endl;
-    }
     int _define_sign(int d) {
         if (d > 0) {
             return 1;
@@ -115,23 +94,16 @@ class CImgTexture {
         }
         return 0;
     }
-    void checkOpenGLerror() {
-        GLenum errCode;
-        // Коды ошибок можно смотреть тут
-        // https://www.khronos.org/opengl/wiki/OpenGL_Error
-        if ((errCode = glGetError()) != GL_NO_ERROR)
-            std::cout << "OpenGl error!: " << errCode << std::endl;
-    }
 public:
     cimg_library::CImg<unsigned char> image;
     CImgTexture(GLuint width, GLuint height) {
         this->image = cimg_library::CImg<unsigned char>(width, height, 1, 3, 255);
-        create_rgb16_texture(width, height, image.data());
+    }
+    CImgTexture(GLuint width, GLuint height, unsigned char color) {
+        this->image = cimg_library::CImg<unsigned char>(width, height, 1, 3, color);
     }
     void clear() {
         this->image = cimg_library::CImg<unsigned char>(image.width(), image.height(), 1, 3, 255);
-        clear_texture(image.width(), image.height(), image.data());
-        checkOpenGLerror();
     }
     void set_rgb(glm::vec3 coord, glm::vec3 color) {
         unsigned char rgb[3];
@@ -139,18 +111,13 @@ public:
             image(coord.x, coord.y, 0, i) = color[i];
             rgb[i] = color[i];
         }
-        update_texture(coord.x, coord.y, rgb);
     }
     void set_rgb(int x, int y, glm::vec3 color) {
-        if (x > image.width() - 1 || x < 0 || y < 0 || y > image.height() - 1) {
-            return;
-        }
-        unsigned char rgb[3];
+        unsigned char uch_color[3];
         for (size_t i = 0; i < 3; i++) {
-            image(x, y, 0, i) = color[i];
-            rgb[i] = color[i];
+            uch_color[i] = color[i];
         }
-        update_texture(x, y, rgb);
+        image.draw_point(x, y, uch_color);
     }
     void draw_st_line(glm::vec3 fc, glm::vec3 sc, glm::vec3 color) {
         unsigned char uch_color[3];
@@ -158,7 +125,6 @@ public:
             uch_color[i] = color[i];
         }
         image.draw_line(fc.x, fc.y, sc.x, sc.y, uch_color);
-        //create_rgb16_texture(image.width(), image.height(), image.data());
     }
     void draw_line(glm::vec3 fc, glm::vec3 sc, glm::vec3 color) {
         int dx = sc.x - fc.x;
@@ -231,8 +197,5 @@ public:
     }
     int get_width() {
         return image.width();
-    }
-    void* get_void_id() {
-        return (void*)(intptr_t)id;
     }
 };
