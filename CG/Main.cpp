@@ -149,9 +149,9 @@ int main() {
                         auto fig = RotationFigure(base);
                         fig.build(Axis::oy, 90);
                         auto pointer = reinterpret_cast<HighLevelInterface*>(&fig);
-                        STL::save_to_file("./models/model.stl", *pointer);
-                        auto model = STL::load_from_file("./models/model.stl");
-                        storage.push_back(model);
+                        //STL::save_to_file("./models/model.stl", *pointer);
+                        //auto model = STL::load_from_file("./models/model.stl");
+                        storage.push_back(fig);
                         drawer.set_vbo("figure", storage);
                         break;
                     }

@@ -23,8 +23,9 @@ public:
             primitives::Line new_line = base.copy();
             rotate_line1(&new_line, axis, angle);
             for (size_t i = 0; i < new_line.points.size() - 1; i++) {
+                auto color = glm::vec3(std::rand() % 256, std::rand() % 256, std::rand() % 256);
                 primitives::Polygon poly;
-                poly.color = base.color;
+                poly.color = color;
                 poly.push_point(prev.points[i]);
                 poly.push_point(prev.points[i + 1]);
                 poly.push_point(new_line.points[i + 1]);

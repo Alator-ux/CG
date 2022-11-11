@@ -15,8 +15,8 @@ class TextureDrawer {
     float k = 0.001f;
 
 
-    std::vector<int> interpolate(float from_first, float from_second, float to_first, float to_second) {
-        std::vector<int> res;
+    std::vector<float> interpolate(float from_first, float from_second, float to_first, float to_second) {
+        std::vector<float> res;
 
         auto denominator = std::abs((int)to_first - (int)from_first);
         if (denominator < 1e-3) {
@@ -37,6 +37,9 @@ class TextureDrawer {
 
     std::vector<glm::vec3> raster_triangle(std::vector<glm::vec3> triangle) {
         std::vector<glm::vec3> res;
+        if (triangle.size() < 3) {
+            return res;
+        }
         std::sort(triangle.begin(), triangle.end(), [](glm::vec3 p1, glm::vec3 p2) {
             return p1.y < p2.y;
             });
@@ -50,16 +53,16 @@ class TextureDrawer {
         auto xy12 = interpolate(triangle[1].y, triangle[1].x, triangle[2].y, triangle[2].x);
         auto yz12 = interpolate(triangle[1].y, triangle[1].z, triangle[2].y, triangle[2].z);
 
-        std::vector<int>& xy012 = xy01;
+        std::vector<float>& xy012 = xy01;
         xy012.pop_back();
         xy012.insert(xy012.end(), xy12.begin(), xy12.end());
 
-        std::vector<int>& yz012 = yz01;
+        std::vector<float>& yz012 = yz01;
         yz012.pop_back();
         yz012.insert(yz012.end(), yz12.begin(), yz12.end());
 
         int center = xy012.size() / 2;
-        std::vector<int> lx, rx, lz, rz;
+        std::vector<float> lx, rx, lz, rz;
         if (xy02[center] < xy012[center]) {
             lx = xy02;
             lz = yz02;
@@ -81,7 +84,7 @@ class TextureDrawer {
             }
             int leftx = lx[i];
             int rightx = rx[i];
-            std::vector<int> current_z = interpolate(leftx, lz[i], rightx, rz[i]);
+            std::vector<float> current_z = interpolate(leftx, lz[i], rightx, rz[i]);
             for (int j = leftx; j <= rightx; j++) {
                 if (j - leftx < 0 || j - leftx >= current_z.size()) {
                     auto a = 1;
@@ -112,7 +115,12 @@ class TextureDrawer {
     std::vector<glm::vec3> triangle_to_2D(primitives::Primitive triangle, glm::mat4x4& view) {
         std::vector<glm::vec3> res;
         for (auto& point : triangle.points) {
-            res.push_back(point_to_2D(point, view));
+            glm::vec3 out;
+            bool succ = point_to_2D_bool(point, view, out);
+            if (!succ) {
+                return std::vector<glm::vec3>();
+            }
+            res.push_back(out);
         }
         return res;
     }
@@ -184,7 +192,7 @@ class TextureDrawer {
         for (auto& prim : hlvl_object.objects) {
             primitives::Polygon* face = reinterpret_cast<primitives::Polygon*>(&prim);
             glm::vec3 proec = camera.Front;
-            glm::vec3 norm = norm = calc_normal(face);
+            glm::vec3 norm = calc_normal(face);
             float scalar = glm::dot(proec, norm);
             if (scalar < 0) {
                 res.objects.push_back(*face);
@@ -194,11 +202,40 @@ class TextureDrawer {
     }
     glm::vec3 point_to_2D(const glm::vec3& point, const glm::mat4x4& view) {
         auto res = glm::vec4(point, 1);
-        res = projection * view * res;
-        res.x += tex->get_width() / 2;
-        res.y += tex->get_height() / 2;
+        /*res = view * projection * res;
         res *= (1.f / (k * -res.z + 1.f));
+        res.x += tex->get_width() / 2;
+        res.y += tex->get_height() / 2;*/
+        auto center = tex->get_width() / 2;
+        res = projection * view * res;
+        if (std::abs(res.w) == 0) {
+            return glm::vec3(-1, -1, -1);
+        }
+        res *= 1.0f / res.w;
+        res.x = center + center * res.x;
+        res.y = center + center * res.y;
+
         return res;
+    }
+    bool point_to_2D_bool(const glm::vec3& point, glm::mat4x4& view, glm::vec3& out) {
+        auto res = glm::vec4(point, 1);
+        /*res = view * projection * res;
+        res *= (1.f / (k * -res.z + 1.f));
+        res.x += tex->get_width() / 2;
+        res.y += tex->get_height() / 2;*/
+        auto center = tex->get_width() / 2;
+        res = projection * view * res;
+        if (std::abs(res.w) == 0) {
+            return false;
+        }
+        if (res.z < 0) {
+            return false;
+        }
+        res *= 1.0f / res.w;
+        res.x = center + center * res.x;
+        res.y = center + center * res.y;
+        out = res;
+        return true;
     }
     void draw_polygon_as_2D(const primitives::Primitive& primitive) {
         for (size_t i = 0; i < primitive.points.size() - 1; i++) {
@@ -212,14 +249,36 @@ class TextureDrawer {
         auto second = primitive.points[primitive.points.size() - 1];
         tex->draw_st_line(first, second, primitive.color);
     }
-    void draw_polygon(const primitives::Primitive& primitive, const glm::mat4x4& view) {
+    void draw_trimed_primitive(primitives::Primitive& primitive, Camera& camera) {
+        auto view = camera.GetViewMatrix();
+        auto out = primitives::Polygon();
+        out.color = primitive.color;
+        for (size_t i = 0; i < primitive.points.size(); i++) {
+            glm::vec3 p;
+            auto succ = point_to_2D_bool(primitive.points[i], view, p);
+            if (succ) {
+                out.push_point(p);
+            }
+            //std::cout << "line from x=" << first.x << " y=" << first.y << " to x=" << second.x << " y=" << second.y << std::endl;
+        }
+        if (out.points.size() < 3) {
+            return;
+        }
+        glm::vec3 proec = camera.Front;
+        glm::vec3 norm = calc_normal(&out);
+        float scalar = glm::dot(proec, norm);
+        if (scalar < 0) {
+            draw_polygon_as_2D(out);
+        }
+    }
+    void draw_polygon(primitives::Primitive& primitive, Camera& camera) {
+        auto view = camera.GetViewMatrix();
         for (size_t i = 0; i < primitive.points.size() - 1; i++) {
             auto first = point_to_2D(primitive.points[i], view);
             auto second = point_to_2D(primitive.points[i + 1], view);
             //std::cout << "line from x=" << first.x << " y=" << first.y << " to x=" << second.x << " y=" << second.y << std::endl;
             tex->draw_st_line(first, second, primitive.color);
         }
-
         auto first = point_to_2D(primitive.points[0], view);
         auto second = point_to_2D(primitive.points[primitive.points.size() - 1], view);
         tex->draw_st_line(first, second, primitive.color);
@@ -236,8 +295,9 @@ public:
         {
         case projection::pers:
         {
-            projection = projection::perspective(glm::radians(60.0f), aspect, 0.01f, 100.0f);
+            projection = projection::perspective(glm::radians(45.0f), aspect, 0.001f, 1000.0f);
             //projection = projection::perspective(k);
+            //projection = projection::perspective3(45.0f, tex->get_width(), tex->get_height(), 0.001f, 1000.0f);
             break;
         }
         case projection::axon:
@@ -256,14 +316,14 @@ public:
     }
     void draw(primitives::Primitive primitive, const glm::mat4x4& view) {
         clear();
-        draw_polygon(primitive, view);
+        //draw_polygon(primitive, view);
     }
     void draw(HighLevelInterface& highlvl_obj, Camera& camera) {
         clear();
-        //auto trimed = trim_object(highlvl_obj, camera);
         /*for (auto& prim : highlvl_obj.objects) {
-            draw_polygon(prim, camera.GetViewMatrix());
+            draw_trimed_primitive(prim, camera);
         }*/
+
         std::vector<HighLevelInterface> vect;
         vect.push_back(highlvl_obj);
         z_buffer(vect, camera);

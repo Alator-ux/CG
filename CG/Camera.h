@@ -68,7 +68,27 @@ public:
             s.z, u.z, -f.z, 1,
             -glm::dot(s, this->Position), -glm::dot(u, this->Position), -glm::dot(f, this->Position), 1
         );
+
+        auto mat1 = glm::mat4x4(
+            Right.x, Right.y, Right.z, 0,
+            Up.x, Up.y, Up.z, 0,
+            Front.x, Front.y, Front.z, 0,
+            0, 0, 0, 1
+        );
+        auto mat2 = glm::mat4x4(
+            1, 0, 0, -Position.x,
+            0, 1, 0, -Position.y,
+            0, 0, 1, -Position.z,
+            0, 0, 0, 1
+        );
+        //return mat1 * mat2;
         return glm::lookAt(this->Position, this->Position + this->Front, this->Up);
+    }
+
+    glm::vec3 toCameraView(glm::vec3 p) {
+        return glm::vec3(Right.x * (p.x - Front.x) + Right.y * (p.y - Front.y) + Right.z * (p.z - Front.z),
+            Up.x * (p.x - Position.x) + Up.y * (p.y - Position.y) + Up.z * (p.z - Position.z),
+            Front.x * (p.x - Position.x) + Front.y * (p.y - Position.y) + Front.z * (p.z - Position.z));
     }
 
     void ProcessKeyboard(Camera_Movement direction)
