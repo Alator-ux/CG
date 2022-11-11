@@ -194,10 +194,10 @@ class TextureDrawer {
     }
     glm::vec3 point_to_2D(const glm::vec3& point, const glm::mat4x4& view) {
         auto res = glm::vec4(point, 1);
-        res *= (1.f / (k * -res.z + 1.f));
         res = projection * view * res;
         res.x += tex->get_width() / 2;
         res.y += tex->get_height() / 2;
+        res *= (1.f / (k * -res.z + 1.f));
         return res;
     }
     void draw_polygon_as_2D(const primitives::Primitive& primitive) {
