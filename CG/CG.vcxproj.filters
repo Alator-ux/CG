@@ -60,9 +60,6 @@
     <ClInclude Include="Primitives.h">
       <Filter>Заголовочные файлы\Drawing\Drawable</Filter>
     </ClInclude>
-    <ClInclude Include="Light.h">
-      <Filter>Заголовочные файлы\Drawing\Drawable</Filter>
-    </ClInclude>
     <ClInclude Include="3DChanger.h">
       <Filter>Заголовочные файлы\Changers</Filter>
     </ClInclude>
@@ -91,19 +88,19 @@
       <Filter>Заголовочные файлы\Drawing</Filter>
     </ClInclude>
     <ClInclude Include="FigureBuilder.h">
-      <Filter>Заголовочные файлы\Drawing\Drawable\Figure</Filter>
+      <Filter>Заголовочные файлы\Drawing\Drawable\3D</Filter>
     </ClInclude>
     <ClInclude Include="Figure.h">
-      <Filter>Заголовочные файлы\Drawing\Drawable\Figure</Filter>
+      <Filter>Заголовочные файлы\Drawing\Drawable\3D</Filter>
     </ClInclude>
     <ClInclude Include="RotationFigure.h">
-      <Filter>Заголовочные файлы\Drawing\Drawable\Figure</Filter>
+      <Filter>Заголовочные файлы\Drawing\Drawable\3D</Filter>
     </ClInclude>
     <ClInclude Include="ThreeDInterface.h">
-      <Filter>Заголовочные файлы\Drawing\Drawable\Figure</Filter>
+      <Filter>Заголовочные файлы\Drawing\Drawable\3D</Filter>
     </ClInclude>
     <ClInclude Include="FunctionFigure.h">
-      <Filter>Заголовочные файлы\Drawing\Drawable\Figure</Filter>
+      <Filter>Заголовочные файлы\Drawing\Drawable\3D</Filter>
     </ClInclude>
     <ClInclude Include="Drawer.h">
       <Filter>Заголовочные файлы\Drawing\Drawers</Filter>
@@ -122,6 +119,9 @@
     </ClInclude>
     <ClInclude Include="NonFacial.h">
       <Filter>Заголовочные файлы\Analyzers\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Заголовочные файлы\Drawing\Drawable\3D</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -170,9 +170,6 @@
     <Filter Include="Пиписи\Drawable">
       <UniqueIdentifier>{108d3ac3-42ae-404e-b6b3-67b268e3e8e6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Заголовочные файлы\Drawing\Drawable\Figure">
-      <UniqueIdentifier>{f534ff00-835e-4650-998c-c34a11622a05}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Пиписи\Changers">
       <UniqueIdentifier>{5dc91577-069f-453e-a011-230f7d4d9947}</UniqueIdentifier>
     </Filter>
@@ -187,6 +184,9 @@
     </Filter>
     <Filter Include="Заголовочные файлы\Analyzers\3D">
       <UniqueIdentifier>{7f63468f-9680-4f6a-8d71-6d63665a86e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Заголовочные файлы\Drawing\Drawable\3D">
+      <UniqueIdentifier>{f534ff00-835e-4650-998c-c34a11622a05}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

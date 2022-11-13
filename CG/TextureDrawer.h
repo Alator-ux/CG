@@ -35,23 +35,29 @@ class TextureDrawer {
         return res;
     }
 
-    std::vector<glm::vec3> raster_triangle(std::vector<glm::vec3> triangle) {
+    bool out_of_bounds(glm::vec3& p1, glm::vec3& p2) {
+        return (p1.x < 0 && p2.x < 0) ||
+            (p1.x >= tex->get_width() && p2.x >= tex->get_width()) ||
+            (p1.y < 0 && p2.y < 0) ||
+            (p1.y >= tex->get_height() && p2.y >= tex->get_height());
+    }
+    std::vector<glm::vec3> raster_triangle(std::vector<glm::vec3>& triangles, size_t ind) {
         std::vector<glm::vec3> res;
-        if (triangle.size() < 3) {
+        if (triangles.size() % 3 != 0) {
             return res;
         }
-        std::sort(triangle.begin(), triangle.end(), [](glm::vec3 p1, glm::vec3 p2) {
+        std::sort(triangles.begin() + ind, triangles.begin() + ind + 3, [](glm::vec3 p1, glm::vec3 p2) {
             return p1.y < p2.y;
             });
 
-        auto xy01 = interpolate(triangle[0].y, triangle[0].x, triangle[1].y, triangle[1].x);
-        auto yz01 = interpolate(triangle[0].y, triangle[0].z, triangle[1].y, triangle[1].z);
+        auto xy01 = interpolate(triangles[ind].y, triangles[ind].x, triangles[ind + 1].y, triangles[ind + 1].x);
+        auto yz01 = interpolate(triangles[ind].y, triangles[ind].z, triangles[ind + 1].y, triangles[ind + 1].z);
 
-        auto xy02 = interpolate(triangle[0].y, triangle[0].x, triangle[2].y, triangle[2].x);
-        auto yz02 = interpolate(triangle[0].y, triangle[0].z, triangle[2].y, triangle[2].z);
+        auto xy02 = interpolate(triangles[ind].y, triangles[ind].x, triangles[ind + 2].y, triangles[ind + 2].x);
+        auto yz02 = interpolate(triangles[ind].y, triangles[ind].z, triangles[ind + 2].y, triangles[ind + 2].z);
 
-        auto xy12 = interpolate(triangle[1].y, triangle[1].x, triangle[2].y, triangle[2].x);
-        auto yz12 = interpolate(triangle[1].y, triangle[1].z, triangle[2].y, triangle[2].z);
+        auto xy12 = interpolate(triangles[ind + 1].y, triangles[ind + 1].x, triangles[ind + 2].y, triangles[ind + 2].x);
+        auto yz12 = interpolate(triangles[ind + 1].y, triangles[ind + 1].z, triangles[ind + 2].y, triangles[ind + 2].z);
 
         std::vector<float>& xy012 = xy01;
         xy012.pop_back();
@@ -75,8 +81,8 @@ class TextureDrawer {
             rx = xy02;
             rz = yz02;
         }
-        int y0 = triangle[0].y;
-        int y2 = triangle[2].y;
+        int y0 = triangles[ind].y;
+        int y2 = triangles[ind + 2].y;
 
         for (int i = 0; i <= y2 - y0; i++) {
             if (i >= lx.size() || i >= rx.size()) {
@@ -127,17 +133,36 @@ class TextureDrawer {
 
     std::vector<std::vector<glm::vec3>> raster(HighLevelInterface& highlvl_obj, glm::mat4x4& view) {
         std::vector<std::vector<glm::vec3>> res;
+
+        std::vector<glm::vec3> triangles2D;
+        bool one_in_bounds = false;
+
         for (auto& prim : highlvl_obj.objects) {
             primitives::Polygon* poly = reinterpret_cast<primitives::Polygon*>(&prim);
             std::vector<primitives::Polygon> triangles = triangulate(poly);
 
-            std::vector<glm::vec3> face;
             for (auto& triangle : triangles) {
-                auto rastered = raster_triangle(triangle_to_2D(triangle, view));
-                face.insert(face.end(), rastered.begin(), rastered.end());
+                bool tr_in_bounds = true;
+                auto tr2d = triangle_to_2D(triangle, view);
+                if (tr2d.size() != 3) {
+                    continue;
+                }
+                for (size_t i = 0; i < 3; i++) {
+                    tr_in_bounds = tr_in_bounds &&
+                        !out_of_bounds(tr2d[i], tr2d[(i + 1) % 3]);
+                }
+                one_in_bounds = one_in_bounds || tr_in_bounds;
+                triangles2D.insert(triangles2D.end(), tr2d.begin(), tr2d.end());
             }
-            res.push_back(face);
         }
+        if (!one_in_bounds) {
+            return res;
+        }
+       for (size_t i = 0; i < triangles2D.size(); i += 3) {
+           auto rastered = raster_triangle(triangles2D, i);
+           res.push_back(rastered);
+       }
+
         return res;
     }
 
