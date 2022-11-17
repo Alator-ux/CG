@@ -92,7 +92,7 @@ class TextureDrawer {
             size_t j = i;
             while (j > ind && triangles[j - 1].y > triangles[j].y) {
                 std::swap(triangles[j - 1], triangles[j]);
-                std::swap(colors[j - 1 - ind], colors[j - ind]);
+                std::swap(colors[j - 1], colors[j]);
                 j--;
             }
         }
