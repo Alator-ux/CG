@@ -8,13 +8,14 @@
 #include <iostream>
 #include "Camera.h"
 #include <limits>
+#include "Lighting.h"
 class TextureDrawer {
     CImgTexture* tex;
     CImgTexture texture;
     glm::mat4x4 projection;
     float aspect;
     float k = 0.001f;
-
+    LightSource ls;
 
     std::vector<float> interpolate(float from_first, float from_second, float to_first, float to_second) {
         std::vector<float> res;
@@ -80,7 +81,7 @@ class TextureDrawer {
             (p1.y >= tex->get_height() && p2.y >= tex->get_height());
     }
     std::vector<primitives::Point> raster_triangle(std::vector<glm::vec3>& triangles,
-        size_t ind, std::vector<glm::vec3> colors) {
+        size_t ind, std::vector<glm::vec3>& colors) {
 
         std::vector<primitives::Point> res;
         if (triangles.size() % 3 != 0) {
@@ -110,14 +111,14 @@ class TextureDrawer {
         std::vector<glm::vec3> color02;
         std::vector<glm::vec3> color12;
         if (colors.size() == 1) {
-            color01 = interpolate(xy01.size() - 1, colors[0], colors[0]);
-            color02 = interpolate(xy02.size() - 1, colors[0], colors[0]);
-            color12 = interpolate(xy12.size() - 1, colors[0], colors[0]);
+            color01 = interpolate(xy01.size() - 1, colors[ind], colors[ind]);
+            color02 = interpolate(xy02.size() - 1, colors[ind], colors[ind]);
+            color12 = interpolate(xy12.size() - 1, colors[ind], colors[ind]);
         }
         else {
-            color01 = interpolate(xy01.size() - 1, colors[0], colors[1]);
-            color02 = interpolate(xy02.size() - 1, colors[0], colors[2]);
-            color12 = interpolate(xy12.size() - 1, colors[1], colors[2]);
+            color01 = interpolate(xy01.size() - 1, colors[ind], colors[ind + 1]);
+            color02 = interpolate(xy02.size() - 1, colors[ind], colors[ind + 2]);
+            color12 = interpolate(xy12.size() - 1, colors[ind + 1], colors[ind + 2]);
         }
 
         std::vector<float>& xy012 = xy01;
@@ -282,6 +283,7 @@ class TextureDrawer {
         std::vector<std::vector<primitives::Point>> res;
 
         std::vector<glm::vec3> triangles2D;
+        std::vector<glm::vec3> colors;
         bool one_in_bounds = false;
 
         for (auto& prim : highlvl_obj.objects) {
@@ -299,7 +301,9 @@ class TextureDrawer {
                         !out_of_bounds(tr2d[i], tr2d[(i + 1) % 3]);
                 }
                 one_in_bounds = one_in_bounds || tr_in_bounds;
+                auto lamb = lambert(triangle, ls);
                 triangles2D.insert(triangles2D.end(), tr2d.begin(), tr2d.end());
+                colors.insert(colors.end(), lamb.begin(), lamb.end());
             }
         }
         if (!one_in_bounds) {
@@ -315,7 +319,7 @@ class TextureDrawer {
         else {
             for (size_t i = 0; i < triangles2D.size(); i += 3) {
                 auto rastered = raster_triangle(triangles2D, i,
-                    highlvl_obj.objects[i / 3].colors);
+                    colors);
                 res.push_back(rastered);
             }
         }
@@ -329,12 +333,20 @@ class TextureDrawer {
 
     void z_buffer(std::vector<HighLevelInterface>& highlvl_objs, Camera& camera, bool textured) {
         std::vector<std::vector<float>> buffer(
-            tex->get_height(), std::vector<float>(tex->get_width(), std::numeric_limits<float>::max())
+            tex->get_width(), std::vector<float>(tex->get_height(), std::numeric_limits<float>::max())
         );
         glm::mat4x4 view = camera.GetViewMatrix();
         std::vector<std::vector<std::vector<primitives::Point>>> rastered_objs;
         for (auto& obj : highlvl_objs) {
             rastered_objs.push_back(raster(obj, view, textured));
+        }
+
+        if (!textured) {
+            glm::vec3 posls;
+            bool suc = point_to_2D_bool(ls.position, view, posls);
+            if (suc) {
+                tex->set_rgb(posls, glm::vec3(0.f));
+            }
         }
 
         for (auto& rastered_obj : rastered_objs) {
@@ -474,6 +486,7 @@ public:
         this->tex = tex;
         this->projection = glm::mat4x4(1);
         this->aspect = (float)tex->get_width() / (float)tex->get_height();
+        ls.position = glm::vec3(2.f);
     }
     void set_projection_mode(projection::Type type) {
         switch (type)

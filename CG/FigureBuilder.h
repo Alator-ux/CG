@@ -42,9 +42,8 @@ public:
         auto hc = glm::vec3(0.f, 0.f, 0.f);
 
         Face face1 = Face(a, ac);
-        face1.push_point(f, fc);
-        face1.push_point(c, cc);
-        //std::vector<glm::vec2> ;
+        face1.push_point(c, ac);
+        face1.push_point(f, ac);
         
         face1.set_uv_vec({
             glm::vec2(0, 0),
@@ -52,26 +51,26 @@ public:
             glm::vec2(0, 1) });
         face1.primitive_is_finished();
 
-        Face face2 = Face(f, fc);
-        face2.push_point(c, cc);
-        face2.push_point(h, hc);
+        Face face2 = Face(f, ac);
+        face2.push_point(c, ac);
+        face2.push_point(h, ac);
         face2.set_uv_vec({
             glm::vec2(0, 0),
             glm::vec2(1, 0),
             glm::vec2(0, 1) });
         face2.primitive_is_finished();
 
-        Face face3 = Face(c, cc);
-        face3.push_point(h, hc);
+        Face face3 = Face(c, ac);
         face3.push_point(a, ac);
+        face3.push_point(h, ac);
         face3.set_uv_vec({
             glm::vec2(0, 0),
             glm::vec2(1, 0),
             glm::vec2(0, 1) });
         face3.primitive_is_finished();
 
-        Face face4 = Face(f, fc);
-        face4.push_point(h, hc);
+        Face face4 = Face(f, ac);
+        face4.push_point(h, ac);
         face4.push_point(a, ac);
         face4.set_uv_vec({
             glm::vec2(0, 0),

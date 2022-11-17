@@ -11,7 +11,7 @@ std::vector<glm::vec3> lambert(primitives::Polygon& object, LightSource& ls) {
     glm::vec3 norm = glm::normalize(object.normal);
 
     for (size_t i = 0; i < object.points.size(); i++) {
-        auto lightDir = glm::normalize(object.points[i] - ls.position);
+        auto lightDir = glm::normalize(ls.position - object.points[i]);
         glm::vec3 color;
         if (object.colors.size() > 1) {
             color = object.colors[i];
@@ -19,7 +19,8 @@ std::vector<glm::vec3> lambert(primitives::Polygon& object, LightSource& ls) {
         else {
             color = object.colors[0];
         }
-        color *= glm::clamp(glm::dot(norm, lightDir), 0.f, 1.f);
+        auto dot = glm::clamp(glm::dot(norm, lightDir), 0.f, 1.f);
+        color = color * dot;
         res.push_back(color);
     }
 

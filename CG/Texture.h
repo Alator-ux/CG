@@ -107,17 +107,14 @@ public:
     void set_rgb(glm::vec3 coord, glm::vec3 color) {
         unsigned char rgb[3];
         for (size_t i = 0; i < 3; i++) {
-            image(coord.x, coord.y, 0, i) = color[i];
             rgb[i] = color[i];
         }
+        image.draw_point(coord.x, coord.y, rgb);
     }
     void set_rgb(int x, int y, glm::vec3 color) {
         unsigned char uch_color[3];
         for (size_t i = 0; i < 3; i++) {
             uch_color[i] = color[i];
-        }
-        if (uch_color[0] != 255 || uch_color[1] != 127 || uch_color[2] != 38) {
-            auto a = 1;
         }
         image.draw_point(x, y, uch_color);
     }
