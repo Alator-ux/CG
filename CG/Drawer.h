@@ -84,7 +84,7 @@ public:
         for (primitives::Primitive& pr : primitives) {
             glLineWidth(pr.width);
             count = pr.get_points_count();
-            shader->uniform4f("color", pr.color);
+            shader->uniform4f("color", pr.colors[0]);
             glDrawArrays(pr.drawing_type, from, count);
             from += count;
         }
@@ -99,7 +99,7 @@ public:
             for (auto& pr : highlvl_obj.objects) {
                 glLineWidth(pr.width);
                 count = pr.get_points_count();
-                shader->uniform4f("color", pr.color);
+                shader->uniform4f("color", pr.colors[0]);
                 glDrawArrays(pr.drawing_type, from, count);
                 from += count;
             }

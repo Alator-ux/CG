@@ -1,6 +1,7 @@
 #pragma once
 #include "Figure.h"
 #include "STLLoader.h"
+#include <vector>
 class FigureBuilder {
     float bound = 100;
 public:
@@ -35,24 +36,47 @@ public:
         f /= bound;
         h /= bound;
 
-        Face face1 = Face(a, glm::vec3(255.f, 0.f, 0.f));
-        face1.push_point(f);
-        face1.push_point(c);
+        auto ac = glm::vec3(255.f, 0.f, 0.f);
+        auto fc = glm::vec3(0.f, 255.f, 0.f);
+        auto cc = glm::vec3(0.f, 0.f, 255.f);
+        auto hc = glm::vec3(0.f, 0.f, 0.f);
+
+        Face face1 = Face(a, ac);
+        face1.push_point(f, fc);
+        face1.push_point(c, cc);
+        //std::vector<glm::vec2> ;
+        
+        face1.set_uv_vec({
+            glm::vec2(0, 0),
+            glm::vec2(1, 0),
+            glm::vec2(0, 1) });
         face1.primitive_is_finished();
 
-        Face face2 = Face(f, glm::vec3(0.f, 255.f, 0.f));
-        face2.push_point(c);
-        face2.push_point(h);
+        Face face2 = Face(f, fc);
+        face2.push_point(c, cc);
+        face2.push_point(h, hc);
+        face2.set_uv_vec({
+            glm::vec2(0, 0),
+            glm::vec2(1, 0),
+            glm::vec2(0, 1) });
         face2.primitive_is_finished();
 
-        Face face3 = Face(c, glm::vec3(0.f, 0.f, 255.f));
-        face3.push_point(h);
-        face3.push_point(a);
+        Face face3 = Face(c, cc);
+        face3.push_point(h, hc);
+        face3.push_point(a, ac);
+        face3.set_uv_vec({
+            glm::vec2(0, 0),
+            glm::vec2(1, 0),
+            glm::vec2(0, 1) });
         face3.primitive_is_finished();
 
-        Face face4 = Face(f, color);
-        face4.push_point(h);
-        face4.push_point(a);
+        Face face4 = Face(f, fc);
+        face4.push_point(h, hc);
+        face4.push_point(a, ac);
+        face4.set_uv_vec({
+            glm::vec2(0, 0),
+            glm::vec2(1, 0),
+            glm::vec2(0, 1) });
         face4.primitive_is_finished();
 
         tetr.objects.push_back(face1);

@@ -56,7 +56,7 @@ public:
                 if (!p.first) {
                     break;
                 }
-                p.second.color = glm::vec3(1.0);
+                p.second.colors.push_back(glm::vec3(1.0));
                 stl_model.objects.push_back(p.second);
             }
             stl_file.close();

@@ -78,12 +78,16 @@ public:
     }
     Face(glm::vec3 coords, glm::vec3 color) {
         this->points.push_back(coords);
-        this->color = color;
+        this->colors.push_back(color);
         drawing_type = GL_LINE_STRIP;
         //this->drawing_type = GL_TRIANGLES;
     }
     void push_point(glm::vec3 coords) {
         points.push_back(coords);
+    }
+    void push_point(glm::vec3 coords, glm::vec3 color) {
+        points.push_back(coords);
+        colors.push_back(color);
     }
     bool primitive_is_finished() {
         if (points.size() < 3) {

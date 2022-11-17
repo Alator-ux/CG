@@ -113,7 +113,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)\Linking\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glfw\glfw3.lib;glfw\glfw3dll.lib;glew\glew32.lib;sfml\sfml-system-d.lib;sfml\sfml-window-d.lib;sfml\sfml-graphics-d.lib;sfml\sfml-main-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw\glfw3.lib;glfw\glfw3dll.lib;glew\glew32.lib;sfml\sfml-system-d.lib;sfml\sfml-window-d.lib;sfml\sfml-graphics-d.lib;sfml\sfml-main-d.lib;GnuWin32\jpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -134,6 +134,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="3DChanger.cpp" />
+    <ClCompile Include="FloatingHorizon.cpp" />
     <ClCompile Include="imgui\imgui-SFML.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
@@ -153,22 +154,26 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Drawer.h" />
     <ClInclude Include="FigureBuilder.h" />
+    <ClInclude Include="FloatingHorizon.h" />
     <ClInclude Include="Fractal.h" />
     <ClInclude Include="3DChanger.h" />
     <ClInclude Include="Figure.h" />
     <ClInclude Include="FunctionFigure.h" />
     <ClInclude Include="Light.h" />
+    <ClInclude Include="Lighting.h" />
     <ClInclude Include="Line_worker.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Midpoint.h" />
     <ClInclude Include="NonFacial.h" />
     <ClInclude Include="OpenGLWrappers.h" />
     <ClInclude Include="PointClassifier.h" />
+    <ClInclude Include="PrimitiveBuilder.h" />
     <ClInclude Include="PrimitiveChanger.h" />
     <ClInclude Include="Primitives.h" />
     <ClInclude Include="Projection.h" />
     <ClInclude Include="RotationFigure.h" />
     <ClInclude Include="Selector.h" />
+    <ClInclude Include="stb_image.h" />
     <ClInclude Include="STLLoader.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureDrawer.h" />

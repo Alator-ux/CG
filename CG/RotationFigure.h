@@ -25,7 +25,7 @@ public:
             for (size_t i = 0; i < new_line.points.size() - 1; i++) {
                 auto color = glm::vec3(std::rand() % 256, std::rand() % 256, std::rand() % 256);
                 primitives::Polygon poly;
-                poly.color = color;
+                poly.colors.push_back(color);
                 poly.push_point(prev.points[i]);
                 poly.push_point(prev.points[i + 1]);
                 poly.push_point(new_line.points[i + 1]);

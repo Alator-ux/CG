@@ -5,7 +5,8 @@
 #include <glm/vec2.hpp>
 #include <vector>
 #include "CImg.h"
-
+#include <stdint.h>
+#include "stb_image.h"
 class Texture {
 public:
 	GLuint id;
@@ -85,15 +86,6 @@ public:
 
 
 class CImgTexture {
-    int _define_sign(int d) {
-        if (d > 0) {
-            return 1;
-        }
-        if (d < 0) {
-            return -1;
-        }
-        return 0;
-    }
 public:
     cimg_library::CImg<unsigned char> image;
     CImgTexture(GLuint width, GLuint height) {
@@ -101,6 +93,13 @@ public:
     }
     CImgTexture(GLuint width, GLuint height, unsigned char color) {
         this->image = cimg_library::CImg<unsigned char>(width, height, 1, 3, color);
+    }
+    CImgTexture(GLuint width, GLuint height, const char* filename) {
+        int img_width, img_height, bpp;
+        unsigned char* rgb_image = stbi_load(filename, &img_width, &img_height, &bpp, 3);
+       this->image = cimg_library::CImg<unsigned char>(rgb_image, img_width, img_height, 1, 3);
+
+        stbi_image_free(rgb_image);
     }
     void clear() {
         this->image = cimg_library::CImg<unsigned char>(image.width(), image.height(), 1, 3, 255);
@@ -117,7 +116,13 @@ public:
         for (size_t i = 0; i < 3; i++) {
             uch_color[i] = color[i];
         }
+        if (uch_color[0] != 255 || uch_color[1] != 127 || uch_color[2] != 38) {
+            auto a = 1;
+        }
         image.draw_point(x, y, uch_color);
+    }
+    glm::vec3 get_uv(glm::vec2 uv) {
+        return get_rgb(uv.x * (get_width() - 1), uv.y * (get_height() - 1));
     }
     void draw_st_line(glm::vec3 fc, glm::vec3 sc, glm::vec3 color) {
         unsigned char uch_color[3];
@@ -126,71 +131,26 @@ public:
         }
         image.draw_line(fc.x, fc.y, sc.x, sc.y, uch_color);
     }
-    void draw_line(glm::vec3 fc, glm::vec3 sc, glm::vec3 color) {
-        int dx = sc.x - fc.x;
-        int dy = sc.y - fc.y;
-
-        int sign_x = _define_sign(dx);
-        int sign_y = _define_sign(dy);
-
-        dx *= sign_x;
-        dy *= sign_y;
-        int dl = 0;
-        int dr = 0;
-        int x_addr1 = 0;
-        int x_addr2 = 0;
-        int y_addr1 = 0;
-        int y_addr2 = 0;
-        float gradient;
-        if (dx == 0) {
-            gradient = dy;
-        }
-        else {
-            gradient = (float)dy / (float)dx;
-        }
-        int last;
-        if (gradient <= 1) {
-            dl = dy;
-            dr = dx,
-                x_addr2 = sign_x;
-            y_addr1 = sign_y;
-            last = dx;
-        }
-        else {
-            dl = dx;
-            dr = dy;
-            x_addr1 = sign_x;
-            y_addr2 = sign_y;
-            last = dy;
-        }
-
-        int di = 2 * dl - dr;
-        int x = fc.x; int y = fc.y;
-        int t = 0;
-
-        set_rgb(x, y, color);
-
-        while (t < last) {
-            if (di < 0) {
-                di += 2 * dl;
-            }
-            else {
-                y += y_addr1;
-                x += x_addr1;
-                di += 2 * (dl - dr);
-            }
-            x += x_addr2;
-            y += y_addr2;
-            t += 1;
-            set_rgb(x, y, color);
-        }
-    }
-    glm::vec3 get_rgb(glm::vec3 coord) {
-        glm::vec3 res;
+    void draw_st_line(glm::vec2 fc, glm::vec2 sc, glm::vec3 color) {
+        unsigned char uch_color[3];
         for (size_t i = 0; i < 3; i++) {
-            res[i] = image(coord.x, coord.y, 0, i);
+            uch_color[i] = color[i];
+        }
+        image.draw_line(fc.x, fc.y, sc.x, sc.y, uch_color);
+    }
+    glm::vec3 get_rgb(int x, int y) {
+        glm::vec3 res;
+        unsigned char uch_color[3];
+        for (size_t i = 0; i < 3; i++) {
+            res[i] = *(image.data() + x * 3 + y * image.width() * 3 + i);
         }
         return res;
+    }
+    glm::vec3 get_rgb(glm::vec3 coord) {
+        return get_rgb(coord.x, coord.y);
+    }
+    glm::vec3 get_rgb(glm::vec2 coord) {
+        return get_rgb(coord.x, coord.y);
     }
     int get_height() {
         return image.height();

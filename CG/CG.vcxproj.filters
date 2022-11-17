@@ -41,7 +41,10 @@
       <Filter>Пиписи\Changers</Filter>
     </ClCompile>
     <ClCompile Include="RotationFigure.cpp">
-      <Filter>Пиписи\Drawable\Figure</Filter>
+      <Filter>Пиписи\Drawable\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="FloatingHorizon.cpp">
+      <Filter>Пиписи\Drawable</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -123,6 +126,18 @@
     <ClInclude Include="Light.h">
       <Filter>Заголовочные файлы\Drawing\Drawable\3D</Filter>
     </ClInclude>
+    <ClInclude Include="Lighting.h">
+      <Filter>Заголовочные файлы\Drawing\Drawable</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="PrimitiveBuilder.h">
+      <Filter>Заголовочные файлы\Drawing\Drawable</Filter>
+    </ClInclude>
+    <ClInclude Include="FloatingHorizon.h">
+      <Filter>Заголовочные файлы\Drawing\Drawers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="main.frag">
@@ -173,9 +188,6 @@
     <Filter Include="Пиписи\Changers">
       <UniqueIdentifier>{5dc91577-069f-453e-a011-230f7d4d9947}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Пиписи\Drawable\Figure">
-      <UniqueIdentifier>{63891ad8-b9c9-4bd2-9cb7-1e1207b35abd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Заголовочные файлы\Drawing\Drawers">
       <UniqueIdentifier>{885f352d-3677-4ac9-8da2-31791e8f812e}</UniqueIdentifier>
     </Filter>
@@ -187,6 +199,9 @@
     </Filter>
     <Filter Include="Заголовочные файлы\Drawing\Drawable\3D">
       <UniqueIdentifier>{f534ff00-835e-4650-998c-c34a11622a05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Пиписи\Drawable\3D">
+      <UniqueIdentifier>{63891ad8-b9c9-4bd2-9cb7-1e1207b35abd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

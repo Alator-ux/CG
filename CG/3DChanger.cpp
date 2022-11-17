@@ -367,3 +367,9 @@ void reflection_about_the_axis(ThreeDInterface* obj, Axis axis)
     }
 
 }
+
+glm::vec3 rotate(glm::vec3 point, Axis axis, float angle) {
+    auto rotation_matrix = build_rotation_matrix(axis, angle);
+    auto res = rotation_matrix * glm::vec4(point, 1.f);
+    return glm::vec3(res);
+}

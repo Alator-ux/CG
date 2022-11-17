@@ -2,7 +2,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include <string>
-#include "ThreeDInterface.h"
+
 struct LightSource {
     glm::vec3 position;
     glm::vec3 ambient;
@@ -36,9 +36,4 @@ struct LightSource {
     std::string get_atten_name(const std::string& pref = "", const std::string& suf = "") const {
         return pref + "lightAtten" + suf;
     }
-};
-
-class LightFigure : public ThreeDInterface {
-    LightSource light;
-
 };

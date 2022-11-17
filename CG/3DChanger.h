@@ -19,3 +19,5 @@ void rotate_around_center(ThreeDInterface* obj, Axis axis, float angle);
 
 // Отражение относительно выбранной координатной плоскости
 void reflection_about_the_axis(ThreeDInterface* obj, Axis axis);
+
+glm::vec3 rotate(glm::vec3 point, Axis axis, float angle);

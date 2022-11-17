@@ -1,3 +1,4 @@
+#define STB_IMAGE_IMPLEMENTATION
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
@@ -8,13 +9,12 @@
 #include "Widgets.h"
 #include "3DChanger.h"
 #include "Drawer.h"
-#include "Projection.h"
 #include "FigureBuilder.h"
 #include "FunctionFigure.h"
 #include "Camera.h"
 #include "Texture.h"
 #include "TextureDrawer.h"
-
+#include "FloatingHorizon.h"
 const GLuint W_WIDTH = 1280;
 const GLuint W_HEIGHT = 1280;
 Shader mainShader;
@@ -98,13 +98,16 @@ int main() {
 
     // Widgets for Reflection relative to the selected coordinate plane
     // axis_menu
-    CImgTexture tex(W_WIDTH / 2, W_HEIGHT / 2);
+    items = { "Lighting", "Texturing", "Horizon" };
+    auto lab9_sel = RadioButtonRow(items);
+    //CImgTexture tex(W_WIDTH / 2, W_HEIGHT / 2);
+    CImgTexture tex(944, 630);
     TextureDrawer tex_drawer(&tex);
-    primitives::Polygon poly(glm::vec3(200, 200, 0), glm::vec3(0));
-    poly.push_point(glm::vec3(100, 50, 0));
-    poly.push_point(glm::vec3(300, 400, 0));
     tex_drawer.set_projection_mode(projection::pers);
-    cimg_library::CImgDisplay main_disp(tex.image, "Click a point");
+    FloatingHorizon horizon_drawer(&tex);
+    //horizon_drawer.set_projection_mode(projection::pers);
+    cimg_library::CImgDisplay main_disp(tex.image, "Canvas");
+
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
@@ -130,6 +133,7 @@ int main() {
             glfwGetCursorPos(window, &xpos, &ypos);
             auto cur_coords = convert_coords(xpos, ypos, W_WIDTH, W_HEIGHT);
             ImGui::Text("x = %.7f, y = %.7f", cur_coords.x, cur_coords.y);
+            lab9_sel.draw();
             rbr.draw();
             switch (rbr.get_value())
             {
@@ -260,8 +264,16 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         Do_Movement();
         Draw(manager, rbr.get_value());
-        if (!storage.empty()) {
-            tex_drawer.draw(storage[0], camera);
+        if (lab9_sel.get_value() == 2) {
+            auto f = [](float x, float y) {return std::sin(x) + std::cos(y);};
+            //auto f = [](float x, float y) {return std::pow(x, 2) + std::pow(y, 2);};
+            //auto f = [](float x, float y) {return std::sin(x) * std::cos(y);};
+            horizon_drawer.draw(f, camera);
+        }
+        else {
+            if (!storage.empty()) {
+                tex_drawer.draw(storage[0], camera, lab9_sel.get_value() == 1);
+            }
         }
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
