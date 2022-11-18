@@ -94,7 +94,7 @@ void InitBO(OpenGLManager* manager)
     prim.push_point(glm::vec3(0.f, 1.f, 0.f));
     prim.push_point(glm::vec3(1.f, -1.f, 0.f));
     prim.drawing_type = GL_TRIANGLES;
-    prim.colors.push_back(glm::vec3(0.f, 1.f, 0.f));
+    prim.colors.push_back(glm::vec3(1.f, 0.f, 0.f));
     storage.push_back(prim);
     
     drawer.set_vbo("triangle", storage);
