@@ -6,19 +6,31 @@ class FigureBuilder {
     float bound = 100;
 public:
     Figure buildFigure(FigureType kind, glm::vec3 color) {
+        Figure fig;
         switch (kind) {
         case Tetrahed:
-            return buildTetrahedron(color);
+            fig = buildTetrahedron(color);
+            break;
         case Hexahed:
-            return buildHexahedron(color);
+            fig = buildHexahedron(color);
+            break;
         case Octahed:
-            return buildOctahedron(color);
+            fig = buildOctahedron(color);
+            break;
         case Icosahed:
-            return buildIcosahedron(color);
+            fig = buildIcosahedron(color);
+            break;
         case Dodecahed:
-            return buildDodecahedron(color);
+            fig = buildDodecahedron(color);
             break;
         }
+        for (auto i = 0; i < fig.objects.size(); i++) {
+            fig.objects[i].set_uv_vec({
+            glm::vec2(0, 0),
+            glm::vec2(1, 0),
+            glm::vec2(0, 1) });
+        }
+        return fig;
     }
     Dodecahedron buildDodecahedron(glm::vec3 color) {
         auto r = STL::load_from_file("./models/ddc.stl");
@@ -44,38 +56,21 @@ public:
         Face face1 = Face(a, ac);
         face1.push_point(c, ac);
         face1.push_point(f, ac);
-        
-        face1.set_uv_vec({
-            glm::vec2(0, 0),
-            glm::vec2(1, 0),
-            glm::vec2(0, 1) });
         face1.primitive_is_finished();
 
         Face face2 = Face(f, ac);
         face2.push_point(c, ac);
         face2.push_point(h, ac);
-        face2.set_uv_vec({
-            glm::vec2(0, 0),
-            glm::vec2(1, 0),
-            glm::vec2(0, 1) });
         face2.primitive_is_finished();
 
         Face face3 = Face(c, ac);
         face3.push_point(a, ac);
         face3.push_point(h, ac);
-        face3.set_uv_vec({
-            glm::vec2(0, 0),
-            glm::vec2(1, 0),
-            glm::vec2(0, 1) });
         face3.primitive_is_finished();
 
         Face face4 = Face(f, ac);
         face4.push_point(h, ac);
         face4.push_point(a, ac);
-        face4.set_uv_vec({
-            glm::vec2(0, 0),
-            glm::vec2(1, 0),
-            glm::vec2(0, 1) });
         face4.primitive_is_finished();
 
         tetr.objects.push_back(face1);
