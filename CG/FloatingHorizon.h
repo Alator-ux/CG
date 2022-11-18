@@ -71,7 +71,7 @@ class FloatingHorizon {
     primitives::HidingPoint get_hiding_point(glm::vec3 p, Camera& camera) {
         glm::vec3 transformed;
         //transformed = transform(p, camera.Yaw, camera.Pitch);
-        transformed = transform(p, 0, 0);
+        transformed = transform(p, camera.Yaw + 90, camera.Pitch);
         
         auto hp = try_to_hide(transformed);
         return hp;
