@@ -87,6 +87,55 @@ void Release() {
     mainShader.release();
 }
 
+
+void InitTask1BO(OpenGLManager* manager)
+{
+    GLfloat a, b;
+    a = 0.3;
+    b = 0.4;
+    primitives::Polygon prim;
+    prim.push_point(glm::vec3(-a, b, 0.f));
+    prim.push_point(glm::vec3(-a, -b, 0.f));
+    prim.push_point(glm::vec3(a, -b, 0.f));
+    prim.push_point(glm::vec3(a, b, 0.f));
+
+    
+    prim.drawing_type = GL_SQUARE_NV;
+    prim.colors.push_back(glm::vec3(1.f, 0.f, 0.f));
+    storage.push_back(prim);
+
+    drawer.set_vbo("square", storage);
+
+    manager->checkOpenGLerror();
+}
+
+// Правильный многоугольник
+void InitTask3BO(OpenGLManager* manager)
+{
+    primitives::Polygon prim;
+    int angle_numbers = 5;
+    float angle = 0;
+    float radius = 0.45;
+    float mult = PI / 180;
+    for (int i = 0; i <= angle_numbers; i++) {
+        glm::vec3 p = glm::vec3();
+        p.x = radius * cos(angle * mult);
+        p.y = radius * sin(angle * mult);
+        angle += 360.0 / angle_numbers;
+        prim.push_point(p);
+    }
+    // TODO: idk
+    prim.drawing_type = GL_SQUARE_NV;
+    prim.colors.push_back(glm::vec3(1.f, 0.f, 0.f));
+    storage.push_back(prim);
+
+    drawer.set_vbo("square", storage);
+
+    manager->checkOpenGLerror();
+}
+
+
+
 void InitBO(OpenGLManager* manager)
 {    
     primitives::Polygon prim;
@@ -108,7 +157,7 @@ void Init(OpenGLManager* manager) {
     mainShader = Shader();
     mainShader.init_shader("main.vert", "main.frag");
     drawer = Drawer(&mainShader, "vPos", W_WIDTH, W_HEIGHT);
-    InitBO(manager);
+    InitTask1BO(manager);
 
     glClearColor(0, 0, 0, 1);
     manager->checkOpenGLerror();
@@ -116,5 +165,5 @@ void Init(OpenGLManager* manager) {
 
 void Draw(OpenGLManager* manager) {
     glLineWidth(1.0f);
-    drawer.draw(storage, "triangle", camera);
+    drawer.draw(storage, "square", camera);
 }
