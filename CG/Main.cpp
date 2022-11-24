@@ -100,14 +100,40 @@ void InitTask1BO(OpenGLManager* manager)
     prim.push_point(glm::vec3(a, b, 0.f));
 
     
-    prim.drawing_type = GL_SQUARE_NV;
+    prim.drawing_type = GL_QUADS;
     prim.colors.push_back(glm::vec3(1.f, 0.f, 0.f));
     storage.push_back(prim);
 
-    drawer.set_vbo("square", storage);
+    drawer.set_vbo("lab11", storage);
 
     manager->checkOpenGLerror();
 }
+
+
+void InitTask2BO(OpenGLManager* manager)
+{
+    primitives::Polygon prim;
+    int angle_numbers = 5;
+    float angle = 0;
+    float radius = 0.45;
+    float mult = PI / 180;
+    prim.push_point(glm::vec3(0.0, -0.5, 0.0));
+    for (int i = 0; i <= angle_numbers; i++) {
+        glm::vec3 p = glm::vec3();
+        p.x = radius * cos(angle * mult);
+        p.y = radius * sin(angle * mult);
+        angle += 180.0 / angle_numbers;
+        prim.push_point(p);
+    }
+    prim.drawing_type = GL_TRIANGLE_FAN;
+    prim.colors.push_back(glm::vec3(1.f, 0.f, 0.f));
+    storage.push_back(prim);
+
+    drawer.set_vbo("lab11", storage);
+
+    manager->checkOpenGLerror();
+}
+
 
 // Правильный многоугольник
 void InitTask3BO(OpenGLManager* manager)
@@ -124,12 +150,11 @@ void InitTask3BO(OpenGLManager* manager)
         angle += 360.0 / angle_numbers;
         prim.push_point(p);
     }
-    // TODO: idk
-    prim.drawing_type = GL_SQUARE_NV;
+    prim.drawing_type = GL_TRIANGLE_FAN;
     prim.colors.push_back(glm::vec3(1.f, 0.f, 0.f));
     storage.push_back(prim);
 
-    drawer.set_vbo("square", storage);
+    drawer.set_vbo("lab11", storage);
 
     manager->checkOpenGLerror();
 }
@@ -158,12 +183,13 @@ void Init(OpenGLManager* manager) {
     mainShader.init_shader("main.vert", "main.frag");
     drawer = Drawer(&mainShader, "vPos", W_WIDTH, W_HEIGHT);
     InitTask1BO(manager);
-
+    //InitTask2BO(manager);
+    //InitTask3BO(manager);
     glClearColor(0, 0, 0, 1);
     manager->checkOpenGLerror();
 }
 
 void Draw(OpenGLManager* manager) {
     glLineWidth(1.0f);
-    drawer.draw(storage, "square", camera);
+    drawer.draw(storage, "lab11", camera);
 }

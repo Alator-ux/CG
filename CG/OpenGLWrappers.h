@@ -33,7 +33,12 @@ public:
     template <typename T>
     void init_vbo(const std::string& name, const T* arr, GLuint size, GLenum usage) {
         GLuint buffer;
-        glGenBuffers(1, &buffer);
+        if (_buffers.find(name) == _buffers.end()) {
+            glGenBuffers(1, &buffer);
+        }
+        else {
+            buffer = _buffers[name];
+        }
         glBindBuffer(GL_ARRAY_BUFFER, buffer);
         glBufferData(GL_ARRAY_BUFFER, size, arr, usage);
         checkOpenGLerror();
