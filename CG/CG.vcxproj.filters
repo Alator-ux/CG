@@ -138,6 +138,10 @@
     <ClInclude Include="FloatingHorizon.h">
       <Filter>Заголовочные файлы\Drawing\Drawers</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="Cube.h">
+      <Filter>Заголовочные файлы\Drawing\Drawable\3D</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="main.frag">
@@ -147,6 +151,30 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="models\Icosahedron.stl" />
+    <None Include="ellipse.vert">
+      <Filter>Shaders\ellipse</Filter>
+    </None>
+    <None Include="ellipse.frag">
+      <Filter>Shaders\ellipse</Filter>
+    </None>
+    <None Include="tAc.vert">
+      <Filter>Shaders\tAc</Filter>
+    </None>
+    <None Include="tAc.frag">
+      <Filter>Shaders\tAc</Filter>
+    </None>
+    <None Include="tAt.vert">
+      <Filter>Shaders\tAt</Filter>
+    </None>
+    <None Include="tAt.frag">
+      <Filter>Shaders\tAt</Filter>
+    </None>
+    <None Include="grad.vert">
+      <Filter>Shaders\gradient</Filter>
+    </None>
+    <None Include="grad.frag">
+      <Filter>Shaders\gradient</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Заголовочные файлы">
@@ -203,5 +231,20 @@
     <Filter Include="Пиписи\Drawable\3D">
       <UniqueIdentifier>{63891ad8-b9c9-4bd2-9cb7-1e1207b35abd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\ellipse">
+      <UniqueIdentifier>{198f7fe1-a115-440e-a94d-50c64f617d8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\tAc">
+      <UniqueIdentifier>{ff820b92-c7bf-4af6-9d0c-1d4822167571}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\tAt">
+      <UniqueIdentifier>{7d871a88-ca66-4136-8e62-a73edbc1e85d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\gradient">
+      <UniqueIdentifier>{f10d0266-012a-4053-869b-f2d34aff7962}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="CG.rc" />
   </ItemGroup>
 </Project>

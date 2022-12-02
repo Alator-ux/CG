@@ -131,9 +131,10 @@ public:
         colorBuffer.create_wrap_clamp_buffer(width, height);
         _textures[color_name] = colorBuffer;
     }
-    void create_rgb16f_buffer(const std::string& color_name, const GLuint width, const GLuint height) {
+    void create_rgb16f_buffer(const std::string& color_name, const GLuint width, const GLuint height,
+        unsigned char* data = NULL) {
         Texture colorBuffer = Texture();
-        colorBuffer.create_rgb16f_buffer(width, height);
+        colorBuffer.create_rgb16f_buffer(width, height, data);
         _textures[color_name] = colorBuffer;
     }
     void create_rgba_buffer(const std::string& color_name, const GLuint width, const GLuint height) {
@@ -306,6 +307,11 @@ public:
         }
         std::cout << "-----------------------------\n";
     }
+    Shader(){}
+    Shader(const Shader& other) {
+        program = other.program;
+        ss = std::stringstream();
+    }
     GLuint get_program_id() {
         return program;
     }
@@ -349,6 +355,13 @@ public:
     void uniform1f(const char* name, GLfloat v) {
         GLint location = get_uniform_location(name);
         glUniform1f(location, v);
+    }
+    void uniform2f(GLint location, glm::vec2& data) {
+        glUniform2f(location, data.x, data.y);
+    }
+    void uniform2f(const char* name, glm::vec2& data) {
+        GLint location = get_uniform_location(name);
+        glUniform2f(location, data.x, data.y);
     }
     void uniform3f(int location, float v0, float v1, float v2)
     {
@@ -404,7 +417,6 @@ public:
             uniform3f(location, arr[i].x, arr[i].y, arr[i].z);
         }
     }
-
 
     void uniformMatrix4fv(GLint location, const glm::mat4 mat) {
         glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));

@@ -17,13 +17,75 @@ public:
             return buildIcosahedron(color);
         case Dodecahed:
             return buildDodecahedron(color);
-            break;
+        case Cube:
+            return buildCube(color);
         }
     }
     Dodecahedron buildDodecahedron(glm::vec3 color) {
         auto r = STL::load_from_file("./models/ddc.stl");
         Dodecahedron* res = reinterpret_cast<Dodecahedron*>(&r);
         return *res;
+    }
+    CubeFigure buildCube(glm::vec3 color) {
+        GLfloat len = 2.f;
+        glm::vec3 flt(-len, len, len), brb(len, -len, -len);
+        
+        auto cube = CubeFigure();
+        Face front = Face(flt, glm::vec3(1.f, 0.f, 0.f));
+        front.push_point({ -len, -len, len }, glm::vec3(1.f, 1.f, 1.f));
+        front.push_point({ len, -len, len }, glm::vec3(0.f, 0.f, 1.f));
+        front.push_point({ len, len, len }, glm::vec3(0.f,1.f,0.f));
+        front.set_uv_vec({
+            glm::vec2(0,0), glm::vec2(0,1),glm::vec2(1,1), glm::vec2(1,0)
+            });
+
+        Face left = Face(flt, glm::vec3(1.f, 0.f, 0.f));
+        left.push_point({ -len, len, -len }, glm::vec3(1.f, 1.f, 0.f));
+        left.push_point({ -len, -len, -len }, glm::vec3(1.f, 0.f, 1.f));
+        left.push_point({ -len, -len, len }, glm::vec3(1.f, 1.f, 1.f));
+        left.set_uv_vec({
+            glm::vec2(1,1), glm::vec2(0,1),glm::vec2(0,0), glm::vec2(1,0)
+            });
+
+        Face top = Face(flt, glm::vec3(1.f, 0.f, 0.f));
+        top.push_point({ len, len, len }, glm::vec3(0.f, 1.f, 0.f));
+        top.push_point({ len, len, -len }, glm::vec3(0.f, 1.f, 1.f));
+        top.push_point({ -len, len, -len }, glm::vec3(1.f, 1.f, 0.f));
+        top.set_uv_vec({
+            glm::vec2(0,0), glm::vec2(0,1),glm::vec2(1,1), glm::vec2(1,0)
+            });
+
+        Face right = Face(brb, glm::vec3(0.25f, 0.75f, 0.f));
+        right.push_point({ len, len, -len }, glm::vec3(0.f, 1.f, 1.f));
+        right.push_point({ len, len, len }, glm::vec3(0.f, 1.f, 0.f));
+        right.push_point({ len, -len, len }, glm::vec3(0.f, 0.f, 1.f));
+        right.set_uv_vec({
+            glm::vec2(1,0), glm::vec2(1,1),glm::vec2(0,1), glm::vec2(0,0)
+            });
+
+        Face bot = Face(brb, glm::vec3(0.25f, 0.75f, 0.f));
+        bot.push_point({ len, -len, len }, glm::vec3(0.f, 0.f, 1.f));
+        bot.push_point({ -len, -len, len }, glm::vec3(1.f, 1.f, 1.f));
+        bot.push_point({ -len, -len, -len }, glm::vec3(1.f, 0.f, 1.f));
+        bot.set_uv_vec({
+            glm::vec2(1,0), glm::vec2(1,1),glm::vec2(0,1), glm::vec2(0,0)
+            });
+
+        Face back = Face(brb, glm::vec3(0.25f, 0.75f, 0.f));
+        back.push_point({ -len, -len, -len }, glm::vec3(1.f, 0.f, 1.f));
+        back.push_point({ -len, len, -len }, glm::vec3(1.f, 1.f, 0.f));
+        back.push_point({ len, len, -len }, glm::vec3(0.f, 1.f, 1.f));
+        back.set_uv_vec({
+            glm::vec2(0,0), glm::vec2(1,0),glm::vec2(1,1), glm::vec2(0,1)
+            });
+
+        cube.objects.push_back(front);
+        cube.objects.push_back(left);
+        cube.objects.push_back(right);
+        cube.objects.push_back(back);
+        cube.objects.push_back(top);
+        cube.objects.push_back(bot);
+        return cube;
     }
     Tetrahedron buildTetrahedron(glm::vec3 color) {
         auto tetr = Tetrahedron();
@@ -36,16 +98,14 @@ public:
         f /= bound;
         h /= bound;
 
-        auto ac = glm::vec3(255.f, 0.f, 0.f);
-        auto fc = glm::vec3(0.f, 255.f, 0.f);
-        auto cc = glm::vec3(0.f, 0.f, 255.f);
-        auto hc = glm::vec3(0.f, 0.f, 0.f);
+        auto ac = glm::vec3(1.f, 0.f, 0.f);
+        auto fc = glm::vec3(0.f, 1, 0.f);
+        auto cc = glm::vec3(0.f, 0.f, 1);
+        auto hc = glm::vec3(1.f, 1.f, 1.f);
 
         Face face1 = Face(a, ac);
         face1.push_point(f, fc);
         face1.push_point(c, cc);
-        //std::vector<glm::vec2> ;
-        
         face1.set_uv_vec({
             glm::vec2(0, 0),
             glm::vec2(1, 0),

@@ -20,10 +20,10 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
-	void create_rgb16f_buffer(GLuint width, GLuint height) {
+	void create_rgb16f_buffer(GLuint width, GLuint height, unsigned char* data = NULL) {
 		glGenTextures(1, &id);
 		glBindTexture(GL_TEXTURE_2D, id);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, (void*)data);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
@@ -97,7 +97,7 @@ public:
     CImgTexture(GLuint width, GLuint height, const char* filename) {
         int img_width, img_height, bpp;
         unsigned char* rgb_image = stbi_load(filename, &img_width, &img_height, &bpp, 3);
-       this->image = cimg_library::CImg<unsigned char>(rgb_image, img_width, img_height, 1, 3);
+       this->image = cimg_library::CImg<unsigned char>(rgb_image, width, height, 1, 3);
 
         stbi_image_free(rgb_image);
     }

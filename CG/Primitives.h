@@ -252,6 +252,10 @@ namespace primitives {
                 drawing_type = GL_LINE_STRIP;
             }
         }
+        void push_point(glm::vec3 coords, glm::vec3 color) {
+            colors.push_back(color);
+            push_point(coords);
+        }
         bool primitive_is_finished() {
             if (points.size() < 3) {
                 return false;

@@ -188,8 +188,10 @@ class Dodecahedron : public Figure {};
 
 class FuncFigure : public Figure {};
 
+class CubeFigure : public Figure {};
+
 enum FigureType {
     Tetrahed, Octahed,
     Hexahed, Icosahed,
-    Dodecahed
+    Dodecahed, Cube
 };

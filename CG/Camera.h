@@ -58,30 +58,6 @@ public:
 
     glm::mat4 GetViewMatrix()
     {
-        auto f = glm::normalize(this->Front);
-        auto s = glm::normalize(glm::cross(f, this->Up));
-        auto u = glm::cross(s, f);
-
-        auto res = glm::mat4x4(
-            s.x, u.x, -f.x, 1,
-            s.y, u.y, -f.y, 1,
-            s.z, u.z, -f.z, 1,
-            -glm::dot(s, this->Position), -glm::dot(u, this->Position), -glm::dot(f, this->Position), 1
-        );
-
-        auto mat1 = glm::mat4x4(
-            Right.x, Right.y, Right.z, 0,
-            Up.x, Up.y, Up.z, 0,
-            Front.x, Front.y, Front.z, 0,
-            0, 0, 0, 1
-        );
-        auto mat2 = glm::mat4x4(
-            1, 0, 0, -Position.x,
-            0, 1, 0, -Position.y,
-            0, 0, 1, -Position.z,
-            0, 0, 0, 1
-        );
-        //return mat1 * mat2;
         return glm::lookAt(this->Position, this->Position + this->Front, this->Up);
     }
 
