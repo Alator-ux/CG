@@ -61,12 +61,6 @@ public:
         return glm::lookAt(this->Position, this->Position + this->Front, this->Up);
     }
 
-    glm::vec3 toCameraView(glm::vec3 p) {
-        return glm::vec3(Right.x * (p.x - Front.x) + Right.y * (p.y - Front.y) + Right.z * (p.z - Front.z),
-            Up.x * (p.x - Position.x) + Up.y * (p.y - Position.y) + Up.z * (p.z - Position.z),
-            Front.x * (p.x - Position.x) + Front.y * (p.y - Position.y) + Front.z * (p.z - Position.z));
-    }
-
     void ProcessKeyboard(Camera_Movement direction)
     {
         std::cout << "Yaw=" << Yaw << "; Pitch=" << Pitch << "\n";
@@ -93,19 +87,11 @@ public:
             updateCameraVectors();
         }
         if (direction == UP_ROTATE) {
-            this->Pitch += RotateSpeed;
-            if (this->Pitch > 89.0f)
-                this->Pitch = 89.0f;
-            else if (this->Pitch < -89.0f)
-                this->Pitch = -89.0f;
+            this->Pitch = glm::clamp(this->Pitch + RotateSpeed, -89.f, 89.f);
             updateCameraVectors();
         }
         if (direction == DOWN_ROTATE) {
-            this->Pitch -= RotateSpeed;
-            if (this->Pitch > 89.0f)
-                this->Pitch = 89.0f;
-            else if (this->Pitch < -89.0f)
-                this->Pitch = -89.0f;
+            this->Pitch = glm::clamp(this->Pitch - RotateSpeed, -89.f, 89.f);
             updateCameraVectors();
         }
     }

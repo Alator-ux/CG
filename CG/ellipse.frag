@@ -23,9 +23,6 @@ void main() {
     float hue = acos(hue_sc.x) * sign(hue_sc.y);
     hue = hue / (3.1415 * 2);// * 180.0;
 
-    //hue = 180;
-    //sat = 1;
-
     vec3 rgb = hsv2rgb(vec3(hue, sat, v));
    
     color = vec4(rgb,1.0);

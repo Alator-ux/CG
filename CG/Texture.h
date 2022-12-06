@@ -20,7 +20,7 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
-	void create_rgb16f_buffer(GLuint width, GLuint height, unsigned char* data = NULL) {
+	void create_rgb_buffer(GLuint width, GLuint height, unsigned char* data = NULL) {
 		glGenTextures(1, &id);
 		glBindTexture(GL_TEXTURE_2D, id);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, (void*)data);
@@ -84,7 +84,6 @@ public:
 	}
 };
 
-
 class CImgTexture {
 public:
     cimg_library::CImg<unsigned char> image;
@@ -97,8 +96,13 @@ public:
     CImgTexture(GLuint width, GLuint height, const char* filename) {
         int img_width, img_height, bpp;
         unsigned char* rgb_image = stbi_load(filename, &img_width, &img_height, &bpp, 3);
-       this->image = cimg_library::CImg<unsigned char>(rgb_image, width, height, 1, 3);
-
+        this->image = cimg_library::CImg<unsigned char>(rgb_image, width, height, 1, 3);
+        stbi_image_free(rgb_image);
+    }
+    CImgTexture(const char* filename) {
+        int img_width, img_height, bpp;
+        unsigned char* rgb_image = stbi_load(filename, &img_width, &img_height, &bpp, 3);
+        this->image = cimg_library::CImg<unsigned char>(rgb_image, img_width, img_height, 1, 3);
         stbi_image_free(rgb_image);
     }
     void clear() {
@@ -157,5 +161,23 @@ public:
     }
     int get_width() {
         return image.width();
+    }
+};
+
+class ObjTexture : public Texture {
+public:
+    ObjTexture() {
+
+    }
+    ObjTexture(const char* filename) {
+        CImgTexture tex(filename);
+        glGenTextures(1, &id);
+        glBindTexture(GL_TEXTURE_2D, id);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex.get_width(), tex.get_width(),
+            0, GL_RGB, GL_UNSIGNED_BYTE, (void*)tex.image.data());
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
 };

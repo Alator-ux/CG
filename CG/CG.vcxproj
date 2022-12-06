@@ -166,6 +166,9 @@
     <ClInclude Include="Material.h" />
     <ClInclude Include="Midpoint.h" />
     <ClInclude Include="NonFacial.h" />
+    <ClInclude Include="ObjLoader.h" />
+    <ClInclude Include="ObjMesh.h" />
+    <ClInclude Include="ObjModel.h" />
     <ClInclude Include="OpenGLWrappers.h" />
     <ClInclude Include="PointClassifier.h" />
     <ClInclude Include="PrimitiveBuilder.h" />
@@ -180,7 +183,6 @@
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureDrawer.h" />
     <ClInclude Include="ThreeDInterface.h" />
-    <ClInclude Include="View.h" />
     <ClInclude Include="Widgets.h" />
   </ItemGroup>
   <ItemGroup>
@@ -190,7 +192,8 @@
     <None Include="grad.vert" />
     <None Include="main.frag" />
     <None Include="main.vert" />
-    <None Include="models\Icosahedron.stl" />
+    <None Include="sun_system.frag" />
+    <None Include="sun_system.vert" />
     <None Include="tAc.frag" />
     <None Include="tAc.vert" />
     <None Include="tAt.frag" />

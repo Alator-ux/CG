@@ -87,9 +87,6 @@
     <ClInclude Include="OpenGLWrappers.h">
       <Filter>Заголовочные файлы\Drawing</Filter>
     </ClInclude>
-    <ClInclude Include="STLLoader.h">
-      <Filter>Заголовочные файлы\Drawing</Filter>
-    </ClInclude>
     <ClInclude Include="FigureBuilder.h">
       <Filter>Заголовочные файлы\Drawing\Drawable\3D</Filter>
     </ClInclude>
@@ -117,9 +114,6 @@
     <ClInclude Include="Camera.h">
       <Filter>Заголовочные файлы\MVP</Filter>
     </ClInclude>
-    <ClInclude Include="View.h">
-      <Filter>Заголовочные файлы\MVP</Filter>
-    </ClInclude>
     <ClInclude Include="NonFacial.h">
       <Filter>Заголовочные файлы\Analyzers\3D</Filter>
     </ClInclude>
@@ -142,6 +136,18 @@
     <ClInclude Include="Cube.h">
       <Filter>Заголовочные файлы\Drawing\Drawable\3D</Filter>
     </ClInclude>
+    <ClInclude Include="STLLoader.h">
+      <Filter>Заголовочные файлы\Drawing\Loaders</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjLoader.h">
+      <Filter>Заголовочные файлы\Drawing\Loaders</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjModel.h">
+      <Filter>Заголовочные файлы\Drawing\Drawable\OBJ</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjMesh.h">
+      <Filter>Заголовочные файлы\Drawing\Drawable\OBJ</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="main.frag">
@@ -150,7 +156,6 @@
     <None Include="main.vert">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="models\Icosahedron.stl" />
     <None Include="ellipse.vert">
       <Filter>Shaders\ellipse</Filter>
     </None>
@@ -174,6 +179,12 @@
     </None>
     <None Include="grad.frag">
       <Filter>Shaders\gradient</Filter>
+    </None>
+    <None Include="sun_system.vert">
+      <Filter>Shaders\sun_system</Filter>
+    </None>
+    <None Include="sun_system.frag">
+      <Filter>Shaders\sun_system</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -242,6 +253,15 @@
     </Filter>
     <Filter Include="Shaders\gradient">
       <UniqueIdentifier>{f10d0266-012a-4053-869b-f2d34aff7962}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Заголовочные файлы\Drawing\Loaders">
+      <UniqueIdentifier>{03cbb77f-9084-4b82-9c9f-a887ff272194}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Заголовочные файлы\Drawing\Drawable\OBJ">
+      <UniqueIdentifier>{df34a887-830c-4d1b-a63b-281f376842ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\sun_system">
+      <UniqueIdentifier>{4dc72a96-e151-499b-849b-62010c2c6093}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
