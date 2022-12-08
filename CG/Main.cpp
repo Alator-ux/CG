@@ -16,7 +16,8 @@
 #include "ObjModel.h"
 const GLuint W_WIDTH = 600;
 const GLuint W_HEIGHT = 600;
-Shader shader;
+Shader phongShader;
+Shader lampShader;
 Drawer drawer;
 Camera camera;
 void Init(OpenGLManager*);
@@ -139,7 +140,7 @@ void Do_Movement() {
 }
 void Release() {
     OpenGLManager::get_instance()->release();
-    shader.release();
+    phongShader.release();
 }
 
 std::vector<GLfloat> orbit_speeds = {0.f, 0.002f, 0.005f, 0.004f, 0.009f, 0.015f};
@@ -162,31 +163,49 @@ void rotate_system() {
 }
 Model statue1;
 Model statue2;
+Model cube;
 void Init(OpenGLManager* manager) {
     drawer = Drawer(W_WIDTH, W_HEIGHT);
     
-    shader.init_shader("sun_system.vert", "sun_system.frag");
-
+    phongShader.init_shader("phong.vert", "phong.frag");
+    lampShader.init_shader("lamp.vert", "lamp.frag");
+    
+    cube = Model("./models/cube/Cube.obj");
     ObjTexture tex1("models/buddhist_statue/mesh_Model_5_u0_v0_diffuse.jpeg", 'n');
-    statue1 = Model("./models/buddhist_statue/buddhist statue.obj", tex1);
+    Material mat1(tex1);
+    mat1.shininess = 2.f;
+    statue1 = Model("./models/buddhist_statue/buddhist statue.obj", mat1);
 
-    ObjTexture tex2("./models/buddha/buddha_head.jpg", 'n');
-    statue2 = Model("./models/buddha/buddha_head_ma2.obj", tex2);
+    //ObjTexture tex2("./models/buddha/buddha_head.jpg", 'n');
+    //Material mat2(tex2);
+    //statue2 = Model("./models/buddha/buddha_head_ma2.obj", mat2);
         //Model("./models/buddhist_statue/buddhist statue.obj",
         //"models/buddhist_statue/mesh_Model_5_u0_v0_diffuse.jpeg", true
-        
 
-    shader.use_program();
-    auto mat = glm::perspective(glm::radians(45.f), 1.f, 0.1f, 1000.f);
-    shader.uniformMatrix4fv("Projection", glm::value_ptr(mat));
-    mat = camera.GetViewMatrix();
-    shader.uniformMatrix4fv("View", glm::value_ptr(mat));
-    mat = glm::mat4(1.f);
-    auto scaled = glm::scale(glm::mat4(1.f), glm::vec3(4.f));
-    std::vector<glm::mat4> model = { mat, scaled };
-    shader.uniformMatrix4fv("Model", glm::value_ptr(model[0]), 2);
-    shader.uniform1i("text", 0);
-    shader.disable_program();
+    LightSource pLight(glm::vec3(5.0f, 26.0f, 16.0f));;
+    pLight.set_atten_zero();
+
+    auto projection = glm::perspective(glm::radians(45.f), 1.f, 0.1f, 1000.f);
+    auto view = camera.GetViewMatrix();
+    auto model = glm::mat4(1.f);
+    {
+        phongShader.use_program();
+        phongShader.uniformMatrix4fv("Projection", glm::value_ptr(projection));
+        phongShader.uniformMatrix4fv("View", glm::value_ptr(view));
+        phongShader.uniformMatrix4fv("Model", glm::value_ptr(model));
+        phongShader.uniformLight(pLight, "pLight.");
+        phongShader.uniformMaterial(mat1, "material.");
+        phongShader.disable_program();
+    }
+    {
+        lampShader.use_program();
+        lampShader.uniformMatrix4fv("Projection", glm::value_ptr(projection));
+        lampShader.uniformMatrix4fv("View", glm::value_ptr(view));
+        auto lampLoc = glm::translate(model, pLight.position);
+        lampLoc = glm::scale(lampLoc, glm::vec3(10.f));
+        lampShader.uniformMatrix4fv("Model", glm::value_ptr(lampLoc));
+        lampShader.disable_program();
+    }
 
 
     glEnable(GL_DEPTH_TEST);
@@ -195,12 +214,14 @@ void Init(OpenGLManager* manager) {
 }
 
 void Draw(OpenGLManager* manager, std::string& vbo_name) {
-    shader.use_program();
-    shader.uniformMatrix4fv("View", glm::value_ptr(camera.GetViewMatrix()));
-    shader.uniform4fv("shifts", glm::value_ptr(shifts[0]), shifts.size());
-    shader.uniform1i("offset", 0);
+    phongShader.use_program();
+    phongShader.uniformMatrix4fv("View", glm::value_ptr(camera.GetViewMatrix()));
+    //phongShader.uniform3f("viewPos", camera.Position);
     statue1.render();
-    shader.uniform1i("offset", 1);
-    statue2.render(5);
-    shader.disable_program();
+    phongShader.disable_program();
+
+    lampShader.use_program();
+    lampShader.uniformMatrix4fv("View", glm::value_ptr(camera.GetViewMatrix()));
+    cube.render(1,GL_QUADS);
+    lampShader.disable_program();
 }

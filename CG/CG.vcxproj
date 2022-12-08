@@ -190,8 +190,12 @@
     <None Include="ellipse.vert" />
     <None Include="grad.frag" />
     <None Include="grad.vert" />
+    <None Include="lamp.frag" />
+    <None Include="lamp.vert" />
+    <None Include="phong.frag" />
     <None Include="main.frag" />
     <None Include="main.vert" />
+    <None Include="phong.vert" />
     <None Include="sun_system.frag" />
     <None Include="sun_system.vert" />
     <None Include="tAc.frag" />

@@ -22,18 +22,18 @@ struct LightSource {
         attenuation = glm::vec3(1.0, 0.0, 0.0);
     }
     std::string get_pos_name(const std::string& pref = "", const std::string& suf = "") const {
-        return pref + "lightPos" + suf;
+        return pref + "pos" + suf;
     }
     std::string get_ambient_name(const std::string& pref = "", const std::string& suf = "") const {
-        return pref + "lightAmbient" + suf;
+        return pref + "ambient" + suf;
     }
     std::string get_dif_name(const std::string& pref = "", const std::string& suf = "") const {
-        return pref + "lightDiffuse" + suf;
+        return pref + "diffuse" + suf;
     }
     std::string get_spec_name(const std::string& pref = "", const std::string& suf = "") const {
-        return pref + "lightSpec" + suf;
+        return pref + "specular" + suf;
     }
     std::string get_atten_name(const std::string& pref = "", const std::string& suf = "") const {
-        return pref + "lightAtten" + suf;
+        return pref + "atten" + suf;
     }
 };

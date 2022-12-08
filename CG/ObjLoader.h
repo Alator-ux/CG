@@ -96,6 +96,11 @@ static std::vector<ObjVertex> loadOBJ(const char* file_name)
                 {
                     ++counter;
                     ss.ignore(1, '/');
+                    if (ss.peek() == '/')
+                    {
+                        ++counter;
+                        ss.ignore(1, '/');
+                    }
                 }
                 else if (ss.peek() == ' ')
                 {
@@ -123,9 +128,9 @@ static std::vector<ObjVertex> loadOBJ(const char* file_name)
         if (vertex_position_indicies[i] - 1 >= vertex_positions.size()) {
             auto a = 1;
         }
-        if (vertex_texcoord_indicies[i] - 1 >= vertex_texcoords.size()) {
-            auto a = 1;
-        }
+        //if (vertex_texcoord_indicies[i] - 1 >= vertex_texcoords.size()) {
+       //     auto a = 1;
+       // }
         vertices[i].position = vertex_positions[vertex_position_indicies[i] - 1];
         if (vertex_texcoords.size() != 0)
         {

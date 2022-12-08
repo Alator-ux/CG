@@ -6,11 +6,11 @@ class Model {
 private:
     ObjTexture* overrideTextureDiffuse;
     ObjTexture* overrideTextureSpecular;
-    ObjTexture texture;
     OpenGLManager* manager;
     std::vector<Mesh> meshes;
     bool hasTexture = false;
 public:
+    Material material;
     Model() {
 
     }
@@ -20,10 +20,10 @@ public:
     }
     Model(
         const char* objFile,
-        ObjTexture tex
+        Material mat
     ) {
         manager = OpenGLManager::get_instance();
-        texture = tex;
+        material = mat;
         manager->checkOpenGLerror();
         hasTexture = true;
         std::vector<ObjVertex> mesh = loadOBJ(objFile);
@@ -31,28 +31,26 @@ public:
     }
     Model(
         const char* objFile,
-        const char* textureFile,
-        const char flipTexture = 'n'
+        ObjTexture tex
     ) {
         manager = OpenGLManager::get_instance();
-        texture = ObjTexture(textureFile, flipTexture);
+        material = Material(tex);
         manager->checkOpenGLerror();
         hasTexture = true;
         std::vector<ObjVertex> mesh = loadOBJ(objFile);
         meshes.push_back(Mesh(mesh.data(), mesh.size(), NULL, 0));
     }
 
-    void render(size_t count = 1)
+    void render(size_t count = 1, unsigned char mode = GL_TRIANGLES)
     {
         manager->checkOpenGLerror();
-
         //Draw
         for (auto& i : this->meshes) {
             if (hasTexture) {
-                texture.bind(0);
+                material.texture.bind(0);
             }
             manager->checkOpenGLerror();
-            i.render(count); //Activates shader also
+            i.render(count, mode); //Activates shader also
             /*if (hasTexture) {
                 glActiveTexture(0);
                 GLSL::checkOpenGLerror();

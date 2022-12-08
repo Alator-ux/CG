@@ -186,6 +186,18 @@
     <None Include="sun_system.frag">
       <Filter>Shaders\sun_system</Filter>
     </None>
+    <None Include="phong.frag">
+      <Filter>Shaders\phong</Filter>
+    </None>
+    <None Include="lamp.vert">
+      <Filter>Shaders\lamp</Filter>
+    </None>
+    <None Include="lamp.frag">
+      <Filter>Shaders\lamp</Filter>
+    </None>
+    <None Include="phong.vert">
+      <Filter>Shaders\phong</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Заголовочные файлы">
@@ -262,6 +274,12 @@
     </Filter>
     <Filter Include="Shaders\sun_system">
       <UniqueIdentifier>{4dc72a96-e151-499b-849b-62010c2c6093}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\lamp">
+      <UniqueIdentifier>{3d833b05-b7c7-4be0-8021-33747019c965}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\phong">
+      <UniqueIdentifier>{dfb1c519-ffe9-4954-b1ea-14e243bf0f8f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

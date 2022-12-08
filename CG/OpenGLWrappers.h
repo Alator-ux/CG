@@ -385,25 +385,23 @@ public:
         GLint location = get_uniform_location(name);
         glUniform4fARB(location, v.x, v.y, v.z, 1);
     }
-    void uniformLight(const LightSource& v)
+    void uniformLight(const LightSource& v, const std::string& pref = "")
     {
-        uniform3f(v.get_pos_name().c_str(), v.position);
-        uniform3f(v.get_ambient_name().c_str(), v.ambient);
-        uniform3f(v.get_dif_name().c_str(), v.diffuse);
-        uniform3f(v.get_spec_name().c_str(), v.specular);
-        uniform3f(v.get_atten_name().c_str(), v.attenuation);
+        uniform3f(v.get_pos_name(pref).c_str(), v.position);
+        uniform3f(v.get_ambient_name(pref).c_str(), v.ambient);
+        uniform3f(v.get_dif_name(pref).c_str(), v.diffuse);
+        uniform3f(v.get_spec_name(pref).c_str(), v.specular);
+        uniform3f(v.get_atten_name(pref).c_str(), v.attenuation);
     }
-    void uniformMaterial(const Material& v)
+    void uniformMaterial(const Material& v, const std::string& pref = "")
     {
-        uniform3f(v.get_color_name().c_str(), v.color);
-        uniform3f(v.get_ambient_name().c_str(), v.ambient);
-        uniform3f(v.get_dif_name().c_str(), v.diffuse);
-        uniform3f(v.get_spec_name().c_str(), v.specular);
-        uniform3f(v.get_emission_name().c_str(), v.emission);
-        uniform1f(v.get_shininess_name().c_str(), v.shininess);
-        uniform1f(v.get_roughless_name().c_str(), v.rougless);
+        uniform1i(v.get_texture_name().c_str(), 0);
+        uniform3f(v.get_ambient_name(pref).c_str(), v.ambient);
+        uniform3f(v.get_dif_name(pref).c_str(), v.diffuse);
+        uniform3f(v.get_spec_name(pref).c_str(), v.specular);
+        uniform3f(v.get_emission_name(pref).c_str(), v.emission);
+        uniform1f(v.get_shininess_name(pref).c_str(), v.shininess);
     }
-
     void uniformVec3Array(const std::string& arr_name, const std::vector<glm::vec3>& arr) {
         for (size_t i = 0; i < arr.size(); i++) {
             std::string name = arr_name + "[" + std::to_string(i) + "]";

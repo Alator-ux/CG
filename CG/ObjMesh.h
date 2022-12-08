@@ -109,17 +109,17 @@ public:
         delete[] this->indexArray;
     }
 
-    void render(size_t count)
+    void render(size_t count, unsigned char mode)
     {
         OpenGLManager::get_instance()->checkOpenGLerror();
         //Bind VAO
         glBindVertexArray(this->VAO);
         //RENDER
         if (this->nrOfIndices == 0) {
-            glDrawArraysInstanced(GL_TRIANGLES, 0, this->nrOfVertices, count);
+            glDrawArraysInstanced(mode, 0, this->nrOfVertices, count);
         }
         else {
-            glDrawElementsInstanced(GL_TRIANGLES, this->nrOfIndices, GL_UNSIGNED_INT, 0, count);
+            glDrawElementsInstanced(mode, this->nrOfIndices, GL_UNSIGNED_INT, 0, count);
         }
         //Cleanup
         glBindVertexArray(0);
