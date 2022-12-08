@@ -182,7 +182,14 @@ void Init(OpenGLManager* manager) {
         //Model("./models/buddhist_statue/buddhist statue.obj",
         //"models/buddhist_statue/mesh_Model_5_u0_v0_diffuse.jpeg", true
 
-    LightSource pLight(glm::vec3(5.0f, 26.0f, 16.0f));;
+    PointLight pLight(glm::vec3(5.0f, 26.0f, 16.0f));;
+    pLight.set_atten_zero();
+
+    DirectionLight dirLight(glm::vec3(0.f, -1.f, 0.f));
+
+    FlashLight flashLight(glm::vec3(-5.0f, 26.0f, -16.0f));;
+    flashLight.position = camera.Position;
+    flashLight.direction = camera.Front;
     pLight.set_atten_zero();
 
     auto projection = glm::perspective(glm::radians(45.f), 1.f, 0.1f, 1000.f);
@@ -193,7 +200,9 @@ void Init(OpenGLManager* manager) {
         phongShader.uniformMatrix4fv("Projection", glm::value_ptr(projection));
         phongShader.uniformMatrix4fv("View", glm::value_ptr(view));
         phongShader.uniformMatrix4fv("Model", glm::value_ptr(model));
-        phongShader.uniformLight(pLight, "pLight.");
+        phongShader.uniformPointLight(pLight, "pLight.");
+        phongShader.uniformDirectionLight(dirLight, "dirLight.");
+        phongShader.uniformFlashLight(flashLight, "flashLight.");
         phongShader.uniformMaterial(mat1, "material.");
         phongShader.disable_program();
     }
@@ -216,6 +225,8 @@ void Init(OpenGLManager* manager) {
 void Draw(OpenGLManager* manager, std::string& vbo_name) {
     phongShader.use_program();
     phongShader.uniformMatrix4fv("View", glm::value_ptr(camera.GetViewMatrix()));
+    phongShader.uniform3f("flashLight.pos", camera.Position);
+    phongShader.uniform3f("flashLight.direction", camera.Front);
     //phongShader.uniform3f("viewPos", camera.Position);
     statue1.render();
     phongShader.disable_program();

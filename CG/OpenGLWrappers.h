@@ -385,13 +385,30 @@ public:
         GLint location = get_uniform_location(name);
         glUniform4fARB(location, v.x, v.y, v.z, 1);
     }
-    void uniformLight(const LightSource& v, const std::string& pref = "")
+    void uniformPointLight(const PointLight& v, const std::string& pref = "")
     {
         uniform3f(v.get_pos_name(pref).c_str(), v.position);
         uniform3f(v.get_ambient_name(pref).c_str(), v.ambient);
         uniform3f(v.get_dif_name(pref).c_str(), v.diffuse);
         uniform3f(v.get_spec_name(pref).c_str(), v.specular);
         uniform3f(v.get_atten_name(pref).c_str(), v.attenuation);
+    }
+    void uniformDirectionLight(const DirectionLight& v, const std::string& pref = "")
+    {
+        uniform3f(v.get_dir_name(pref).c_str(), v.direction);
+        uniform3f(v.get_ambient_name(pref).c_str(), v.ambient);
+        uniform3f(v.get_dif_name(pref).c_str(), v.diffuse);
+        uniform3f(v.get_spec_name(pref).c_str(), v.specular);
+    }
+    void uniformFlashLight(const FlashLight& v, const std::string& pref = "")
+    {
+        uniform3f(v.get_pos_name(pref).c_str(), v.position);
+        uniform3f(v.get_ambient_name(pref).c_str(), v.ambient);
+        uniform3f(v.get_dif_name(pref).c_str(), v.diffuse);
+        uniform3f(v.get_spec_name(pref).c_str(), v.specular);
+        uniform3f(v.get_atten_name(pref).c_str(), v.attenuation);
+        uniform3f(v.get_dir_name(pref).c_str(), v.direction);
+        uniform1f(v.get_cutOff_name(pref).c_str(), v.cutOff);
     }
     void uniformMaterial(const Material& v, const std::string& pref = "")
     {
