@@ -1,10 +1,16 @@
 #version 330 core
-in vec3 vPos;
-in vec2 vTCoord;
-out vec2 TCoord;
-flat out int index;
-uniform mat4 ProjectionViewModel;
-uniform vec4 offsets[10];
+layout (location = 0) in vec3 vPos;
+layout (location = 1) in vec3 vNormal;
+layout (location = 2) in vec2 vTPos;
+
+out vec2 TPos;
+
+uniform mat4 Projection;
+uniform mat4 View;
+uniform mat4 Model[2];
+
+uniform int offset;
+uniform vec4 shifts[6];
 
 mat4 yRotMat(in float angle) {
     float cs = cos(angle);
@@ -16,13 +22,14 @@ mat4 yRotMat(in float angle) {
 }
 
 void main() {
-	float offset = offsets[gl_InstanceID].x;
-    float scale = offsets[gl_InstanceID].y;
-	float rot_axis = offsets[gl_InstanceID].z;
-	float rot_sun = offsets[gl_InstanceID].w;
+    int ind = offset + gl_InstanceID;
+	float shift = shifts[ind].x;
+    float scale = shifts[ind].y;
+	float rot_axis = shifts[ind].z;
+	float rot_sun = shifts[ind].w;
 	vec4 pos = yRotMat(rot_axis) * vec4(vPos * scale, 1.0);
-    pos = yRotMat(rot_sun) * (pos + vec4(offset, 0.0, 0.0, 0.0));
-    gl_Position = ProjectionViewModel * pos;
-	Tex = vTex;
-	index = gl_InstanceID;
+    pos = yRotMat(rot_sun) * (pos + vec4(shift, 0.0, 0.0, 0.0));
+    mat4 model = Model[offset];
+    gl_Position = Projection * View * model * pos;
+	TPos = vTPos;
 }

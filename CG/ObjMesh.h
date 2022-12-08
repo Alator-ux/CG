@@ -1,6 +1,7 @@
 #pragma once
 #include "ObjLoader.h"
 #include "OpenGLWrappers.h"
+
 class Mesh
 {
 private:
@@ -73,6 +74,27 @@ public:
         this->initVAO();
     }
 
+    Mesh(const Mesh& obj)
+    {
+
+        this->nrOfVertices = obj.nrOfVertices;
+        this->nrOfIndices = obj.nrOfIndices;
+
+        this->vertexArray = new ObjVertex[this->nrOfVertices];
+        for (size_t i = 0; i < this->nrOfVertices; i++)
+        {
+            this->vertexArray[i] = obj.vertexArray[i];
+        }
+
+        this->indexArray = new GLuint[this->nrOfIndices];
+        for (size_t i = 0; i < this->nrOfIndices; i++)
+        {
+            this->indexArray[i] = obj.indexArray[i];
+        }
+
+        this->initVAO();
+    }
+
     ~Mesh()
     {
         glDeleteVertexArrays(1, &this->VAO);
@@ -87,20 +109,21 @@ public:
         delete[] this->indexArray;
     }
 
-    void render()
+    void render(size_t count)
     {
         OpenGLManager::get_instance()->checkOpenGLerror();
         //Bind VAO
         glBindVertexArray(this->VAO);
-
         //RENDER
-        if (this->nrOfIndices == 0)
-            glDrawArrays(GL_TRIANGLES, 0, this->nrOfVertices);
-        else
-            glDrawElements(GL_TRIANGLES, this->nrOfIndices, GL_UNSIGNED_INT, 0);
+        if (this->nrOfIndices == 0) {
+            glDrawArraysInstanced(GL_TRIANGLES, 0, this->nrOfVertices, count);
+        }
+        else {
+            glDrawElementsInstanced(GL_TRIANGLES, this->nrOfIndices, GL_UNSIGNED_INT, 0, count);
+        }
         //Cleanup
         glBindVertexArray(0);
-        glUseProgram(0);
+        //glUseProgram(0);
         OpenGLManager::get_instance()->checkOpenGLerror();
     }
 };

@@ -169,8 +169,14 @@ public:
     ObjTexture() {
 
     }
-    ObjTexture(const char* filename) {
+    ObjTexture(const char* filename, const char flipTexture) {
         CImgTexture tex(filename);
+        tex.image.RGBtosRGB();
+        if (flipTexture == 'y') {
+            tex.image.mirror('y');
+        } else if(flipTexture == 'x') {
+            tex.image.mirror('x');
+        }
         glGenTextures(1, &id);
         glBindTexture(GL_TEXTURE_2D, id);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex.get_width(), tex.get_width(),

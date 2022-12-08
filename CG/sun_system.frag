@@ -1,8 +1,9 @@
 #version 330 core
-in vec2 TCoord;
-flat in int index;
-uniform sampler2D text[10];
+in vec2 TPos;
+uniform sampler2D text;
+
+layout (location = 0) out vec4 outColor;
 
 void main() {
-	gl_FragColor = texture(text[index], TCoord);
+	outColor = texture(text, TPos);
 }

@@ -20,17 +20,29 @@ public:
     }
     Model(
         const char* objFile,
-        const char* textureFile
+        ObjTexture tex
     ) {
         manager = OpenGLManager::get_instance();
-        texture = ObjTexture(textureFile);
+        texture = tex;
+        manager->checkOpenGLerror();
+        hasTexture = true;
+        std::vector<ObjVertex> mesh = loadOBJ(objFile);
+        meshes.push_back(Mesh(mesh.data(), mesh.size(), NULL, 0));
+    }
+    Model(
+        const char* objFile,
+        const char* textureFile,
+        const char flipTexture = 'n'
+    ) {
+        manager = OpenGLManager::get_instance();
+        texture = ObjTexture(textureFile, flipTexture);
         manager->checkOpenGLerror();
         hasTexture = true;
         std::vector<ObjVertex> mesh = loadOBJ(objFile);
         meshes.push_back(Mesh(mesh.data(), mesh.size(), NULL, 0));
     }
 
-    void render()
+    void render(size_t count = 1)
     {
         manager->checkOpenGLerror();
 
@@ -39,7 +51,8 @@ public:
             if (hasTexture) {
                 texture.bind(0);
             }
-            i.render(); //Activates shader also
+            manager->checkOpenGLerror();
+            i.render(count); //Activates shader also
             /*if (hasTexture) {
                 glActiveTexture(0);
                 GLSL::checkOpenGLerror();

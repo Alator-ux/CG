@@ -131,12 +131,6 @@ public:
         colorBuffer.create_wrap_clamp_buffer(width, height);
         _textures[color_name] = colorBuffer;
     }
-    void create_rgb16f_buffer(const std::string& color_name, const GLuint width, const GLuint height,
-        unsigned char* data = NULL) {
-        Texture colorBuffer = Texture();
-        colorBuffer.create_rgb16f_buffer(width, height, data);
-        _textures[color_name] = colorBuffer;
-    }
     void create_rgba_buffer(const std::string& color_name, const GLuint width, const GLuint height) {
         Texture colorBuffer = Texture();
         colorBuffer.create_rgba_buffer(width, height);
@@ -421,9 +415,16 @@ public:
     void uniformMatrix4fv(GLint location, const glm::mat4 mat) {
         glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
     }
-    void uniformMatrix4fv(const char* name, const glm::mat4 mat) {
+    void uniformMatrix4fv(const char* name, const float* data, size_t count = 1) {
         GLint location = get_uniform_location(name);
-        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
+        glUniformMatrix4fv(location, count, GL_FALSE, data);
+    }
+    void uniform4fv(GLint location, const glm::vec4 data, size_t count = 1) {
+        glUniform4fv(location, 1, glm::value_ptr(data));
+    }
+    void uniform4fv(const char* name, const float* data, size_t count = 1) {
+        GLint location = get_uniform_location(name);
+        glUniform4fv(location, count, data);
     }
 };
 
