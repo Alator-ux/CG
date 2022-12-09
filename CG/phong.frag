@@ -80,9 +80,10 @@ void main()
 
     // Flash light
     lightDir = normalize(flashLight.pos - FragPos);
-    float theta = dot(lightDir, normalize(-flashLight.direction));
+    float theta = dot(lightDir, -normalize(flashLight.direction));
     vec3 lc3 = vec3(0.0f);
-    if(theta > flashLight.cutOff) {
+    //float cutOff = 1;
+    if(theta > cos(radians(flashLight.cutOff))) {
         lightReflDir = reflect(-lightDir, Normal);
 
         NdotL = max(dot(Normal, lightDir), 0);
@@ -95,7 +96,7 @@ void main()
     // -------------------
 
 
-    vec3 res = lc1 + lc2 + lc3;
+    vec3 res = lc3;
     res += dirLight.ambient * material.ambient + material.emission;
     res *= vec3(texture(text, TPos));
 

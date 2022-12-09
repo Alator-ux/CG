@@ -67,7 +67,7 @@ struct FlashLight : public LightSource {
     glm::vec3 attenuation;
     float cutOff;
     FlashLight(glm::vec3 position = glm::vec3(0.0), glm::vec3 direction = glm::vec3(1.0),
-        float cuttOff = glm::cos(glm::radians(12.5f)), glm::vec3 ambient = glm::vec3(1.0),
+        float cuttOff = 12.5f, glm::vec3 ambient = glm::vec3(1.0),
         glm::vec3 diffuse = glm::vec3(1.0), glm::vec3 specular = glm::vec3(1.0),
         glm::vec3 attenuation = glm::vec3(1.0, 0.22, 0.20)) {
         this->position = position;

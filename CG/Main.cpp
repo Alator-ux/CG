@@ -190,6 +190,8 @@ void Init(OpenGLManager* manager) {
     FlashLight flashLight(glm::vec3(-5.0f, 26.0f, -16.0f));;
     flashLight.position = camera.Position;
     flashLight.direction = camera.Front;
+    flashLight.diffuse = { 1.0, 0.0, 0.0 };
+    flashLight.specular = { 1.0, 0.0, 0.0 };
     pLight.set_atten_zero();
 
     auto projection = glm::perspective(glm::radians(45.f), 1.f, 0.1f, 1000.f);
@@ -211,7 +213,7 @@ void Init(OpenGLManager* manager) {
         lampShader.uniformMatrix4fv("Projection", glm::value_ptr(projection));
         lampShader.uniformMatrix4fv("View", glm::value_ptr(view));
         auto lampLoc = glm::translate(model, pLight.position);
-        lampLoc = glm::scale(lampLoc, glm::vec3(10.f));
+        lampLoc = glm::scale(lampLoc, glm::vec3(1.f));
         lampShader.uniformMatrix4fv("Model", glm::value_ptr(lampLoc));
         lampShader.disable_program();
     }
