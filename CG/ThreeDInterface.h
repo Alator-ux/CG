@@ -23,3 +23,4 @@ class HighLevelInterface : public ThreeDInterface {
 public:
     std::vector<primitives::Primitive> objects;
 };
+

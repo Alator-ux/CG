@@ -172,6 +172,9 @@
     <ClInclude Include="PrimitiveChanger.h" />
     <ClInclude Include="Primitives.h" />
     <ClInclude Include="Projection.h" />
+    <ClInclude Include="RayTraceFace.h" />
+    <ClInclude Include="RayTraceFigures.h" />
+    <ClInclude Include="RayTraceTools.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="RotationFigure.h" />
     <ClInclude Include="Selector.h" />

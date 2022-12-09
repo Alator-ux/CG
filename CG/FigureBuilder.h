@@ -85,6 +85,7 @@ public:
         cube.objects.push_back(back);
         cube.objects.push_back(top);
         cube.objects.push_back(bot);
+
         return cube;
     }
     Tetrahedron buildTetrahedron(glm::vec3 color) {

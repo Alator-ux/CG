@@ -142,6 +142,15 @@
     <ClInclude Include="Cube.h">
       <Filter>Заголовочные файлы\Drawing\Drawable\3D</Filter>
     </ClInclude>
+    <ClInclude Include="RayTraceTools.h">
+      <Filter>Заголовочные файлы\Drawing\Drawable\RayTrace</Filter>
+    </ClInclude>
+    <ClInclude Include="RayTraceFace.h">
+      <Filter>Заголовочные файлы\Drawing\Drawable\RayTrace</Filter>
+    </ClInclude>
+    <ClInclude Include="RayTraceFigures.h">
+      <Filter>Заголовочные файлы\Drawing\Drawable\RayTrace</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="main.frag">
@@ -242,6 +251,9 @@
     </Filter>
     <Filter Include="Shaders\gradient">
       <UniqueIdentifier>{f10d0266-012a-4053-869b-f2d34aff7962}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Заголовочные файлы\Drawing\Drawable\RayTrace">
+      <UniqueIdentifier>{ec5d4fb9-be5a-4f0b-9f1c-6d80244ad2eb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

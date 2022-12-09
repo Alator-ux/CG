@@ -4,6 +4,7 @@
 #include "Primitives.h"
 #include <functional>
 #include "ThreeDInterface.h"
+#include "RayTraceTools.h"
 /*
 Immortal temptation
 Takes over my mind, condemned
@@ -137,7 +138,7 @@ public:
 /// <summary>
 /// Ну, типа, фигура, да
 /// </summary>
-class Figure : public HighLevelInterface {
+class Figure : public HighLevelInterface{
 public:
     Figure() {
         objects = std::vector<primitives::Primitive>();
@@ -154,6 +155,10 @@ public:
         size_t size = objects.size();
         res /= size;
         return res;
+    }
+    
+    glm::vec3 color() {
+        return objects[0].colors[0];
     }
 
     /// <summary>
@@ -189,6 +194,14 @@ class Dodecahedron : public Figure {};
 class FuncFigure : public Figure {};
 
 class CubeFigure : public Figure {};
+
+class SphereFigure : public Figure {
+
+};
+
+class RoomFigure : public Figure {};
+
+
 
 enum FigureType {
     Tetrahed, Octahed,
