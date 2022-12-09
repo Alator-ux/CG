@@ -196,12 +196,16 @@
     <None Include="main.frag" />
     <None Include="main.vert" />
     <None Include="phong.vert" />
+    <None Include="rim.frag" />
+    <None Include="rim.vert" />
     <None Include="sun_system.frag" />
     <None Include="sun_system.vert" />
     <None Include="tAc.frag" />
     <None Include="tAc.vert" />
     <None Include="tAt.frag" />
     <None Include="tAt.vert" />
+    <None Include="toon_shading.frag" />
+    <None Include="toon_shading.vert" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CG.rc" />

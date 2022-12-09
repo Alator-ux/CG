@@ -16,12 +16,12 @@
 #include "ObjModel.h"
 const GLuint W_WIDTH = 600;
 const GLuint W_HEIGHT = 600;
-Shader phongShader;
+std::vector<Shader> shaders;
 Shader lampShader;
 Drawer drawer;
 Camera camera;
 void Init(OpenGLManager*);
-void Draw(OpenGLManager*, std::string&);
+void Draw(OpenGLManager*, int);
 void Release();
 void rotate_system();
 void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -51,7 +51,7 @@ int main() {
 
     ImGui::StyleColorsDark();
 
-    auto button_row = RadioButtonRow({ "C&T Cube", "T&T Cube", "Tetrahedron", "Ellipse"});
+    auto button_row = RadioButtonRow({ "Phong", "Toon shading", "Rim"});
 
     bool show_demo_window = false;
     std::string vbo_name = "";
@@ -84,7 +84,7 @@ int main() {
         glViewport(0, 0, display_w, display_h);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         Do_Movement();
-        Draw(manager, vbo_name);
+        Draw(manager, button_row.get_value());
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwMakeContextCurrent(window);
@@ -140,7 +140,6 @@ void Do_Movement() {
 }
 void Release() {
     OpenGLManager::get_instance()->release();
-    phongShader.release();
 }
 
 std::vector<GLfloat> orbit_speeds = {0.f, 0.002f, 0.005f, 0.004f, 0.009f, 0.015f};
@@ -167,7 +166,18 @@ Model cube;
 void Init(OpenGLManager* manager) {
     drawer = Drawer(W_WIDTH, W_HEIGHT);
     
-    phongShader.init_shader("phong.vert", "phong.frag");
+    Shader shader = Shader();
+    shader.init_shader("phong.vert", "phong.frag");
+    shaders.push_back(shader);
+
+    Shader shader1 = Shader();
+    shader1.init_shader("toon_shading.vert", "toon_shading.frag");
+    shaders.push_back(shader1);
+
+    Shader shader2 = Shader();
+    shader2.init_shader("rim.vert", "rim.frag");
+    shaders.push_back(shader2);
+
     lampShader.init_shader("lamp.vert", "lamp.frag");
     
     cube = Model("./models/cube/Cube.obj");
@@ -182,31 +192,34 @@ void Init(OpenGLManager* manager) {
         //Model("./models/buddhist_statue/buddhist statue.obj",
         //"models/buddhist_statue/mesh_Model_5_u0_v0_diffuse.jpeg", true
 
-    PointLight pLight(glm::vec3(5.0f, 26.0f, 16.0f));;
+    PointLight pLight(glm::vec3(5.0f, 10.0f, 15.0f));;
+    pLight.position = { 0, 15, 15 };
     pLight.set_atten_zero();
 
     DirectionLight dirLight(glm::vec3(0.f, -1.f, 0.f));
 
     FlashLight flashLight(glm::vec3(-5.0f, 26.0f, -16.0f));;
-    flashLight.position = camera.Position;
     flashLight.direction = camera.Front;
     flashLight.diffuse = { 1.0, 0.0, 0.0 };
     flashLight.specular = { 1.0, 0.0, 0.0 };
+    flashLight.cutOff = 12.5f;
     pLight.set_atten_zero();
 
     auto projection = glm::perspective(glm::radians(45.f), 1.f, 0.1f, 1000.f);
     auto view = camera.GetViewMatrix();
     auto model = glm::mat4(1.f);
     {
-        phongShader.use_program();
-        phongShader.uniformMatrix4fv("Projection", glm::value_ptr(projection));
-        phongShader.uniformMatrix4fv("View", glm::value_ptr(view));
-        phongShader.uniformMatrix4fv("Model", glm::value_ptr(model));
-        phongShader.uniformPointLight(pLight, "pLight.");
-        phongShader.uniformDirectionLight(dirLight, "dirLight.");
-        phongShader.uniformFlashLight(flashLight, "flashLight.");
-        phongShader.uniformMaterial(mat1, "material.");
-        phongShader.disable_program();
+        for (auto shader : shaders) {
+            shader.use_program();
+            shader.uniformMatrix4fv("Projection", glm::value_ptr(projection));
+            shader.uniformMatrix4fv("View", glm::value_ptr(view));
+            shader.uniformMatrix4fv("Model", glm::value_ptr(model));
+            shader.uniformPointLight(pLight, "pLight.");
+            shader.uniformDirectionLight(dirLight, "dirLight.");
+            shader.uniformFlashLight(flashLight, "flashLight.");
+            shader.uniformMaterial(mat1, "material.");
+            shader.disable_program();
+        }
     }
     {
         lampShader.use_program();
@@ -224,14 +237,12 @@ void Init(OpenGLManager* manager) {
     manager->checkOpenGLerror();
 }
 
-void Draw(OpenGLManager* manager, std::string& vbo_name) {
-    phongShader.use_program();
-    phongShader.uniformMatrix4fv("View", glm::value_ptr(camera.GetViewMatrix()));
-    phongShader.uniform3f("flashLight.pos", camera.Position);
-    phongShader.uniform3f("flashLight.direction", camera.Front);
+void Draw(OpenGLManager* manager, int n) {
+    shaders[n].use_program();
+    shaders[n].uniformMatrix4fv("View", glm::value_ptr(camera.GetViewMatrix()));
     //phongShader.uniform3f("viewPos", camera.Position);
     statue1.render();
-    phongShader.disable_program();
+    shaders[n].disable_program();
 
     lampShader.use_program();
     lampShader.uniformMatrix4fv("View", glm::value_ptr(camera.GetViewMatrix()));
