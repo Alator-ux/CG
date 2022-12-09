@@ -144,20 +144,20 @@ void Release() {
 
 std::vector<GLfloat> orbit_speeds = {0.f, 0.002f, 0.005f, 0.004f, 0.009f, 0.015f};
 std::vector<GLfloat> self_speeds = {0.04f, 0.004f, 0.007f, 0.009f, 0.001f, 0.003f};
-std::vector<glm::vec4> shifts = 
+std::vector<glm::vec4> mutations =
 {
-        {0.f, 1.0f, 0.f, 0.f}, 
-        {10.f, 0.003504f, 0.f, 0.f}, 
-        {15.f, 0.008691f, 0.f, 0.f}, 
-        {20.f, 0.009149f, 0.f, 0.f}, 
-        {25.f, 0.004868f, 0.f, 0.f}, 
-        {30.f, 0.100398f, 0.f, 0.f}, 
+        {0.f, 0.15f, 0.f, 0.f}, 
+        {10.f, 1.f, 0.f, 0.f}, 
+        {15.f, 1.f, 0.f, 0.f}, 
+        {20.f, 1.f, 0.f, 0.f}, 
+        {25.f, 1.f, 0.f, 0.f}, 
+        {30.f, 1.f, 0.f, 0.f}, 
 };
 void rotate_system() {
-    for (size_t i = 0; i < shifts.size(); i++)
+    for (size_t i = 0; i < mutations.size(); i++)
     {
-        shifts[i].z = fmod(shifts[i].z + self_speeds[i], 2 * M_PI);
-        shifts[i].w = fmod(shifts[i].w + orbit_speeds[i], 2 * M_PI);
+        mutations[i].z = fmod(mutations[i].z + self_speeds[i], 2 * M_PI);
+        mutations[i].w = fmod(mutations[i].w + orbit_speeds[i], 2 * M_PI);
     }
 }
 Model statue1;
@@ -182,9 +182,9 @@ void Init(OpenGLManager* manager) {
     mat = camera.GetViewMatrix();
     shader.uniformMatrix4fv("View", glm::value_ptr(mat));
     mat = glm::mat4(1.f);
-    auto scaled = glm::scale(glm::mat4(1.f), glm::vec3(4.f));
+    auto scaled = glm::scale(glm::mat4(1.f), glm::vec3(1.f));
     std::vector<glm::mat4> model = { mat, scaled };
-    shader.uniformMatrix4fv("Model", glm::value_ptr(model[0]), 2);
+    shader.uniformMatrix4fv("Model", glm::value_ptr(mat));
     shader.uniform1i("text", 0);
     shader.disable_program();
 
@@ -197,7 +197,7 @@ void Init(OpenGLManager* manager) {
 void Draw(OpenGLManager* manager, std::string& vbo_name) {
     shader.use_program();
     shader.uniformMatrix4fv("View", glm::value_ptr(camera.GetViewMatrix()));
-    shader.uniform4fv("shifts", glm::value_ptr(shifts[0]), shifts.size());
+    shader.uniform4fv("mutations", glm::value_ptr(mutations[0]), mutations.size());
     shader.uniform1i("offset", 0);
     statue1.render();
     shader.uniform1i("offset", 1);

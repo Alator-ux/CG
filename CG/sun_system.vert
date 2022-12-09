@@ -7,10 +7,10 @@ out vec2 TPos;
 
 uniform mat4 Projection;
 uniform mat4 View;
-uniform mat4 Model[2];
+uniform mat4 Model;
 
 uniform int offset;
-uniform vec4 shifts[6];
+uniform vec4 mutations[6];
 
 mat4 yRotMat(in float angle) {
     float cs = cos(angle);
@@ -23,13 +23,13 @@ mat4 yRotMat(in float angle) {
 
 void main() {
     int ind = offset + gl_InstanceID;
-	float shift = shifts[ind].x;
-    float scale = shifts[ind].y;
-	float rot_axis = shifts[ind].z;
-	float rot_sun = shifts[ind].w;
+	vec4 cur = mutations[ind];
+	float shift = cur.x;
+    float scale = cur.y;
+	float rot_axis = cur.z;
+	float rot_orbit = cur.w;
 	vec4 pos = yRotMat(rot_axis) * vec4(vPos * scale, 1.0);
-    pos = yRotMat(rot_sun) * (pos + vec4(shift, 0.0, 0.0, 0.0));
-    mat4 model = Model[offset];
-    gl_Position = Projection * View * model * pos;
+    pos = yRotMat(rot_orbit) * (pos + vec4(shift, 0.0, 0.0, 0.0));
+    gl_Position = Projection * View * Model * pos;
 	TPos = vTPos;
 }
