@@ -37,15 +37,6 @@
     <ClCompile Include="STLLoader.cpp">
       <Filter>Пиписи\Drawable</Filter>
     </ClCompile>
-    <ClCompile Include="3DChanger.cpp">
-      <Filter>Пиписи\Changers</Filter>
-    </ClCompile>
-    <ClCompile Include="RotationFigure.cpp">
-      <Filter>Пиписи\Drawable\3D</Filter>
-    </ClCompile>
-    <ClCompile Include="FloatingHorizon.cpp">
-      <Filter>Пиписи\Drawable</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Material.h">
@@ -96,13 +87,7 @@
     <ClInclude Include="Figure.h">
       <Filter>Заголовочные файлы\Drawing\Drawable\3D</Filter>
     </ClInclude>
-    <ClInclude Include="RotationFigure.h">
-      <Filter>Заголовочные файлы\Drawing\Drawable\3D</Filter>
-    </ClInclude>
     <ClInclude Include="ThreeDInterface.h">
-      <Filter>Заголовочные файлы\Drawing\Drawable\3D</Filter>
-    </ClInclude>
-    <ClInclude Include="FunctionFigure.h">
       <Filter>Заголовочные файлы\Drawing\Drawable\3D</Filter>
     </ClInclude>
     <ClInclude Include="Drawer.h">

@@ -546,6 +546,7 @@ public:
     TextureDrawer(CImgTexture *tex) : texture(CImgTexture(tex->get_width(), tex->get_height(), "./images/texture2.jpg"))
     {
         this->tex = tex;
+        this->tex->image.display("Rayyyyy");
         this->projection = glm::mat4x4(1);
         this->aspect = (float)tex->get_width() / (float)tex->get_height();
     }
@@ -591,6 +592,7 @@ public:
 
     void draw(std::vector<RayTraceObjectInterface *> &scene, glm::vec3 cameraPos, RLight light, int fov)
     {
+        clear();    
         size_t colored = 0;
         auto width = this->tex->get_width();
         auto height = this->tex->get_height();
@@ -610,11 +612,13 @@ public:
                 Rnormalize(ray);
                 auto color = tracer.shootRay(ray, cameraPos, 0);
                 tex->set_rgb(x, y, color);
+                std::cout << color.r << " " << color.g << " " << color.b << std::endl;
                 colored++;
                 auto percent = (colored / need_to_color) * 100;
-                if (percent % 10 == 0)
+                // std::cout << colored << " / " << need_to_color << std::endl;
+                if (percent != 0 && percent % 10 == 0)
                 {
-                    std::cout << "Colored " << percent << "%" << std::endl;
+                    std::cout << "-------------Colored " << percent << "%" << std::endl;
                 }
             }
         }

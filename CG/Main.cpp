@@ -20,39 +20,39 @@ const GLuint W_HEIGHT = 600;
 std::vector<Shader> shaders;
 std::vector<primitives::Primitive> storage;
 Camera camera;
-CImgTexture canvas(512,512);
+CImgTexture canvas(512, 512);
 TextureDrawer drawer(&canvas);
-void Init(OpenGLManager*);
-void Draw(OpenGLManager*, std::string&);
+
+void Draw(OpenGLManager *, std::string &);
 void Release();
-void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+void keyboard_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 void Do_Movement();
 int mode = 0;
 glm::vec2 ab(1.f);
-int main() {
+int main()
+{
     glfwInit();
-    GLFWwindow* window = glfwCreateWindow(W_WIDTH, W_HEIGHT, "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(W_WIDTH, W_HEIGHT, "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
     if (window == NULL)
         return 1;
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
     glfwSetKeyCallback(window, keyboard_callback);
-    const char* glsl_version = "#version 330";
+    const char *glsl_version = "#version 330";
     // Setup Dear ImGui binding
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGuiIO &io = ImGui::GetIO();
+    (void)io;
     glewInit();
     auto manager = OpenGLManager::get_instance();
-    Init(manager);
-
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     ImGui::StyleColorsDark();
 
-    auto button_row = RadioButtonRow({ "C&T Cube", "T&T Cube", "Tetrahedron", "Ellipse"});
+    auto button_row = RadioButtonRow({"C&T Cube", "T&T Cube", "Tetrahedron", "Ellipse"});
 
     bool show_demo_window = false;
     std::string vbo_name = "";
@@ -65,17 +65,16 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        
         {
             ImGui::Begin("Window!");
             ImGui::Text("Current mode: " + mode);
-            if (button_row.draw()) {
+            if (button_row.draw())
+            {
                 vbo_name = button_row.get_label();
                 mode = button_row.get_value();
             }
             ImGui::End();
         }
-
 
         // Rendering
         ImGui::Render();
@@ -87,30 +86,27 @@ int main() {
         Do_Movement();
 
         auto cube = RCube(
-            { -2,-1,10 },
+            {-2, -1, 10},
             6,
-            { 210, 105, 30 }, // Chocolate
-            RMaterial(40, 0.25, 0.7, 0.05, 0.3, 0.6)
-        );
+            {210, 105, 30}, // Chocolate
+            RMaterial(40, 0.25, 0.7, 0.05, 0.3, 0.6));
         auto sphere = RSphere(
-            { 2,1,17 },
+            {2, 1, 17},
             4,
-            { 143, 188, 143 }, // DarkSeaGreen
-            RMaterial(10, 0.1, 0.85, 0.05, 0.1, 0.2)
-        );
+            {143, 188, 143}, // DarkSeaGreen
+            RMaterial(10, 0.1, 0.85, 0.05, 0.1, 0.2));
         auto room = RRoom(
-            { 0,0,0 }, 20,
+            {0, 0, 0}, 20,
             RMaterial(0, 0, 0.9, 0.1, 0, 0),
             RMaterial(0, 0, 0.9, 0.1, 0, 0),
             RMaterial(0, 0, 0.9, 0.1, 0, 0),
             RMaterial(0, 0, 0.9, 0.1, 0, 0),
             RMaterial(0, 0, 0.9, 0.1, 0, 0),
-            RMaterial(0, 0, 0.9, 0.1, 0, 0)
-            );
-        auto light = RLight({-7,7,0}, 0.75);
-        auto camera = glm::vec3{ 0,0,0 };
-        std::vector<RayTraceObjectInterface*> scene = { &cube, &sphere, &room };
-        drawer.draw(scene,camera,light,60);
+            RMaterial(0, 0, 0.9, 0.1, 0, 0));
+        auto light = RLight({-7, 7, 0}, 0.75);
+        auto camera = glm::vec3{0, 0, 0};
+        std::vector<RayTraceObjectInterface *> scene = {&cube, &sphere, &room};
+        drawer.draw(scene, camera, light, 60);
 
         /*ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -133,8 +129,10 @@ int main() {
 bool keys[1024];
 float step = 0.005;
 glm::mat4 el_scale(1.f);
-void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    if (key == GLFW_KEY_F1) {
+void keyboard_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_F1)
+    {
         camera.Position = glm::vec3(0, 0, 3);
         camera.Yaw = -90;
         camera.updateCameraVectors();
@@ -144,10 +142,10 @@ void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, in
     {
         keys[key] = action == GLFW_PRESS;
     }
-
 }
 float mixCoef = 0.5;
-void Do_Movement() {
+void Do_Movement()
+{
     if (keys[GLFW_KEY_W])
         camera.ProcessKeyboard(FORWARD);
     if (keys[GLFW_KEY_S])
@@ -168,6 +166,4 @@ void Do_Movement() {
         camera.ProcessKeyboard(DOWN_ROTATE);
     if (keys[GLFW_KEY_T])
         camera.ProcessKeyboard(UP_ROTATE);
-    
 }
-

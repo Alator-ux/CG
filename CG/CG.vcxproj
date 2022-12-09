@@ -133,8 +133,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="3DChanger.cpp" />
-    <ClCompile Include="FloatingHorizon.cpp" />
     <ClCompile Include="imgui\imgui-SFML.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
@@ -145,7 +143,6 @@
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="OpenGLWrappers.cpp" />
-    <ClCompile Include="RotationFigure.cpp" />
     <ClCompile Include="STLLoader.cpp" />
     <ClCompile Include="Widgets.cpp" />
   </ItemGroup>
@@ -159,7 +156,6 @@
     <ClInclude Include="Fractal.h" />
     <ClInclude Include="3DChanger.h" />
     <ClInclude Include="Figure.h" />
-    <ClInclude Include="FunctionFigure.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Lighting.h" />
     <ClInclude Include="Line_worker.h" />
@@ -176,7 +172,6 @@
     <ClInclude Include="RayTraceFigures.h" />
     <ClInclude Include="RayTraceTools.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="RotationFigure.h" />
     <ClInclude Include="Selector.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="STLLoader.h" />

@@ -4,7 +4,6 @@
 #include "Primitives.h"
 #include <functional>
 #include "ThreeDInterface.h"
-#include "RayTraceTools.h"
 /*
 Immortal temptation
 Takes over my mind, condemned
@@ -66,53 +65,62 @@ We're burning chaos in the wind
 Drifting in the ocean all alone
 */
 
-
 /// <summary>
-/// ...и тут товарищ майор, вы не поверите,
-/// выясняется, что грань фигуры - это фэйс
+/// ...пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ,
+/// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ - пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 /// </summary>
-class Face : public primitives::Polygon{
+class Face : public primitives::Polygon
+{
 public:
-    Face() {
-        //drawing_type = GL_TRIANGLES;
+    Face()
+    {
+        // drawing_type = GL_TRIANGLES;
         drawing_type = GL_LINE_STRIP;
     }
-    Face(glm::vec3 coords, glm::vec3 color) {
+    Face(glm::vec3 coords, glm::vec3 color)
+    {
         this->points.push_back(coords);
         this->colors.push_back(color);
         drawing_type = GL_LINE_STRIP;
-        //this->drawing_type = GL_TRIANGLES;
+        // this->drawing_type = GL_TRIANGLES;
     }
-    void push_point(glm::vec3 coords) {
+    void push_point(glm::vec3 coords)
+    {
         points.push_back(coords);
     }
-    void push_point(glm::vec3 coords, glm::vec3 color) {
+    void push_point(glm::vec3 coords, glm::vec3 color)
+    {
         points.push_back(coords);
         colors.push_back(color);
     }
-    bool primitive_is_finished() {
-        if (points.size() < 3) {
+    bool primitive_is_finished()
+    {
+        if (points.size() < 3)
+        {
             return false;
         }
         drawing_type = GL_LINE_LOOP;
-        //drawing_type = GL_TRIANGLE_FAN;
+        // drawing_type = GL_TRIANGLE_FAN;
         return true;
-
     }
-    glm::vec3 center() const {
+    glm::vec3 center() const
+    {
         float x = 0, y = 0, z = 0;
         auto res = glm::vec3(0.0f);
-        for (auto point : points) {
+        for (auto point : points)
+        {
             res += point;
         }
         size_t size = points.size();
         res /= size;
         return res;
     }
-    glm::vec3 center() {
-        float x=0, y=0, z=0;
+    glm::vec3 center()
+    {
+        float x = 0, y = 0, z = 0;
         auto res = glm::vec3(0.0f);
-        for (auto point : points) {
+        for (auto point : points)
+        {
             res += point;
         }
         size_t size = points.size();
@@ -121,13 +129,17 @@ public:
     }
 };
 
-class SkeletalFace : public Face {
+class SkeletalFace : public Face
+{
 public:
-    SkeletalFace() {
+    SkeletalFace()
+    {
         drawing_type = GL_LINE_STRIP;
     }
-    bool primitive_is_finished() {
-        if (points.size() > 1) {
+    bool primitive_is_finished()
+    {
+        if (points.size() > 1)
+        {
             return false;
         }
         drawing_type = GL_LINE_LOOP;
@@ -136,75 +148,100 @@ public:
 };
 
 /// <summary>
-/// Ну, типа, фигура, да
+/// пїЅпїЅ, пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ
 /// </summary>
-class Figure : public HighLevelInterface{
+class Figure : public HighLevelInterface
+{
 public:
-    Figure() {
+    Figure()
+    {
         objects = std::vector<primitives::Primitive>();
         type = ThreeDTypes::figure;
     }
 
-    glm::vec3 center() {
+    glm::vec3 center()
+    {
         float x = 0, y = 0, z = 0;
         auto res = glm::vec3(0.0f);
-        for (auto prim : objects) {
-            Face* face = reinterpret_cast<Face*>(&prim);
+        for (auto prim : objects)
+        {
+            Face *face = reinterpret_cast<Face *>(&prim);
             res += face->center();
         }
         size_t size = objects.size();
         res /= size;
         return res;
     }
-    
-    glm::vec3 color() {
+
+    glm::vec3 color()
+    {
         return objects[0].colors[0];
     }
 
     /// <summary>
-    /// Трансформаторная будка
-    /// ту-ту-ту
+    /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+    /// пїЅпїЅ-пїЅпїЅ-пїЅпїЅ
     /// </summary>
-    void transform(std::function<glm::vec3(glm::vec3)> transofrmator) {
-        for (auto i = 0; i < objects.size(); i++) {
-            for (auto j = 0; j < objects[i].points.size(); j++) {
+    void transform(std::function<glm::vec3(glm::vec3)> transofrmator)
+    {
+        for (auto i = 0; i < objects.size(); i++)
+        {
+            for (auto j = 0; j < objects[i].points.size(); j++)
+            {
                 objects[i].points[j] = transofrmator(objects[i].points[j]);
             }
         }
     }
-    
-    void transform(const glm::mat4x4& transform_matrix) {
-        this->transform([transform_matrix](glm::vec3 p)->glm::vec3 {
-            return transform_matrix * glm::vec4(p.x, p.y, p.z, 1);
-            });
+
+    void transform(const glm::mat4x4 &transform_matrix)
+    {
+        this->transform([transform_matrix](glm::vec3 p) -> glm::vec3
+                        { return transform_matrix * glm::vec4(p.x, p.y, p.z, 1); });
     }
 };
 
-
-class Tetrahedron : public Figure {};
-
-class Octahedron : public Figure {};
-
-class Hexahedron : public Figure {};
-
-class Icosahedron : public Figure {};
-
-class Dodecahedron : public Figure {};
-
-class FuncFigure : public Figure {};
-
-class CubeFigure : public Figure {};
-
-class SphereFigure : public Figure {
-
+class Tetrahedron : public Figure
+{
 };
 
-class RoomFigure : public Figure {};
+class Octahedron : public Figure
+{
+};
 
+class Hexahedron : public Figure
+{
+};
 
+class Icosahedron : public Figure
+{
+};
 
-enum FigureType {
-    Tetrahed, Octahed,
-    Hexahed, Icosahed,
-    Dodecahed, Cube
+class Dodecahedron : public Figure
+{
+};
+
+class FuncFigure : public Figure
+{
+};
+
+class CubeFigure : public Figure
+{
+};
+
+class SphereFigure : public Figure
+{
+};
+
+class RoomFigure : public Figure
+{
+};
+
+enum FigureType
+{
+    Tetrahed,
+    Octahed,
+    Hexahed,
+    Icosahed,
+    Dodecahed,
+    Cube
 };
