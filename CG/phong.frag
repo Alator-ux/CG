@@ -96,7 +96,7 @@ void main()
     // -------------------
 
 
-    vec3 res = lc3;
+    vec3 res = lc1;
     res += dirLight.ambient * material.ambient + material.emission;
     res *= vec3(texture(text, TPos));
 

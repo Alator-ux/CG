@@ -14,16 +14,14 @@
 #include <corecrt_math_defines.h>
 #include "Cube.h"
 #include "ObjModel.h"
+#include "Game.h"
 const GLuint W_WIDTH = 600;
 const GLuint W_HEIGHT = 600;
-std::vector<Shader> shaders;
+Game game;
 Shader lampShader;
-Drawer drawer;
-Camera camera;
 void Init(OpenGLManager*);
 void Draw(OpenGLManager*, int);
 void Release();
-void rotate_system();
 void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void Do_Movement();
 int mode = 0;
@@ -74,7 +72,6 @@ int main() {
             }
             ImGui::End();
         }
-        rotate_system();
 
         // Rendering
         ImGui::Render();
@@ -104,12 +101,6 @@ int main() {
 
 bool keys[1024];
 void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    if (key == GLFW_KEY_F1) {
-        camera.Position = glm::vec3(0, 0, 3);
-        camera.Yaw = -90;
-        camera.updateCameraVectors();
-        return;
-    }
     if (key >= 0 && key < 1024)
     {
         keys[key] = action == GLFW_PRESS;
@@ -117,26 +108,7 @@ void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, in
 
 }
 void Do_Movement() {
-    if (keys[GLFW_KEY_W])
-        camera.ProcessKeyboard(FORWARD);
-    if (keys[GLFW_KEY_S])
-        camera.ProcessKeyboard(BACKWARD);
-    if (keys[GLFW_KEY_A])
-        camera.ProcessKeyboard(LEFT);
-    if (keys[GLFW_KEY_D])
-        camera.ProcessKeyboard(RIGHT);
-    if (keys[GLFW_KEY_Z])
-        camera.ProcessKeyboard(DOWN);
-    if (keys[GLFW_KEY_X])
-        camera.ProcessKeyboard(UP);
-    if (keys[GLFW_KEY_Q])
-        camera.ProcessKeyboard(LEFT_ROTATE);
-    if (keys[GLFW_KEY_E])
-        camera.ProcessKeyboard(RIGHT_ROTATE);
-    if (keys[GLFW_KEY_R])
-        camera.ProcessKeyboard(DOWN_ROTATE);
-    if (keys[GLFW_KEY_T])
-        camera.ProcessKeyboard(UP_ROTATE);
+    game.move(keys);
 }
 void Release() {
     OpenGLManager::get_instance()->release();
@@ -163,28 +135,21 @@ void rotate_system() {
 Model statue1;
 Model statue2;
 Model cube;
+Model tank;
 void Init(OpenGLManager* manager) {
-    drawer = Drawer(W_WIDTH, W_HEIGHT);
-    
-    Shader shader = Shader();
-    shader.init_shader("phong.vert", "phong.frag");
-    shaders.push_back(shader);
-
-    Shader shader1 = Shader();
-    shader1.init_shader("toon_shading.vert", "toon_shading.frag");
-    shaders.push_back(shader1);
-
-    Shader shader2 = Shader();
-    shader2.init_shader("rim.vert", "rim.frag");
-    shaders.push_back(shader2);
+    game.init();
 
     lampShader.init_shader("lamp.vert", "lamp.frag");
     
     cube = Model("./models/cube/Cube.obj");
-    ObjTexture tex1("models/buddhist_statue/mesh_Model_5_u0_v0_diffuse.jpeg", 'n');
-    Material mat1(tex1);
-    mat1.shininess = 2.f;
-    statue1 = Model("./models/buddhist_statue/buddhist statue.obj", mat1);
+
+    ObjTexture tank_tex("models/game/Tank.png", 'n');
+    Material tank_mat(tank_tex);
+    tank = Model("models/game/Tanks.obj", tank_mat);
+    //ObjTexture tex1("models/buddhist_statue/mesh_Model_5_u0_v0_diffuse.jpeg", 'n');
+    //Material mat1(tex1);
+    //mat1.shininess = 2.f;
+    //statue1 = Model("./models/buddhist_statue/buddhist statue.obj", mat1);
 
     //ObjTexture tex2("./models/buddha/buddha_head.jpg", 'n');
     //Material mat2(tex2);
@@ -198,7 +163,7 @@ void Init(OpenGLManager* manager) {
 
     DirectionLight dirLight(glm::vec3(0.f, -1.f, 0.f));
 
-    FlashLight flashLight(glm::vec3(-5.0f, 26.0f, -16.0f));;
+    /*FlashLight flashLight(glm::vec3(-5.0f, 26.0f, -16.0f));;
     flashLight.direction = camera.Front;
     flashLight.diffuse = { 1.0, 0.0, 0.0 };
     flashLight.specular = { 1.0, 0.0, 0.0 };
@@ -208,7 +173,7 @@ void Init(OpenGLManager* manager) {
     auto projection = glm::perspective(glm::radians(45.f), 1.f, 0.1f, 1000.f);
     auto view = camera.GetViewMatrix();
     auto model = glm::mat4(1.f);
-    {
+     {
         for (auto shader : shaders) {
             shader.use_program();
             shader.uniformMatrix4fv("Projection", glm::value_ptr(projection));
@@ -217,7 +182,7 @@ void Init(OpenGLManager* manager) {
             shader.uniformPointLight(pLight, "pLight.");
             shader.uniformDirectionLight(dirLight, "dirLight.");
             shader.uniformFlashLight(flashLight, "flashLight.");
-            shader.uniformMaterial(mat1, "material.");
+            shader.uniformMaterial(tank_mat, "material.");
             shader.disable_program();
         }
     }
@@ -229,7 +194,7 @@ void Init(OpenGLManager* manager) {
         lampLoc = glm::scale(lampLoc, glm::vec3(1.f));
         lampShader.uniformMatrix4fv("Model", glm::value_ptr(lampLoc));
         lampShader.disable_program();
-    }
+    }*/
 
 
     glEnable(GL_DEPTH_TEST);
@@ -237,15 +202,6 @@ void Init(OpenGLManager* manager) {
     manager->checkOpenGLerror();
 }
 
-void Draw(OpenGLManager* manager, int n) {
-    shaders[n].use_program();
-    shaders[n].uniformMatrix4fv("View", glm::value_ptr(camera.GetViewMatrix()));
-    //phongShader.uniform3f("viewPos", camera.Position);
-    statue1.render();
-    shaders[n].disable_program();
-
-    lampShader.use_program();
-    lampShader.uniformMatrix4fv("View", glm::value_ptr(camera.GetViewMatrix()));
-    cube.render(1,GL_QUADS);
-    lampShader.disable_program();
+void Draw(OpenGLManager* manager, int n) {  
+    game.render();
 }

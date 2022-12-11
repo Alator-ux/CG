@@ -160,6 +160,7 @@
     <ClInclude Include="3DChanger.h" />
     <ClInclude Include="Figure.h" />
     <ClInclude Include="FunctionFigure.h" />
+    <ClInclude Include="Game.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Lighting.h" />
     <ClInclude Include="Line_worker.h" />
@@ -180,6 +181,7 @@
     <ClInclude Include="Selector.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="STLLoader.h" />
+    <ClInclude Include="Tank.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureDrawer.h" />
     <ClInclude Include="ThreeDInterface.h" />

@@ -60,12 +60,16 @@ public:
     {
         return glm::lookAt(this->Position, this->Position + this->Front, this->Up);
     }
+    glm::mat4 lookAt(glm::vec3 pos) {
+        return glm::lookAt(this->Position, pos, this->Up);
+    }
 
     void ProcessKeyboard(Camera_Movement direction)
     {
         std::cout << "Yaw=" << Yaw << "; Pitch=" << Pitch << "\n";
+        std::cout << "x=" << Position.x << " y=" << Position.y << " z=" << Position.z << "\n";
         GLfloat side_speed = this->MovementSpeed;// / 10;
-        GLfloat velocity = this->MovementSpeed * 2;
+        GLfloat velocity = this->MovementSpeed;
         if (direction == FORWARD)
             this->Position += this->Front * velocity;
         if (direction == BACKWARD)
@@ -81,10 +85,12 @@ public:
         if (direction == LEFT_ROTATE) {
             this->Yaw += RotateSpeed;
             updateCameraVectors();
+            //ProcessKeyboard(RIGHT);
         }
         if (direction == RIGHT_ROTATE) {
             this->Yaw -= RotateSpeed;
             updateCameraVectors();
+            //ProcessKeyboard(LEFT);
         }
         if (direction == UP_ROTATE) {
             this->Pitch = glm::clamp(this->Pitch + RotateSpeed, -89.f, 89.f);
