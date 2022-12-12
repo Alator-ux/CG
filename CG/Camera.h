@@ -106,7 +106,7 @@ public:
     {
         glm::vec3 front;
         front.x = cos(glm::radians(this->Yaw)) * cos(glm::radians(this->Pitch));
-        front.y = sin(glm::radians(this->Pitch));
+        front.y = 0.f;//sin(glm::radians(this->Pitch));
         front.z = sin(glm::radians(this->Yaw)) * cos(glm::radians(this->Pitch));
         this->Front = glm::normalize(front);
         

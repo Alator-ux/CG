@@ -66,7 +66,7 @@ void main()
     // -------------------
 
     // Direction light
-    lightDir = dirLight.direction;
+    lightDir = -dirLight.direction;
     lightReflDir = reflect(-lightDir, Normal);
 
     NdotL = max(dot(Normal, lightDir), 0);
@@ -75,7 +75,7 @@ void main()
     spec = pow(RdotV, material.shininess) * dirLight.specular * material.specular;
     diff = NdotL * material.diffuse * dirLight.diffuse;
 
-    vec3 lc2 = spec + diff;
+    vec3 lc2 = min(spec + diff, 1.f);
     // -------------------
 
     // Flash light

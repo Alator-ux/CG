@@ -1,51 +1,68 @@
 #pragma once
 #include "ObjModel.h"
-#include "Camera.h"
+#include "GameCamera.h"
 class Game {
     // Gamer section
     glm::vec3 gamer_offset;
+    glm::vec3 start_gamer_offset;
+    glm::vec3 gamer_pos;
+    glm::vec3 start_gamer_pos;
     Model gamer;
     // Scene section
     std::vector<Model> scene;
     DirectionLight light;
     // World section
-    Camera camera;
+    GameCamera camera;
     Shader shader;
-    void move_camera(bool* keys) {
+    bool move_camera(bool* keys) {
         if (keys[GLFW_KEY_F1]) {
             camera.Position = glm::vec3(0, 0, 3);
             camera.Yaw = -90;
             camera.updateCameraVectors();
-            return;
+            return false;
         }
-        if (keys[GLFW_KEY_W])
+        bool moved = false;
+        if (keys[GLFW_KEY_W]) {
             camera.ProcessKeyboard(FORWARD);
-        if (keys[GLFW_KEY_S])
+            moved = true;
+        }
+        if (keys[GLFW_KEY_S]) {
             camera.ProcessKeyboard(BACKWARD);
-        if (keys[GLFW_KEY_A])
+            moved = true;
+        }
+        if (keys[GLFW_KEY_A]) {
             camera.ProcessKeyboard(LEFT);
-        if (keys[GLFW_KEY_D])
+            moved = true;
+        }
+        if (keys[GLFW_KEY_D]) {
             camera.ProcessKeyboard(RIGHT);
-        if (keys[GLFW_KEY_Z])
-            camera.ProcessKeyboard(DOWN);
-        if (keys[GLFW_KEY_X])
-            camera.ProcessKeyboard(UP);
-        if (keys[GLFW_KEY_Q])
+            moved = true;
+        }
+        if (keys[GLFW_KEY_Q]) {
             camera.ProcessKeyboard(LEFT_ROTATE);
-        if (keys[GLFW_KEY_E])
+            moved = true;
+        }
+        if (keys[GLFW_KEY_E]) {
             camera.ProcessKeyboard(RIGHT_ROTATE);
-        if (keys[GLFW_KEY_R])
-            camera.ProcessKeyboard(DOWN_ROTATE);
-        if (keys[GLFW_KEY_T])
-            camera.ProcessKeyboard(UP_ROTATE);
+            moved = true;
+        }
+        return moved;
     }
     void move_gamer() {
-        gamer.model_matrix = glm::translate(glm::mat4(1.f), camera.Position + gamer_offset);
-        gamer.model_matrix = glm::rotate(gamer.model_matrix, 
+        gamer_offset = start_gamer_offset;
+        auto rot = glm::rotate(glm::mat4(1.f),
             -glm::radians(camera.Yaw + 180), glm::vec3(0.f, 1.f, 0.f));
+        auto tr = glm::translate(glm::mat4(1.f), camera.player_pos);
+        gamer.model_matrix = tr * rot;
+
+        gamer_offset = glm::rotate(glm::mat4(1.f),
+            glm::radians(camera.Yaw + 180), glm::vec3(0.f, 1.f, 0.f))
+            * glm::vec4(gamer_offset, 1.f);
+
+        
     }
     void load_scene() {
-        light.direction = glm::vec3(0.f, -1.f, 0.f);
+        light.direction = glm::vec3(-5.f, -1.f, 0.f);
 
         ObjTexture tank_tex("models/game/Tank.png", 'n');
         Material tank_mat(tank_tex);
@@ -70,14 +87,17 @@ class Game {
 public:
     Game() {}
     void init() {
-        this->gamer_offset = glm::vec3(-8.f, -4.0f, -0.0f);
-        this->camera = Camera(-1.f*gamer_offset, glm::vec3(0.f, 1.f, 0.f), -180, -16);
+        this->start_gamer_offset = glm::vec3(-8.f, -4.0f, -0.0f);
+        this->camera = GameCamera(glm::vec3(0.f), -1.f * start_gamer_offset, glm::vec3(0.f, 1.f, 0.f), -180, -16);
+        this->start_gamer_pos = glm::vec3(0.f);
         load_scene();
         load_shader();
     }
     void move(bool* keys) {
-        move_camera(keys);
-        move_gamer();
+        bool moved = move_camera(keys);
+        if (moved) {
+            move_gamer();
+        }
     }
     void render() {
         shader.use_program();

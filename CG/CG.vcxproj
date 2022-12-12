@@ -161,6 +161,7 @@
     <ClInclude Include="Figure.h" />
     <ClInclude Include="FunctionFigure.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GameCamera.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Lighting.h" />
     <ClInclude Include="Line_worker.h" />
