@@ -61,7 +61,7 @@ public:
         return glm::lookAt(this->Position, this->Position + this->Front, this->Up);
     }
 
-    void ProcessKeyboard(Camera_Movement direction)
+    void ProcessKeyboard(Camera_Movement direction, glm::vec3 offset = glm::vec3(1.f))
     {
         std::cout << "Yaw=" << Yaw << "; Pitch=" << Pitch << "\n";
         GLfloat side_speed = this->MovementSpeed;// / 10;
@@ -94,6 +94,10 @@ public:
             this->Pitch = glm::clamp(this->Pitch - RotateSpeed, -89.f, 89.f);
             updateCameraVectors();
         }
+    }
+
+    void lookAt() {
+        glm::lookAt(camera.)
     }
 
     void updateCameraVectors()
