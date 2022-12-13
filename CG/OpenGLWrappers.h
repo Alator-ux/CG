@@ -434,6 +434,10 @@ public:
         GLint location = get_uniform_location(name);
         glUniformMatrix4fv(location, count, GL_FALSE, data);
     }
+    void uniformMatrix3fv(const char* name, const float* data, size_t count = 1) {
+        GLint location = get_uniform_location(name);
+        glUniformMatrix3fv(location, count, GL_FALSE, data);
+    }
     void uniform4fv(GLint location, const glm::vec4 data, size_t count = 1) {
         glUniform4fv(location, 1, glm::value_ptr(data));
     }

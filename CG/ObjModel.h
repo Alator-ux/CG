@@ -11,6 +11,7 @@ private:
     bool hasTexture = false;
 public:
     glm::mat4 model_matrix = glm::mat4(1.f);
+    glm::mat4 normal_matrix = glm::mat4(1.f);
     Material material;
     Model() {
 

@@ -78,6 +78,15 @@ struct FlashLight : public LightSource {
         this->diffuse = diffuse;
         this->specular = specular;
     }
+    FlashLight(const FlashLight& fl) {
+        this->position =    fl.position;
+        this->direction =   fl.direction;
+        this->cutOff =      fl.cutOff;
+        this->attenuation = fl.attenuation;
+        this->ambient =     fl.ambient;
+        this->diffuse =     fl.diffuse;
+        this->specular =    fl.specular;
+    }
     void set_atten_zero() {
         attenuation = glm::vec3(1.0, 0.0, 0.0);
     }

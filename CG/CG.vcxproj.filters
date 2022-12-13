@@ -209,8 +209,12 @@
     </None>
     <None Include="rim.frag" />
     <None Include="rim.vert" />
-    <None Include="toon_shading.frag" />
-    <None Include="toon_shading.vert" />
+    <None Include="toon_shading.vert">
+      <Filter>Shaders\toon</Filter>
+    </None>
+    <None Include="toon_shading.frag">
+      <Filter>Shaders\toon</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Заголовочные файлы">
@@ -299,6 +303,9 @@
     </Filter>
     <Filter Include="Заголовочные файлы\Game\Tank">
       <UniqueIdentifier>{b235414a-c42c-4516-aebc-7e43fb0a22c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\toon">
+      <UniqueIdentifier>{606c485e-3d97-4d94-b50e-7fa830267800}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -31,7 +31,6 @@ struct FlashLight {
 
 uniform PointLight pLight;
 uniform DirectionLight dirLight;
-uniform FlashLight flashLight;
 
 struct ObjMaterial {
     vec3 ambient;
@@ -45,6 +44,9 @@ uniform ObjMaterial material;
 uniform sampler2D text;
 
 uniform vec3 viewPos;
+
+flat in FlashLight flashLight1;
+flat in FlashLight flashLight2;
 
 out vec4 outColor;
 
@@ -66,7 +68,7 @@ void main()
     // -------------------
 
     // Direction light
-    lightDir = -dirLight.direction;
+    lightDir = -normalize(dirLight.direction);
     intensity = dot(lightDir, Normal);
     if (intensity > 0.95)      coef = vec3(1.0);
     else if (intensity > 0.75) coef = vec3(0.8);
@@ -78,10 +80,23 @@ void main()
     // -------------------
 
     // Flash light
-    lightDir = normalize(flashLight.pos - FragPos);
-    float theta = dot(lightDir, -normalize(flashLight.direction));
+    lightDir = normalize(flashLight1.pos - FragPos);
+    float theta = dot(lightDir, -normalize(flashLight1.direction));
     coef = vec3(0.0f);
-    if(theta > cos(radians(flashLight.cutOff))){
+    if(theta > cos(radians(flashLight1.cutOff))){
+        intensity = dot(lightDir, Normal);
+        if (intensity > 0.95)      coef = vec3(1.0);
+        else if (intensity > 0.75) coef = vec3(0.8);
+        else if (intensity > 0.50) coef = vec3(0.6);
+        else if (intensity > 0.25) coef = vec3(0.4);
+        else                       coef = vec3(0.2);
+    }
+    vec3 lc3 = coef;
+
+    lightDir = normalize(flashLight2.pos - FragPos);
+    theta = dot(lightDir, -normalize(flashLight2.direction));
+    coef = vec3(0.0f);
+    if(theta > cos(radians(flashLight2.cutOff))){
         intensity = dot(lightDir, Normal);
         if (intensity > 0.95)      coef = vec3(1.0);
         else if (intensity > 0.75) coef = vec3(0.8);
@@ -90,12 +105,13 @@ void main()
         else                       coef = vec3(0.2);
     }
 
-    vec3 lc3 = coef;
+    lc3 += coef;
     // -------------------
 
 
-    vec3 res = lc2;
-    res += dirLight.ambient * material.ambient + material.emission;
+
+    vec3 res = lc3;
+    res += pLight.ambient * material.ambient + material.emission;
     res = min(res, 1.f);
     res *= vec3(texture(text, TPos));
 

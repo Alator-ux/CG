@@ -3,14 +3,11 @@
 #include "GameCamera.h"
 class Game {
     // Gamer section
-    glm::vec3 gamer_offset;
-    glm::vec3 start_gamer_offset;
-    glm::vec3 gamer_pos;
-    glm::vec3 start_gamer_pos;
     Model gamer;
+    std::vector<FlashLight> headlights;
     // Scene section
     std::vector<Model> scene;
-    DirectionLight light;
+    PointLight light;
     // World section
     GameCamera camera;
     Shader shader;
@@ -49,24 +46,28 @@ class Game {
         return moved;
     }
     void move_gamer() {
-        gamer_offset = start_gamer_offset;
         auto rot = glm::rotate(glm::mat4(1.f),
             -glm::radians(camera.Yaw + 180), glm::vec3(0.f, 1.f, 0.f));
         auto tr = glm::translate(glm::mat4(1.f), camera.player_pos);
         gamer.model_matrix = tr * rot;
-
-        gamer_offset = glm::rotate(glm::mat4(1.f),
-            glm::radians(camera.Yaw + 180), glm::vec3(0.f, 1.f, 0.f))
-            * glm::vec4(gamer_offset, 1.f);
-
-        
     }
     void load_scene() {
-        light.direction = glm::vec3(-5.f, -1.f, 0.f);
+        light.position = glm::vec3(0.f, 100.f, 0.f);
 
         ObjTexture tank_tex("models/game/Tank.png", 'n');
         Material tank_mat(tank_tex);
         this->gamer = Model("models/game/Tanks.obj", tank_mat);
+        auto l_headlight = FlashLight();
+        l_headlight.position = glm::vec3(-1.f, 1.f, 1.f);
+        l_headlight.direction = glm::vec3(-2.f, 2.f, 1.f);
+        l_headlight.diffuse = glm::vec3(255 / 255, 207 / 255, 64 / 255);
+        l_headlight.specular = glm::vec3(243 / 255, 218 / 255, 11 / 255);
+        l_headlight.cutOff = 12.5f;
+        auto r_headlight = FlashLight(l_headlight);
+        r_headlight.position = glm::vec3(-1.f, 1.f, -1.f);
+        r_headlight.direction = glm::vec3(-2.f, 2.f, -1.f);
+        headlights.push_back(l_headlight);
+        headlights.push_back(r_headlight);
 
         ObjTexture field_tex("models/game/Field.png", 'n');
         Material field_mat(field_tex);
@@ -80,16 +81,17 @@ class Game {
             glm::value_ptr(glm::perspective(glm::radians(45.f), 1.f, 0.1f, 1000.f)));
         shader.uniformMatrix4fv("View", glm::value_ptr(camera.GetViewMatrix()));
         shader.uniformMatrix4fv("Model", glm::value_ptr(glm::mat4(1.f)));
-        shader.uniformDirectionLight(light, "dirLight.");
+        shader.uniformPointLight(light, "pLight.");
+        shader.uniformFlashLight(headlights[0], "fLight1.");
+        shader.uniformFlashLight(headlights[1], "fLight2.");
         shader.uniformMaterial(gamer.material, "material.");
         shader.disable_program();
     }
 public:
     Game() {}
     void init() {
-        this->start_gamer_offset = glm::vec3(-8.f, -4.0f, -0.0f);
-        this->camera = GameCamera(glm::vec3(0.f), -1.f * start_gamer_offset, glm::vec3(0.f, 1.f, 0.f), -180, -16);
-        this->start_gamer_pos = glm::vec3(0.f);
+        auto gamer_offset = glm::vec3(-8.f, -4.0f, -0.0f);
+        this->camera = GameCamera(glm::vec3(0.f), -1.f * gamer_offset, glm::vec3(0.f, 1.f, 0.f), -180, -16);
         load_scene();
         load_shader();
     }
@@ -101,6 +103,12 @@ public:
     }
     void render() {
         shader.use_program();
+        auto position = glm::vec3(gamer.model_matrix * glm::vec4(headlights[0].position, 1.f));
+        shader.uniform3f("fLight1.pos", position);
+        shader.uniform3f("fLight1.direction", camera.Front);
+        position = glm::vec3(gamer.model_matrix * glm::vec4(headlights[1].position, 1.f));
+        shader.uniform3f("fLight2.pos", position);
+        shader.uniform3f("fLight2.direction", camera.Front);
         shader.uniformMatrix4fv("View", glm::value_ptr(camera.GetViewMatrix()));
         shader.uniformMatrix4fv("Model", glm::value_ptr(gamer.model_matrix));
         gamer.render();
