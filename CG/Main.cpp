@@ -103,7 +103,7 @@ bool keys[1024];
 void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (key >= 0 && key < 1024)
     {
-        keys[key] = action == GLFW_PRESS;
+        keys[key] = action == GLFW_REPEAT || action == GLFW_PRESS;
     }
 
 }

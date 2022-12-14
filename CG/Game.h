@@ -43,6 +43,10 @@ class Game {
             camera.ProcessKeyboard(RIGHT_ROTATE);
             moved = true;
         }
+        if (keys[GLFW_KEY_SPACE]) {
+            camera.Position = camera.player_pos - camera.player_offset;
+            camera.rotate_camera(-camera.Yaw + 180);
+        }
         return moved;
     }
     void move_gamer() {
@@ -71,7 +75,10 @@ class Game {
 
         ObjTexture field_tex("models/game/Field.png", 'n');
         Material field_mat(field_tex);
-        this->scene.push_back(Model("models/game/Field.obj", field_mat));
+        Model model("models/game/Field.obj", field_mat);
+        model.model_matrix = glm::scale(model.model_matrix, glm::vec3(3.f));
+        this->scene.push_back(model);
+
 
     }
     void load_shader() {
@@ -91,7 +98,8 @@ public:
     Game() {}
     void init() {
         auto gamer_offset = glm::vec3(-8.f, -4.0f, -0.0f);
-        this->camera = GameCamera(glm::vec3(0.f), -1.f * gamer_offset, glm::vec3(0.f, 1.f, 0.f), -180, -16);
+        this->camera = GameCamera(glm::vec3(0.f), -gamer_offset, glm::vec3(0.f, 1.f, 0.f), -180, -16);
+        this->camera.player_offset = gamer_offset;
         load_scene();
         load_shader();
     }

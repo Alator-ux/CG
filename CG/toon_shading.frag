@@ -110,7 +110,7 @@ void main()
 
 
 
-    vec3 res = lc3;
+    vec3 res = lc1 + lc3;
     res += pLight.ambient * material.ambient + material.emission;
     res = min(res, 1.f);
     res *= vec3(texture(text, TPos));

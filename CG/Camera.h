@@ -56,15 +56,12 @@ public:
         this->updateCameraVectors();
     }
 
-    glm::mat4 GetViewMatrix()
+    virtual glm::mat4 GetViewMatrix()
     {
         return glm::lookAt(this->Position, this->Position + this->Front, this->Up);
     }
-    glm::mat4 lookAt(glm::vec3 pos) {
-        return glm::lookAt(this->Position, pos, this->Up);
-    }
 
-    void ProcessKeyboard(Camera_Movement direction)
+    virtual void ProcessKeyboard(Camera_Movement direction)
     {
         std::cout << "Yaw=" << Yaw << "; Pitch=" << Pitch << "\n";
         std::cout << "x=" << Position.x << " y=" << Position.y << " z=" << Position.z << "\n";
@@ -102,11 +99,11 @@ public:
         }
     }
 
-    void updateCameraVectors()
+    virtual void updateCameraVectors()
     {
         glm::vec3 front;
         front.x = cos(glm::radians(this->Yaw)) * cos(glm::radians(this->Pitch));
-        front.y = 0.f;//sin(glm::radians(this->Pitch));
+        front.y = sin(glm::radians(this->Pitch));
         front.z = sin(glm::radians(this->Yaw)) * cos(glm::radians(this->Pitch));
         this->Front = glm::normalize(front);
         
