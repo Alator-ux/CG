@@ -1,13 +1,28 @@
 #pragma once
 #include "ObjModel.h"
 #include "GameCamera.h"
+template <typename T>
+struct Random {
+    /// <summary>
+    /// Возвращает случайное число от 0.0 до 1.0 включительно
+    /// </summary>
+    static T random() {
+        return static_cast<T>(rand()) / static_cast<T>(RAND_MAX);
+    }
+    /// <summary>
+    /// Возвращает случайное число от 'from' до 'to' включительно
+    /// </summary>
+    static T random(T from, T to) {
+        return from + static_cast<T>(rand()) / (static_cast<T>(RAND_MAX) / static_cast<T>(to - from));
+    }
+};
 class Game {
     // Gamer section
     Model gamer;
     std::vector<FlashLight> headlights;
     // Scene section
     std::vector<Model> scene;
-    PointLight light;
+    DirectionLight light;
     // World section
     GameCamera camera;
     Shader shader;
@@ -55,12 +70,18 @@ class Game {
         auto tr = glm::translate(glm::mat4(1.f), camera.player_pos);
         gamer.model_matrix = tr * rot;
     }
+    glm::vec3 gen_position(float scale_factor) {
+        auto x = Random<float>::random(-20, 20) * scale_factor;
+        auto z = Random<float>::random(-20, 20) * scale_factor;
+        return glm::vec3(x, 0, z);
+    }
     void load_scene() {
-        light.position = glm::vec3(0.f, 100.f, 0.f);
+        float scale_factor = 1.f;
+        light.direction = glm::vec3(0.f, -1.f, 0.f);
 
-        ObjTexture tank_tex("models/game/Tank.png", 'n');
-        Material tank_mat(tank_tex);
-        this->gamer = Model("models/game/Tanks.obj", tank_mat);
+        ObjTexture tex("models/game/Tank.png", 'n');
+        Material mat(tex);
+        this->gamer = Model("models/game/Tanks.obj", mat);
         auto l_headlight = FlashLight();
         l_headlight.position = glm::vec3(-1.f, 1.f, 1.f);
         l_headlight.direction = glm::vec3(-2.f, 2.f, 1.f);
@@ -73,11 +94,27 @@ class Game {
         headlights.push_back(l_headlight);
         headlights.push_back(r_headlight);
 
-        ObjTexture field_tex("models/game/Field.png", 'n');
-        Material field_mat(field_tex);
-        Model model("models/game/Field.obj", field_mat);
-        model.model_matrix = glm::scale(model.model_matrix, glm::vec3(3.f));
+        tex = ObjTexture("models/game/Field.png", 'n');
+        mat = Material(tex);
+        auto  model = Model("models/game/Field.obj", mat);
+        model.model_matrix = glm::scale(model.model_matrix, glm::vec3(scale_factor));
         this->scene.push_back(model);
+
+        tex = ObjTexture("models/game/ChristmasTree.png", 'n');
+        mat = Material(tex);
+        model = Model("models/game/ChristmasTree.obj", mat);
+        model.model_matrix = glm::translate(model.model_matrix, gen_position(scale_factor));
+        this->scene.push_back(model);
+
+        tex = ObjTexture("models/game/Stone-1.png", 'n');
+        mat = Material(tex);
+        model = Model("models/game/Stone-1.obj", mat);
+        model.model_matrix = glm::translate(model.model_matrix, gen_position(scale_factor));
+        this->scene.push_back(model);
+
+        model = Model("models/game/Stone-2.obj", mat);
+        model.model_matrix = glm::translate(model.model_matrix, gen_position(scale_factor));
+            this->scene.push_back(model);
 
 
     }
@@ -88,7 +125,7 @@ class Game {
             glm::value_ptr(glm::perspective(glm::radians(45.f), 1.f, 0.1f, 1000.f)));
         shader.uniformMatrix4fv("View", glm::value_ptr(camera.GetViewMatrix()));
         shader.uniformMatrix4fv("Model", glm::value_ptr(glm::mat4(1.f)));
-        shader.uniformPointLight(light, "pLight.");
+        shader.uniformDirectionLight(light, "dirLight.");
         shader.uniformFlashLight(headlights[0], "fLight1.");
         shader.uniformFlashLight(headlights[1], "fLight2.");
         shader.uniformMaterial(gamer.material, "material.");

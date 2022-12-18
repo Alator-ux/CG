@@ -110,10 +110,10 @@ void main()
 
 
 
-    vec3 res = lc1 + lc3;
-    res += pLight.ambient * material.ambient + material.emission;
-    res = min(res, 1.f);
+    vec3 res = (lc2 + lc3) / 2;
+    res += dirLight.ambient * material.ambient + material.emission;
+    res = clamp(res, 0.f, 1.f);
     res *= vec3(texture(text, TPos));
 
-    outColor = vec4(min(res, 1.0f), 1.0f);
+    outColor = vec4(res, 1.0f);
 }

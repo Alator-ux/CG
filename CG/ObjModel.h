@@ -16,10 +16,20 @@ public:
     Model() {
 
     }
+
     Model(const char* objFile) {
         std::vector<ObjVertex> mesh = loadOBJ(objFile);
         meshes.push_back(Mesh(mesh.data(), mesh.size(), NULL, 0));
     }
+    /*Model(const Model& other) {
+        this->overrideTextureDiffuse = other.overrideTextureDiffuse;
+        this->overrideTextureSpecular = other.overrideTextureSpecular;
+        this->manager = other.manager;
+        this->hasTexture = other.hasTexture;
+        this->meshes = std::vector<Mesh>();
+        this->meshes.insert(this->meshes.end(), other.meshes.begin(), other.meshes.end());
+        this->material = other.material;
+    }*/
     Model(
         const char* objFile,
         Material mat

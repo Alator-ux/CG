@@ -63,8 +63,8 @@ public:
 
     virtual void ProcessKeyboard(Camera_Movement direction)
     {
-        std::cout << "Yaw=" << Yaw << "; Pitch=" << Pitch << "\n";
-        std::cout << "x=" << Position.x << " y=" << Position.y << " z=" << Position.z << "\n";
+        //std::cout << "Yaw=" << Yaw << "; Pitch=" << Pitch << "\n";
+        //std::cout << "x=" << Position.x << " y=" << Position.y << " z=" << Position.z << "\n";
         GLfloat side_speed = this->MovementSpeed;// / 10;
         GLfloat velocity = this->MovementSpeed;
         if (direction == FORWARD)
