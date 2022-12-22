@@ -165,6 +165,7 @@
     <ClInclude Include="Line_worker.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Midpoint.h" />
+    <ClInclude Include="MoveHelper.h" />
     <ClInclude Include="NonFacial.h" />
     <ClInclude Include="ObjLoader.h" />
     <ClInclude Include="ObjMesh.h" />
@@ -175,6 +176,7 @@
     <ClInclude Include="PrimitiveChanger.h" />
     <ClInclude Include="Primitives.h" />
     <ClInclude Include="Projection.h" />
+    <ClInclude Include="Ray.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="RotationFigure.h" />
     <ClInclude Include="Selector.h" />

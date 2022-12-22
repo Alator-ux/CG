@@ -148,6 +148,15 @@
     <ClInclude Include="ObjMesh.h">
       <Filter>Заголовочные файлы\Drawing\Drawable\OBJ</Filter>
     </ClInclude>
+    <ClInclude Include="TanksGame.h">
+      <Filter>Заголовочные файлы\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="MoveHelper.h">
+      <Filter>Заголовочные файлы\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Ray.h">
+      <Filter>Заголовочные файлы\Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="main.frag">
@@ -198,6 +207,10 @@
     <None Include="phong.vert">
       <Filter>Shaders\phong</Filter>
     </None>
+    <None Include="rim.frag" />
+    <None Include="rim.vert" />
+    <None Include="toon_shading.frag" />
+    <None Include="toon_shading.vert" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Заголовочные файлы">
@@ -280,6 +293,9 @@
     </Filter>
     <Filter Include="Shaders\phong">
       <UniqueIdentifier>{dfb1c519-ffe9-4954-b1ea-14e243bf0f8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Заголовочные файлы\Game">
+      <UniqueIdentifier>{57e86a76-3870-4f0b-bbdb-59009d58511f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

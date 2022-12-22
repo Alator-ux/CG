@@ -10,7 +10,7 @@ struct ObjVertex {
     glm::vec2 texcoord;
     glm::vec3 normal;
 };
-static std::vector<ObjVertex> loadOBJ(const char* file_name)
+static std::vector<ObjVertex> loadOBJ(const char* file_name, glm::vec3& outCenter)
 {
     //Vertex portions
     std::vector<glm::fvec3> vertex_positions;
@@ -66,12 +66,13 @@ static std::vector<ObjVertex> loadOBJ(const char* file_name)
         else if (prefix == "v") //Vertex position
         {
             ss >> temp_vec3.x >> temp_vec3.y >> temp_vec3.z;
+            outCenter += temp_vec3;
             vertex_positions.push_back(temp_vec3);
         }
         else if (prefix == "vt")
         {
             ss >> temp_vec2.x >> temp_vec2.y;
-            vertex_texcoords.push_back(temp_vec2);
+            vertex_texcoords.push_back(glm::vec2(temp_vec2.s, 1 - temp_vec2.t));
         }
         else if (prefix == "vn")
         {
@@ -125,12 +126,6 @@ static std::vector<ObjVertex> loadOBJ(const char* file_name)
     //Load in all indices
     for (size_t i = 0; i < vertices.size(); ++i)
     {
-        if (vertex_position_indicies[i] - 1 >= vertex_positions.size()) {
-            auto a = 1;
-        }
-        //if (vertex_texcoord_indicies[i] - 1 >= vertex_texcoords.size()) {
-       //     auto a = 1;
-       // }
         vertices[i].position = vertex_positions[vertex_position_indicies[i] - 1];
         if (vertex_texcoords.size() != 0)
         {
@@ -140,7 +135,7 @@ static std::vector<ObjVertex> loadOBJ(const char* file_name)
             vertices[i].normal = vertex_normals[vertex_normal_indicies[i] - 1];
         }
     }
-
+    outCenter /= vertex_positions.size();
     //DEBUG
     std::cout << "Nr of vertices: " << vertices.size() << "\n";
 

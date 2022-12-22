@@ -66,7 +66,7 @@ void main()
     // -------------------
 
     // Direction light
-    lightDir = dirLight.direction;
+    lightDir = -dirLight.direction;
     lightReflDir = reflect(-lightDir, Normal);
 
     NdotL = max(dot(Normal, lightDir), 0);
@@ -96,8 +96,9 @@ void main()
     // -------------------
 
 
-    vec3 res = lc3;
+    vec3 res = lc2;
     res += dirLight.ambient * material.ambient + material.emission;
+    res = clamp(res, 0.f, 1.f);
     res *= vec3(texture(text, TPos));
 
     outColor = vec4(min(res, 1.0f), 1.0f);

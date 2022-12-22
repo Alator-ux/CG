@@ -96,10 +96,6 @@ public:
         }
     }
 
-    void lookAt() {
-        glm::lookAt(camera.)
-    }
-
     void updateCameraVectors()
     {
         glm::vec3 front;
