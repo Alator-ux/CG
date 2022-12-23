@@ -45,7 +45,7 @@ uniform ObjMaterial material;
 uniform sampler2D text;
 
 uniform vec3 viewPos;
-
+uniform int mode;
 out vec4 outColor;
 
 void main()
@@ -64,19 +64,17 @@ void main()
     
     vec3 diff = material.diffuse * pLight.diffuse;
     diff *= max(dot(lightDir, Normal), 0.0);
-    vec3 lc1 = vec3(0.0);
+    vec3 lc1 = diff;
     lc1 *= vec3(texture(text, TPos));
-    lc1 += vec3(smoothstep(0.8, 1.0, rim) * vec3(0.5, 0.0, 0.2);
+    lc1 += rim * vec3(0.5, 0.0, 0.2);
     // -------------------
 
     // Direction light
-    lightDir = dirLight.direction;
+    lightDir = -dirLight.direction;
     
     diff = diffColor * pLight.diffuse;
     diff *= max(dot(lightDir, Normal), 0.0);
-    spec = specColor * pLight.specular;
-    spec *= pow(max(dot(Normal, lightDir), 0.0), specPower);
-    vec3 lc2 = diff + spec;
+    vec3 lc2 = diff;
     lc2 *= vec3(texture(text, TPos));
     lc2 += rim * vec3(0.5, 0.0, 0.2);
     // -------------------
@@ -89,16 +87,21 @@ void main()
     if(theta > cos(radians(flashLight.cutOff))){
         diff = diffColor * pLight.diffuse;
         diff *= max(dot(lightDir, Normal), 0.0);
-        spec = specColor * pLight.specular;
-        spec *= pow(max(dot(Normal, lightDir), 0.0), specPower);
-        lc3 = diff + spec;
+        lc3 = diff;
         lc3 *= vec3(texture(text, TPos));
         lc3 += rim * vec3(0.5, 0.0, 0.2);
     }
     // -------------------
 
+     vec3 res = vec3(0.0);
+    if(mode == 0){
+        res += lc1;
+    } else if(mode == 1){
+        res += lc2;
+    } else if(mode == 2){
+        res += lc3;
+    }
 
-    vec3 res = lc1;
     res += dirLight.ambient * material.ambient + material.emission;
     res *= vec3(texture(text, TPos));
 

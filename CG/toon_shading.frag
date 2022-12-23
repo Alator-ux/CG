@@ -45,6 +45,7 @@ uniform ObjMaterial material;
 uniform sampler2D text;
 
 uniform vec3 viewPos;
+uniform int mode;
 
 out vec4 outColor;
 
@@ -93,8 +94,14 @@ void main()
     vec3 lc3 = coef;
     // -------------------
 
-
-    vec3 res = lc1;
+     vec3 res = vec3(0.0);
+    if(mode == 0){
+        res += lc1;
+    } else if(mode == 1){
+        res += lc2;
+    } else if(mode == 2){
+        res += lc3;
+    }
     res += pLight.ambient * material.ambient + material.emission;
     res *= vec3(texture(text, TPos));
 

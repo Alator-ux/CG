@@ -13,7 +13,7 @@ uniform mat4 Model;
 
 void main() {
     gl_Position = Projection * View * Model * vec4(vPos, 1.0);
-    FragPos = vPos;
-    Normal = mat3(transpose(inverse(Model))) * vNormal;
+    FragPos = vec3(Model * vec4(vPos, 1.0));
+    Normal = transpose(inverse(mat3(Model))) * vNormal;
 	TPos = vTPos;
 }

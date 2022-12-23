@@ -10,6 +10,7 @@ private:
     std::vector<Mesh> meshes;
     bool hasTexture = false;
 public:
+    glm::mat4 mm = glm::mat4(1.0);
     Material material;
     Model() {
 

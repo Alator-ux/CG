@@ -27,7 +27,7 @@ void rotate_system();
 void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void Do_Movement();
 int mode = 0;
-
+FlashLight flashLight(glm::vec3(-5.0f, 26.0f, -16.0f));
 int main() {
     glfwInit();
     GLFWwindow* window = glfwCreateWindow(W_WIDTH, W_HEIGHT, "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
@@ -52,7 +52,7 @@ int main() {
     ImGui::StyleColorsDark();
 
     auto button_row = RadioButtonRow({ "Phong", "Toon shading", "Rim"});
-
+    auto button_row2 = RadioButtonRow({ "Point", "Dir", "Flash" });
     bool show_demo_window = false;
     std::string vbo_name = "";
     while (!glfwWindowShouldClose(window))
@@ -71,6 +71,12 @@ int main() {
             if (button_row.draw()) {
                 vbo_name = button_row.get_label();
                 mode = button_row.get_value();
+            }
+            if (button_row2.draw()) {
+                shaders[button_row.get_value()].use_program();
+                shaders[button_row.get_value()].uniform1i("mode", button_row2.get_value());
+
+                shaders[button_row.get_value()].disable_program();
             }
             ImGui::End();
         }
@@ -162,7 +168,9 @@ void rotate_system() {
 }
 Model statue1;
 Model statue2;
+Model statue3;
 Model cube;
+
 void Init(OpenGLManager* manager) {
     drawer = Drawer(W_WIDTH, W_HEIGHT);
     
@@ -181,44 +189,49 @@ void Init(OpenGLManager* manager) {
     lampShader.init_shader("lamp.vert", "lamp.frag");
     
     cube = Model("./models/cube/Cube.obj");
-    ObjTexture tex1("images/WOT/ChristmasTree.png", 'n');
+    
+    ObjTexture tex1("images/Cat.jpg", 'n');
     Material mat1(tex1);
     mat1.shininess = 2.f;
-    statue1 = Model("./models/WOT/ChristmasTree.obj", mat1);
-
+    statue1 = Model("./models/Cat.obj", mat1);
+    //statue1.mm = glm::rotate(statue1.mm,glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
     //ObjTexture tex2("./models/buddha/buddha_head.jpg", 'n');
     //Material mat2(tex2);
     //statue2 = Model("./models/buddha/buddha_head_ma2.obj", mat2);
         //Model("./models/buddhist_statue/buddhist statue.obj",
         //"models/buddhist_statue/mesh_Model_5_u0_v0_diffuse.jpeg", true
+    //ObjTexture tex2("images/Gun.png", 'n');
+    //Material mat2(tex2);
+    //mat1.shininess = 2.f;
+    //statue2 = Model("./models/Gun.obj", mat2);
+    //statue2.mm = glm::translate(glm::mat4(1.f), glm::vec3(10, 0, 0));
 
     PointLight pLight(glm::vec3(5.0f, 10.0f, 15.0f));;
-    pLight.position = { 0, 15, 15 };
-    pLight.set_atten_zero();
+    cube.mm = glm::translate(glm::mat4(1.f), pLight.position);
 
     DirectionLight dirLight(glm::vec3(0.f, -1.f, 0.f));
 
-    FlashLight flashLight(glm::vec3(-5.0f, 26.0f, -16.0f));;
+    
     flashLight.direction = camera.Front;
-    flashLight.diffuse = { 1.0, 0.0, 0.0 };
-    flashLight.specular = { 1.0, 0.0, 0.0 };
+    flashLight.diffuse = { 1.0, 1.0, 1.0 };
+    flashLight.specular = { 1.0, 1.0, 1.0 };
     flashLight.cutOff = 12.5f;
-    pLight.set_atten_zero();
 
     auto projection = glm::perspective(glm::radians(45.f), 1.f, 0.1f, 1000.f);
     auto view = camera.GetViewMatrix();
     auto model = glm::mat4(1.f);
     {
-        for (auto shader : shaders) {
-            shader.use_program();
-            shader.uniformMatrix4fv("Projection", glm::value_ptr(projection));
-            shader.uniformMatrix4fv("View", glm::value_ptr(view));
-            shader.uniformMatrix4fv("Model", glm::value_ptr(model));
-            shader.uniformPointLight(pLight, "pLight.");
-            shader.uniformDirectionLight(dirLight, "dirLight.");
-            shader.uniformFlashLight(flashLight, "flashLight.");
-            shader.uniformMaterial(mat1, "material.");
-            shader.disable_program();
+        for (auto mshader : shaders) {
+            mshader.use_program();
+            mshader.uniformMatrix4fv("Projection", glm::value_ptr(projection));
+            mshader.uniformMatrix4fv("View", glm::value_ptr(view));
+            mshader.uniformMatrix4fv("Model", glm::value_ptr(model));
+            mshader.uniformPointLight(pLight, "pLight.");
+            mshader.uniformDirectionLight(dirLight, "dirLight.");
+            mshader.uniformFlashLight(flashLight, "flashLight.");
+            mshader.uniformMaterial(mat1, "material.");
+            mshader.uniform1i("mode", 0);
+            mshader.disable_program();
         }
     }
     {
@@ -240,12 +253,31 @@ void Init(OpenGLManager* manager) {
 void Draw(OpenGLManager* manager, int n) {
     shaders[n].use_program();
     shaders[n].uniformMatrix4fv("View", glm::value_ptr(camera.GetViewMatrix()));
-    //phongShader.uniform3f("viewPos", camera.Position);
-    statue1.render();
+    shaders[n].uniform3f("viewPos", camera.Position);
+    flashLight.direction = camera.Front;
+    flashLight.position = camera.Position;
+    shaders[n].uniformFlashLight(flashLight, "flashLight.");
+    //shaders[n].uniformMatrix4fv("Model", glm::value_ptr(statue1.mm));
+   // statue1.render(1, GL_QUADS);
+   // shaders[n].uniformMatrix4fv("Model", glm::value_ptr(statue2.mm));
+   // statue2.render(1, GL_QUADS);
+    statue1.mm = glm::translate(glm::mat4(1.f), glm::vec3(-20, 0, -20));
+    shaders[n].uniformMatrix4fv("Model", glm::value_ptr(statue1.mm));
+    statue1.render(1, GL_QUADS);
+
+    statue1.mm = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, 0));
+    shaders[n].uniformMatrix4fv("Model", glm::value_ptr(statue1.mm));
+    statue1.render(1, GL_QUADS);
+    
+    statue1.mm = glm::translate(glm::mat4(1.f), glm::vec3(-40, 20, 0));
+    shaders[n].uniformMatrix4fv("Model", glm::value_ptr(statue1.mm));
+    statue1.render(1, GL_QUADS);
+    
     shaders[n].disable_program();
 
     lampShader.use_program();
     lampShader.uniformMatrix4fv("View", glm::value_ptr(camera.GetViewMatrix()));
+    lampShader.uniformMatrix4fv("Model", glm::value_ptr(cube.mm));
     cube.render(1,GL_QUADS);
     lampShader.disable_program();
 }
