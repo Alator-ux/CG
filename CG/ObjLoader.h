@@ -71,7 +71,7 @@ static std::vector<ObjVertex> loadOBJ(const char* file_name)
         else if (prefix == "vt")
         {
             ss >> temp_vec2.x >> temp_vec2.y;
-            vertex_texcoords.push_back(temp_vec2);
+            vertex_texcoords.push_back(glm::vec2(temp_vec2.x, 1 - temp_vec2.y));
         }
         else if (prefix == "vn")
         {

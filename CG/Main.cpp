@@ -181,10 +181,10 @@ void Init(OpenGLManager* manager) {
     lampShader.init_shader("lamp.vert", "lamp.frag");
     
     cube = Model("./models/cube/Cube.obj");
-    ObjTexture tex1("models/buddhist_statue/mesh_Model_5_u0_v0_diffuse.jpeg", 'n');
+    ObjTexture tex1("images/WOT/ChristmasTree.png", 'n');
     Material mat1(tex1);
     mat1.shininess = 2.f;
-    statue1 = Model("./models/buddhist_statue/buddhist statue.obj", mat1);
+    statue1 = Model("./models/WOT/ChristmasTree.obj", mat1);
 
     //ObjTexture tex2("./models/buddha/buddha_head.jpg", 'n');
     //Material mat2(tex2);

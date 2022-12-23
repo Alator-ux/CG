@@ -52,23 +52,21 @@ void main()
 {
     vec3 viewDir = normalize(viewPos - FragPos);
     float specPower = 8.0;
-    float rimPower  = 4.0;
-    float bias      = 0.3;
+    float rimPower  = 1.0;
+    float bias      = 0.0;
     vec3 diffColor = vec3 ( 0.5, 0.0, 0.0);
     vec3 specColor = vec3 ( 0.7, 0.7, 0.0);
     vec3 viewDirt = normalize(viewDir);
-    float rim = pow (1.0 + bias - max(dot(Normal, viewDirt), 0.0), rimPower);
-
+    float rim = pow (1.0 - max(dot(Normal, viewDirt), 0.0), rimPower);
+    vec3 spec = vec3(0.0);
     // Point light
     vec3 lightDir = normalize(pLight.pos - FragPos);
     
-    vec3 diff = diffColor * pLight.diffuse;
+    vec3 diff = material.diffuse * pLight.diffuse;
     diff *= max(dot(lightDir, Normal), 0.0);
-    vec3 spec = specColor * pLight.specular;
-    spec *= pow(max(dot(Normal, lightDir), 0.0), specPower);
-    vec3 lc1 = diff + spec;
+    vec3 lc1 = vec3(0.0);
     lc1 *= vec3(texture(text, TPos));
-    lc1 += rim * vec3(0.5, 0.0, 0.2);
+    lc1 += vec3(smoothstep(0.8, 1.0, rim) * vec3(0.5, 0.0, 0.2);
     // -------------------
 
     // Direction light

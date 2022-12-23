@@ -1,0 +1,68 @@
+const char* VertexShaderSource = R"(
+    #version 330 core
+    uniform mat4 projection;
+    uniform mat4 model;
+    uniform mat4 view;
+    in vec3 vertexPosition;
+    in vec3 normal;
+
+    out vec3 FragPos;  
+    out vec3 Normal;
+
+    void main() {
+        gl_Position = projection * view * model * vec4(vertexPosition, 1.0f);
+        FragPos = vec3(model * vec4(vertexPosition, 1.0f));
+        Normal = mat3(transpose(inverse(model))) * normal;
+    }
+)";
+
+// Исходный код фрагментного шейдера
+const char* FragShaderSource = R"(
+    #version 330 core
+    uniform vec3 lightPos;
+    uniform vec3 lightAmbient;
+    uniform vec3 lightDiffuse;
+    uniform vec3 lightSpec;
+    uniform vec3 lightAtten;
+    uniform vec3 objectColor;
+    uniform vec3 lightColor;
+    
+    uniform vec3 materialColor;
+    uniform vec3 materialAmbient;
+    uniform vec3 materialDiffuse;
+    uniform vec3 materialSpec;
+    uniform vec3 materialEmission;
+    uniform float materialShininess;
+    uniform float materialRoughness;
+
+    uniform vec3 viewPos;
+    uniform vec3 viewDir;    
+
+
+    in vec3 Normal;
+    in vec3 FragPos;
+    
+    out vec4 color;
+    void main()
+    {
+        vec3 norm = normalize(Normal);
+        vec3 lightDir = normalize(lightPos - FragPos);
+        vec3 viewDirt = normalize(viewDir);
+        float dist = distance(lightPos, FragPos);
+
+        vec3 coef;
+        vec3 coolColor = vec3(0.0,0.0,1.0);
+        vec3 warmColor = vec3(1.0,0.0,0.0);
+        float diffuseCool = 0.5;
+        float diffuseWarm = 0.5;
+        vec3 kCool = min(coolColor + diffuseCool * materialColor, 1.0);
+        vec3 kWarm = min(warmColor + diffuseWarm * materialColor, 1.0);
+        vec3 kFinal = mix(kCool, kWarm, dot(lightDir, norm));
+        vec3 lightRef = normalize(reflect(-lightDir, norm));
+        float spec = pow(max(dot(viewDirt, lightRef), 0.0), 32.0);
+        
+        
+        color = vec4(min(kFinal + spec, 1.0), 1.0);
+    }
+    
+)";

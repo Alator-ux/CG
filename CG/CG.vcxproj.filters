@@ -198,6 +198,18 @@
     <None Include="phong.vert">
       <Filter>Shaders\phong</Filter>
     </None>
+    <None Include="toon_shading.vert">
+      <Filter>Shaders\toon</Filter>
+    </None>
+    <None Include="toon_shading.frag">
+      <Filter>Shaders\toon</Filter>
+    </None>
+    <None Include="rim.frag">
+      <Filter>Shaders\rim</Filter>
+    </None>
+    <None Include="rim.vert">
+      <Filter>Shaders\rim</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Заголовочные файлы">
@@ -280,6 +292,12 @@
     </Filter>
     <Filter Include="Shaders\phong">
       <UniqueIdentifier>{dfb1c519-ffe9-4954-b1ea-14e243bf0f8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\toon">
+      <UniqueIdentifier>{fee3c8d1-4377-4299-a34f-d5d2406429d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\rim">
+      <UniqueIdentifier>{abb466dd-1251-48fb-af45-bbdb4a7c2a38}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

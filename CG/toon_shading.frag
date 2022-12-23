@@ -66,7 +66,7 @@ void main()
     // -------------------
 
     // Direction light
-    lightDir = dirLight.direction;
+    lightDir = -dirLight.direction;
     intensity = dot(lightDir, Normal);
     if (intensity > 0.95)      coef = vec3(1.0);
     else if (intensity > 0.75) coef = vec3(0.8);
@@ -94,8 +94,8 @@ void main()
     // -------------------
 
 
-    vec3 res = lc2;
-    res += dirLight.ambient * material.ambient + material.emission;
+    vec3 res = lc1;
+    res += pLight.ambient * material.ambient + material.emission;
     res *= vec3(texture(text, TPos));
 
     outColor = vec4(min(res, 1.0f), 1.0f);

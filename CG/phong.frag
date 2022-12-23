@@ -96,8 +96,8 @@ void main()
     // -------------------
 
 
-    vec3 res = lc3;
-    res += dirLight.ambient * material.ambient + material.emission;
+    vec3 res = lc1;
+    res += pLight.ambient * material.ambient + material.emission;
     res *= vec3(texture(text, TPos));
 
     outColor = vec4(min(res, 1.0f), 1.0f);
